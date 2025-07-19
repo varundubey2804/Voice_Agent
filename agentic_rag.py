@@ -1,102 +1,136 @@
 """
 agentic_rag.py ────────────────────────────────────────────────────────────
 Self‑contained LangChain Agent + RAG pipeline
-• Embeds docs with Ollama (nomic‑embed‑text  → 768‑d vectors)
-• Stores/retrieves with FAISS (persisted on disk)
-• Exposes a Tool for the agent to call
-• Keeps conversational memory
+• Loads a pre-built FAISS index for document retrieval.
+• Exposes a Tool for the agent to call.
+• Keeps conversational memory and uses the 'Veena' persona.
 """
 
 import os
-import faiss
-import dill
 from pathlib import Path
 from typing import List
 
-from langchain_ollama import OllamaEmbeddings, ChatOllama  # ✅ updated here
+from langchain_ollama import OllamaEmbeddings, ChatOllama
 from langchain_community.vectorstores import FAISS
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.memory import ConversationBufferMemory
-from langchain.agents import initialize_agent
 from langchain.tools import Tool
+
+# --- Imports for a robust, modern agent ---
+from langchain.prompts import PromptTemplate
+from langchain.agents import create_react_agent, AgentExecutor
 
 
 # ──────────────────────────────
 # Configuration
 # ──────────────────────────────
-EMBED_MODEL_NAME = "nomic-embed-text"        # pull once: ollama pull nomic-embed-text
-LLM_MODEL_NAME   = "llama3"                  # or mistral, phi3, etc.
-FAISS_PATH       = "faiss_rag.index"         # persisted index file
-DOCS_FOLDER      = "rag_docs"                # put your .txt docs here
-CHUNK_SIZE       = 500
-CHUNK_OVERLAP    = 50
-
-
-# ──────────────────────────────
-# Helpers
-# ──────────────────────────────
-def _load_docs(folder: str) -> List[str]:
-    """Return list of .txt file contents from folder (may be empty)."""
-    docs = []
-    for f in Path(folder).glob("*.txt"):
-        docs.append(f.read_text(encoding="utf-8", errors="ignore"))
-    if not docs:
-        print(f"⚠️  No .txt files found in {folder}. RAG will still work, but only the LLM will answer.")
-    return docs
-
-
-def _build_or_load_vectorstore(texts: List[str], embedding: OllamaEmbeddings) -> FAISS:
-    """First run: build FAISS; later runs: load with deserialization flag."""
-    if Path(FAISS_PATH).exists():
-        print(f"📂  Loading existing FAISS index: {FAISS_PATH}")
-        return FAISS.load_local(
-            FAISS_PATH,
-            embeddings=embedding,
-            allow_dangerous_deserialization=True,   # ✅ trust your own file
-        )
-    else:
-        print("🦄  Building FAISS index … one‑time cost.")
-        vectorstore = FAISS.from_texts(texts, embedding)
-        vectorstore.save_local(FAISS_PATH)
-        print(f"💾  Saved FAISS index → {FAISS_PATH}")
-        return vectorstore
-
+EMBED_MODEL_NAME = "nomic-embed-text"
+LLM_MODEL_NAME   = "llama3"
+FAISS_PATH       = "faiss_rag.index"
 
 # ──────────────────────────────
 # Public factory
 # ──────────────────────────────
 def build_agent():
     """Return a LangChain Agent with memory + RAG tool."""
-    # 1) Embedding model + LLM
+    # 1) Initialize models
     embedding = OllamaEmbeddings(model=EMBED_MODEL_NAME)
     llm       = ChatOllama(model=LLM_MODEL_NAME)
 
-    # 2) Load & split docs  → vector DB
-    raw_docs = _load_docs(DOCS_FOLDER)
-    splitter = RecursiveCharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
-    texts    = splitter.split_text("\n".join(raw_docs)) if raw_docs else []
-    vector_db = _build_or_load_vectorstore(texts, embedding)
+    # 2) Load the pre-built vector DB
+    if not Path(FAISS_PATH).exists():
+        raise FileNotFoundError(
+            f"FAISS index not found at '{FAISS_PATH}'. "
+            "Please run the 'index_documents.py' script first to create it."
+        )
+    print(f"📂  Loading existing FAISS index: {FAISS_PATH}")
+    vector_db = FAISS.load_local(
+        FAISS_PATH,
+        embeddings=embedding,
+        allow_dangerous_deserialization=True,
+    )
 
-    # 3) Make retriever tool
+    # 3) Create the retriever tool
     retriever = vector_db.as_retriever(search_type="similarity", search_kwargs={"k": 4})
     rag_tool  = Tool(
         name="rag_search_transcripts",
-        func=lambda q: "\n".join([d.page_content for d in retriever.get_relevant_documents(q)]),
-        description="Search internal knowledge base (FAISS) for facts.",
+        func=lambda q: "\n".join([d.page_content for d in retriever.invoke(q)]),
+        description="Search internal knowledge base (FAISS) for facts about customer history and policies.",
+    )
+    tools = [rag_tool]
+
+    # 4) Define the agent's persona and instructions
+    persona = """You are "Veena," a female insurance agent for "ValuEnable life insurance".
+Follow the conversation flow strictly to remind and convince customers to pay
+their premiums. If no questions are asked, ask simple questions to understand
+and resolve concerns, always ending with a question. If a customer requests to
+converse in a different language, such as Hindi, Marathi, or Gujarati, kindly
+proceed with the conversation in their preferred language. Use max 35 easy
+english words to respond."""
+
+    # 5) Create the prompt template for ReAct agent (using PromptTemplate, not ChatPromptTemplate)
+    # This is the correct format for create_react_agent
+    template = persona + """
+
+TOOLS:
+------
+You have access to the following tools:
+
+{tools}
+
+To use a tool, please use the following format:
+
+```
+Thought: Do I need to use a tool? Yes
+Action: the action to take, should be one of [{tool_names}]
+Action Input: the input to the action
+Observation: the result of the action
+```
+
+When you have a response to say to the Human, or if you do not need to use a tool, you MUST use the format:
+
+```
+Thought: Do I need to use a tool? No
+Final Answer: your final response to the human here
+```
+
+Previous conversation history:
+{chat_history}
+
+Begin!
+
+Question: {input}
+Thought: {agent_scratchpad}"""
+
+    # Create the prompt template
+    prompt = PromptTemplate(
+        template=template,
+        input_variables=["input", "chat_history", "agent_scratchpad", "tools", "tool_names"]
     )
 
-    # 4) Memory + Agent
-    memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
-    agent  = initialize_agent(
-        tools=[rag_tool],
-        llm=llm,
-        agent="chat-conversational-react-description",
+    # 6) Create the agent
+    agent = create_react_agent(llm, tools, prompt)
+
+    # 7) Create memory - using simple ConversationBufferMemory
+    memory = ConversationBufferMemory(
+        memory_key="chat_history", 
+        return_messages=False,  # Return as string, not messages
+        input_key="input",
+        output_key="output"
+    )
+
+    # 8) Create the agent executor
+    agent_executor = AgentExecutor(
+        agent=agent,
+        tools=tools,
         memory=memory,
         verbose=False,
         handle_parsing_errors=True,
+        max_iterations=3,
+        early_stopping_method="force"
     )
-    print("✅ Agentic RAG ready!")
-    return agent
+    
+    print("✅ Agentic RAG with 'Veena' persona is ready!")
+    return agent_executor
 
 
 # ──────────────────────────────
@@ -108,4 +142,10 @@ if __name__ == "__main__":
         q = input("🗣  You: ")
         if q.lower() in {"exit", "quit"}:
             break
-        print("🤖", ag.run(q))
+        # Correctly invoke the agent and access the output
+        try:
+            response = ag.invoke({"input": q})
+            print("🤖 Veena:", response['output'])
+        except Exception as e:
+            print(f"❌ Error: {e}")
+            print("🤖 Veena: I apologize, I'm having trouble responding right now.")

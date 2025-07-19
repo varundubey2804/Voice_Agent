@@ -1,25 +1,23 @@
+
+
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+
 from agentic_rag import build_agent
-agent = build_agent()                      # RAG agent with memory
+agent = build_agent()
 
-# ── optional: warm‑up Ollama so first answer is not slow ────────────────
-agent.invoke({"input": "Hello!"})
-
-import os, wave, pyaudio, numpy as np
+import wave, pyaudio, numpy as np
 from scipy.io import wavfile
 from faster_whisper import WhisperModel
 import voice_service as vs
 
-# ───────────────────────────────
-DEFAULT_MODEL_SIZE   = "base"   # 👉 use "base" or "tiny" if CPU only; "medium" if GPU OK
-DEFAULT_CHUNK_LENGTH = 8        # seconds; shorter = lower latency
-# ───────────────────────────────
-
+DEFAULT_MODEL_SIZE   = "base"
+DEFAULT_CHUNK_LENGTH = 8  # seconds
 
 def is_silence(data, threshold=3000):
     if data.ndim > 1:
         data = data[:, 0]
     return np.max(np.abs(data)) <= threshold
-
 
 def record_chunk(audio, stream, length_sec=DEFAULT_CHUNK_LENGTH):
     frames = [stream.read(1024) for _ in range(int(16000 / 1024 * length_sec))]
@@ -35,11 +33,12 @@ def record_chunk(audio, stream, length_sec=DEFAULT_CHUNK_LENGTH):
         os.remove(tmp)
         return None
     return tmp
-
-
 def transcribe(model, wav_path):
-    text = " ".join(seg.text for seg, _ in model.transcribe(wav_path, beam_size=5))
+    segments, _info = model.transcribe(wav_path, beam_size=5)
+    text = " ".join(segment.text for segment in segments)
     return text.strip()
+
+
 
 
 def load_whisper():
@@ -50,7 +49,6 @@ def load_whisper():
     except Exception as e:
         print(f"⚠️ CUDA failed: {e} → CPU fallback")
         return WhisperModel(size, device="cpu", compute_type="int8", num_workers=2)
-
 
 def main():
     model  = load_whisper()
@@ -73,20 +71,16 @@ def main():
                 continue
 
             print(f"🗣️  Customer: {user_text}")
-
-            # 👉 use invoke() instead of deprecated run()
-            response = agent.invoke({"input": user_text}).strip()
-            print(f"🤖 AI Assistant: {response}")
+            
+            response = agent.invoke({"input": user_text})["output"].strip()
+            print(f"🤖 Veena: {response}")
             vs.play_text_to_speech(response)
 
     except KeyboardInterrupt:
         print("\n🛑  Stopped by user.")
-
     finally:
         stream.stop_stream(); stream.close(); audio.terminate()
         print("🎤  Audio stream closed.")
 
-
 if __name__ == "__main__":
     main()
-
