@@ -13,8 +13,19 @@ This project implements a voice-enabled conversational AI agent named "Veena". V
 * **Web Interface**: A user-friendly chat interface built with Streamlit, featuring a modern design and animations.
 
 ## Project Structure
+Of course. Here is the project structure as described in the README file:
 
-.├── app.py                  # Main Streamlit application├── agentic_rag.py          # Defines the LangChain agent and RAG pipeline├── index_documents.py      # Script to create the FAISS vector store from documents├── voice_service.py        # Handles text-to-speech functionality├── requirments.txt         # Python dependencies├── rag_docs/               # Folder to store your knowledge base documents (.txt files)├── faiss_rag.index         # The generated FAISS vector store└── .gitignore              # Specifies files to be ignored by Git
+```
+.
+├── app.py                  # Main Streamlit application
+├── agentic_rag.py          # Defines the LangChain agent and RAG pipeline
+├── index_documents.py      # Script to create the FAISS vector store from documents
+├── voice_service.py        # Handles text-to-speech functionality
+├── requirments.txt         # Python dependencies
+├── rag_docs/               # Folder to store your knowledge base documents (.txt files)
+├── faiss_rag.index         # The generated FAISS vector store
+└── .gitignore              # Specifies files to be ignored by Git
+```
 ## Setup and Installation
 
 ### Prerequisites
