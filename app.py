@@ -1,45 +1,46 @@
-
-
 import os
-os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
-
-from agentic_rag import build_agent
-agent = build_agent()
-
-import wave, pyaudio, numpy as np
-from scipy.io import wavfile
+import io
+import numpy as np
+import pyaudio
+from scipy.io.wavfile import read as wav_read
 from faster_whisper import WhisperModel
-import voice_service as vs
+from agentic_rag import build_agent
+import voice_service as vs  # Updated to have play_text_to_speech_stream
+import soundfile as sf  # For in-memory WAV
+
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 DEFAULT_MODEL_SIZE   = "base"
 DEFAULT_CHUNK_LENGTH = 8  # seconds
+
+agent = build_agent()
 
 def is_silence(data, threshold=3000):
     if data.ndim > 1:
         data = data[:, 0]
     return np.max(np.abs(data)) <= threshold
 
-def record_chunk(audio, stream, length_sec=DEFAULT_CHUNK_LENGTH):
+def record_chunk_in_memory(stream, length_sec=DEFAULT_CHUNK_LENGTH):
+    """Record audio directly to BytesIO instead of saving to disk."""
     frames = [stream.read(1024) for _ in range(int(16000 / 1024 * length_sec))]
-    tmp = "temp_chunk.wav"
-    with wave.open(tmp, "wb") as wf:
-        wf.setnchannels(1)
-        wf.setsampwidth(audio.get_sample_size(pyaudio.paInt16))
-        wf.setframerate(16000)
-        wf.writeframes(b"".join(frames))
+    audio_bytes = b"".join(frames)
 
-    sr, data = wavfile.read(tmp)
-    if is_silence(data):
-        os.remove(tmp)
+    # Convert raw PCM bytes to numpy array
+    audio_array = np.frombuffer(audio_bytes, dtype=np.int16)
+
+    if is_silence(audio_array):
         return None
-    return tmp
-def transcribe(model, wav_path):
-    segments, _info = model.transcribe(wav_path, beam_size=5)
+
+    # Save to in-memory WAV buffer
+    buffer = io.BytesIO()
+    sf.write(buffer, audio_array, samplerate=16000, format='WAV')
+    buffer.seek(0)
+    return buffer
+
+def transcribe(model, wav_buffer):
+    segments, _info = model.transcribe(wav_buffer, beam_size=5)
     text = " ".join(segment.text for segment in segments)
     return text.strip()
-
-
-
 
 def load_whisper():
     size = DEFAULT_MODEL_SIZE + ".en"
@@ -59,14 +60,12 @@ def main():
     try:
         print("🎙️  Listening…  (Ctrl+C to quit)")
         while True:
-            wav_path = record_chunk(audio, stream)
-            if not wav_path:
+            wav_buffer = record_chunk_in_memory(stream)
+            if not wav_buffer:
                 print("… (silence)")
                 continue
 
-            user_text = transcribe(model, wav_path)
-            os.remove(wav_path)
-
+            user_text = transcribe(model, wav_buffer)
             if not user_text:
                 continue
 
@@ -74,7 +73,9 @@ def main():
             
             response = agent.invoke({"input": user_text})["output"].strip()
             print(f"🤖 Veena: {response}")
-            vs.play_text_to_speech(response)
+
+            # Stream TTS directly
+            vs.play_text_to_speech_stream(response)
 
     except KeyboardInterrupt:
         print("\n🛑  Stopped by user.")

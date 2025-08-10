@@ -1,27 +1,32 @@
-# voice_service.py
-
-import os
-import time
-import pygame
+import io
+import pyaudio
 from gtts import gTTS
+from pydub import AudioSegment
 
-def play_text_to_speech(text, language='en', slow=False):
-    """Convert text to speech and play it."""
-    try:
-        tts = gTTS(text=text, lang=language, slow=slow)
-        temp_audio_file = "temp_audio.mp3"
-        tts.save(temp_audio_file)
+def play_text_to_speech_stream(text):
+    """Generate TTS audio in memory and stream directly to PyAudio."""
+    # Generate speech in memory
+    tts = gTTS(text=text, lang='en')
+    mp3_fp = io.BytesIO()
+    tts.write_to_fp(mp3_fp)
+    mp3_fp.seek(0)
 
-        pygame.mixer.init()
-        pygame.mixer.music.load(temp_audio_file)
-        pygame.mixer.music.play()
+    # Decode MP3 to raw PCM
+    audio = AudioSegment.from_file(mp3_fp, format="mp3")
+    raw_data = audio.raw_data
 
-        while pygame.mixer.music.get_busy():
-            pygame.time.Clock().tick(10)
+    # Setup PyAudio playback
+    p = pyaudio.PyAudio()
+    stream = p.open(
+        format=p.get_format_from_width(audio.sample_width),
+        channels=audio.channels,
+        rate=audio.frame_rate,
+        output=True
+    )
 
-        pygame.mixer.music.stop()
-        pygame.mixer.quit()
-        os.remove(temp_audio_file)
+    # Play audio directly
+    stream.write(raw_data)
 
-    except Exception as e:
-        print(f"🔊 TTS Error: {e}")
+    stream.stop_stream()
+    stream.close()
+    p.terminate()
