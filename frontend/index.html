@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veena AI Frontend</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        const { createRoot } = ReactDOM;
+
+        const MicIcon = () => (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m12 1 0 10"></path>
+                <path d="M9 9v3a3 3 0 0 0 6 0v-3"></path>
+                <path d="M5 10v2a7 7 0 0 0 14 0v-2"></path>
+                <line x1="8" x2="16" y1="21" y2="21"></line>
+                <line x1="12" x2="12" y1="17" y2="21"></line>
+            </svg>
+        );
+
+        const MicOffIcon = () => (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="2" x2="22" y1="2" y2="22"></line>
+                <path d="M9 9v3a3 3 0 0 0 5.12 2.12L9 9z"></path>
+                <path d="M5 10v2a7 7 0 0 0 11.13 5.74l-2.28-2.28"></path>
+                <line x1="8" x2="16" y1="21" y2="21"></line>
+                <line x1="12" x2="12" y1="17" y2="21"></line>
+            </svg>
+        );
+
+        const VolumeIcon = () => (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+            </svg>
+        );
+
+        const NetworkGlobe = ({ isSpeaking, isListening }) => {
+            const baseSize = isSpeaking ? 260 : 220;
+            const canvasRef = useRef(null);
+            const animationIdRef = useRef(null);
+            const rotationRef = useRef(0);
+            
+            // Static particle positions (calculated once)
+            const staticParticles = useRef([]);
+            
+            // Initialize particles once with fixed positions
+            const initializeStaticParticles = () => {
+                const particles = [];
+                const particleCount = 60;
+                const goldenRatio = (1 + Math.sqrt(5)) / 2;
+                
+                for (let i = 0; i < particleCount; i++) {
+                    // Fibonacci spiral for even distribution
+                    const lat = Math.asin(-1 + 2 * i / (particleCount - 1));
+                    const lon = (i % goldenRatio) * 2 * Math.PI / goldenRatio;
+                    
+                    particles.push({
+                        lat: lat,
+                        lon: lon,
+                        brightness: 0.6 + Math.random() * 0.4,
+                        size: 2 + Math.random() * 1,
+                        pulseOffset: Math.random() * Math.PI * 2
+                    });
+                }
+                return particles;
+            };
+
+            // Simple smooth animation loop
+            const animate = () => {
+                const canvas = canvasRef.current;
+                if (!canvas) return;
+                
+                const ctx = canvas.getContext('2d');
+                const time = Date.now() * 0.001;
+                
+                // Only rotate when speaking
+                if (isSpeaking) {
+                    rotationRef.current += 0.01; // Smooth constant rotation
+                }
+                
+                // Clear canvas
+                ctx.clearRect(0, 0, baseSize, baseSize);
+                
+                const radius = baseSize * 0.35;
+                const centerX = baseSize / 2;
+                const centerY = baseSize / 2;
+                
+                // Convert particles to screen coordinates
+                const screenParticles = staticParticles.current.map(particle => {
+                    const rotatedLon = particle.lon + rotationRef.current;
+                    
+                    // 3D to 2D conversion
+                    const x = radius * Math.cos(particle.lat) * Math.cos(rotatedLon);
+                    const y = radius * Math.sin(particle.lat);
+                    const z = radius * Math.cos(particle.lat) * Math.sin(rotatedLon);
+                    
+                    return {
+                        x: x + centerX,
+                        y: y + centerY,
+                        z: z,
+                        brightness: particle.brightness + Math.sin(time * 2 + particle.pulseOffset) * 0.15,
+                        size: particle.size
+                    };
+                });
+                
+                // Sort by z-depth (back to front)
+                screenParticles.sort((a, b) => a.z - b.z);
+                
+                // Draw connections first
+                ctx.globalCompositeOperation = 'screen';
+                ctx.lineWidth = 0.5;
+                
+                for (let i = 0; i < screenParticles.length; i++) {
+                    const p1 = screenParticles[i];
+                    if (p1.z < -radius * 0.3) continue; // Skip back particles
+                    
+                    for (let j = i + 1; j < screenParticles.length; j++) {
+                        const p2 = screenParticles[j];
+                        if (p2.z < -radius * 0.3) continue;
+                        
+                        const distance = Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
+                        
+                        if (distance < 100) {
+                            const opacity = (1 - distance / 100) * 0.3;
+                            const depth1 = (p1.z + radius) / (2 * radius);
+                            const depth2 = (p2.z + radius) / (2 * radius);
+                            const avgDepth = (depth1 + depth2) / 2;
+                            
+                            ctx.beginPath();
+                            ctx.moveTo(p1.x, p1.y);
+                            ctx.lineTo(p2.x, p2.y);
+                            
+                            if (isSpeaking) {
+                                ctx.strokeStyle = `rgba(6, 182, 212, ${opacity * avgDepth * p1.brightness})`;
+                            } else {
+                                ctx.strokeStyle = `rgba(59, 130, 246, ${opacity * avgDepth * p1.brightness * 0.8})`;
+                            }
+                            ctx.stroke();
+                        }
+                    }
+                }
+                
+                // Draw particles
+                ctx.globalCompositeOperation = 'lighter';
+                
+                screenParticles.forEach(particle => {
+                    const depth = (particle.z + radius) / (2 * radius);
+                    if (depth < 0.2) return; // Skip very back particles
+                    
+                    const size = particle.size * (0.5 + depth * 0.5);
+                    const alpha = particle.brightness * depth;
+                    
+                    // Particle glow
+                    ctx.beginPath();
+                    ctx.arc(particle.x, particle.y, size + 1, 0, Math.PI * 2);
+                    
+                    const gradient = ctx.createRadialGradient(
+                        particle.x, particle.y, 0,
+                        particle.x, particle.y, size + 1
+                    );
+                    
+                    if (isSpeaking) {
+                        gradient.addColorStop(0, `rgba(6, 182, 212, ${alpha})`);
+                        gradient.addColorStop(0.7, `rgba(6, 182, 212, ${alpha * 0.3})`);
+                    } else {
+                        gradient.addColorStop(0, `rgba(59, 130, 246, ${alpha * 0.8})`);
+                        gradient.addColorStop(0.7, `rgba(59, 130, 246, ${alpha * 0.2})`);
+                    }
+                    gradient.addColorStop(1, 'transparent');
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                    
+                    // Bright center
+                    ctx.beginPath();
+                    ctx.arc(particle.x, particle.y, size * 0.4, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.8})`;
+                    ctx.fill();
+                });
+                
+                ctx.globalCompositeOperation = 'source-over';
+                animationIdRef.current = requestAnimationFrame(animate);
+            };
+
+            // Initialize particles once on mount
+            useEffect(() => {
+                if (staticParticles.current.length === 0) {
+                    staticParticles.current = initializeStaticParticles();
+                }
+                
+                animationIdRef.current = requestAnimationFrame(animate);
+                
+                return () => {
+                    if (animationIdRef.current) {
+                        cancelAnimationFrame(animationIdRef.current);
+                    }
+                };
+            }, [isSpeaking, baseSize]);
+
+            // Setup canvas
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                if (canvas) {
+                    canvas.width = baseSize;
+                    canvas.height = baseSize;
+                    canvas.style.width = baseSize + 'px';
+                    canvas.style.height = baseSize + 'px';
+                }
+            }, [baseSize]);
+            
+            return React.createElement('div', { 
+                className: "relative flex items-center justify-center",
+                style: { perspective: '1000px' }
+            }, [
+                // Outer glow ring
+                React.createElement('div', {
+                    key: 'outer-ring',
+                    className: `absolute rounded-full transition-all duration-700 ${
+                        isSpeaking ? 'shadow-2xl shadow-cyan-400/60' : 'shadow-lg shadow-blue-600/40'
+                    }`,
+                    style: {
+                        width: baseSize + 120,
+                        height: baseSize + 120,
+                        background: isSpeaking
+                            ? 'radial-gradient(circle, transparent 60%, rgba(6, 182, 212, 0.3) 75%, rgba(59, 130, 246, 0.2) 90%, transparent 100%)'
+                            : 'radial-gradient(circle, transparent 60%, rgba(59, 130, 246, 0.2) 75%, rgba(29, 78, 216, 0.15) 90%, transparent 100%)',
+                        transform: isSpeaking ? 'scale(1.02)' : 'scale(1)',
+                        animation: isSpeaking ? 'pulse-gentle 3s ease-in-out infinite' : 'none'
+                    }
+                }),
+                
+                // Main network sphere container
+                React.createElement('div', {
+                    key: 'network-container',
+                    className: "relative rounded-full transition-all duration-700",
+                    style: {
+                        width: baseSize,
+                        height: baseSize,
+                        transform: isSpeaking ? 'scale(1.05)' : 'scale(1)',
+                        background: isSpeaking
+                            ? 'radial-gradient(circle at 30% 30%, rgba(6, 182, 212, 0.05) 0%, rgba(59, 130, 246, 0.03) 50%, transparent 80%)'
+                            : 'radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.03) 0%, rgba(29, 78, 216, 0.02) 50%, transparent 80%)',
+                        boxShadow: isSpeaking
+                            ? '0 0 100px rgba(6, 182, 212, 0.4), 0 0 150px rgba(59, 130, 246, 0.3), inset 0 0 50px rgba(6, 182, 212, 0.1)'
+                            : '0 0 60px rgba(59, 130, 246, 0.3), inset 0 0 30px rgba(59, 130, 246, 0.05)',
+                    }
+                }, [
+                    // Canvas for network visualization
+                    React.createElement('canvas', {
+                        key: 'network-canvas',
+                        ref: canvasRef,
+                        className: "absolute inset-0 rounded-full",
+                        style: {
+                            filter: isSpeaking 
+                                ? 'drop-shadow(0 0 20px rgba(6, 182, 212, 0.6)) drop-shadow(0 0 40px rgba(59, 130, 246, 0.4))' 
+                                : 'drop-shadow(0 0 10px rgba(59, 130, 246, 0.5))'
+                        }
+                    }),
+                    
+                    // Additional glow effects when speaking
+                    isSpeaking && React.createElement('div', {
+                        key: 'inner-glow',
+                        className: "absolute inset-4 rounded-full opacity-30",
+                        style: {
+                            background: 'radial-gradient(circle, rgba(6, 182, 212, 0.2) 0%, transparent 70%)',
+                            animation: 'pulse-gentle 2s ease-in-out infinite'
+                        }
+                    }),
+                    
+                    // Subtle rotating ring effect when speaking
+                    isSpeaking && React.createElement('div', {
+                        key: 'rotating-ring',
+                        className: "absolute inset-0 rounded-full opacity-30",
+                        style: {
+                            background: `conic-gradient(
+                                from 0deg,
+                                transparent 0deg,
+                                rgba(6, 182, 212, 0.2) 45deg,
+                                transparent 90deg,
+                                rgba(147, 51, 234, 0.2) 180deg,
+                                transparent 270deg,
+                                rgba(6, 182, 212, 0.2) 315deg,
+                                transparent 360deg
+                            )`,
+                            animation: 'spin-slow 12s linear infinite'
+                        }
+                    })
+                ]),
+                
+                // Listening indicator ring
+                isListening && React.createElement('div', {
+                    key: 'listening-ring',
+                    className: "absolute rounded-full border-2 border-red-400",
+                    style: {
+                        width: baseSize + 100,
+                        height: baseSize + 100,
+                        boxShadow: '0 0 40px rgba(239, 68, 68, 0.6)',
+                        animation: 'pulse-red 2s ease-in-out infinite'
+                    }
+                })
+            ]);
+        };
+
+        const VeenaAIFrontend = () => {
+            const [isListening, setIsListening] = useState(false);
+            const [isSpeaking, setIsSpeaking] = useState(false);
+            const [captions, setCaptions] = useState([]);
+            const [currentTranscript, setCurrentTranscript] = useState('');
+            const [connectionStatus, setConnectionStatus] = useState('disconnected');
+            const [reconnectAttempts, setReconnectAttempts] = useState(0);
+            const audioRef = useRef(null);
+            const captionIdRef = useRef(0);
+            const wsRef = useRef(null);
+            const reconnectTimeoutRef = useRef(null);
+
+            const MAX_RECONNECT_ATTEMPTS = 5;
+
+            const connectWebSocket = () => {
+                if (wsRef.current) {
+                    wsRef.current.close();
+                }
+
+                try {
+                    wsRef.current = new WebSocket('ws://localhost:8765');
+
+                    wsRef.current.onopen = () => {
+                        console.log('Connected to Veena AI');
+                        setConnectionStatus('connected');
+                        setCurrentTranscript('');
+                        setReconnectAttempts(0);
+                        clearTimeout(reconnectTimeoutRef.current);
+                    };
+
+                    wsRef.current.onmessage = (event) => {
+                        try {
+                            const data = JSON.parse(event.data);
+                            handleWebSocketMessage(data);
+                        } catch (error) {
+                            console.error('Error parsing WebSocket message:', error);
+                            setCurrentTranscript('Error parsing message');
+                        }
+                    };
+
+                    wsRef.current.onclose = (event) => {
+                        console.log('Disconnected from Veena AI:', event.code, event.reason);
+                        setConnectionStatus('disconnected');
+                        setIsListening(false);
+                        setIsSpeaking(false);
+
+                        if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+                            const delay = Math.min(3000 * (2 ** reconnectAttempts), 30000);
+                            setReconnectAttempts(prev => prev + 1);
+                            reconnectTimeoutRef.current = setTimeout(() => {
+                                connectWebSocket();
+                            }, delay);
+                        } else {
+                            setCurrentTranscript('Max reconnect attempts reached');
+                        }
+                    };
+
+                    wsRef.current.onerror = (error) => {
+                        console.error('WebSocket error:', error);
+                        setConnectionStatus('error');
+                    };
+                } catch (error) {
+                    console.error('Error connecting to WebSocket:', error);
+                    setConnectionStatus('error');
+                }
+            };
+
+            const handleWebSocketMessage = (data) => {
+                switch (data.type) {
+                    case 'connection_status':
+                        setConnectionStatus(data.status);
+                        break;
+                    case 'user_message':
+                        addCaption(data.text, 'user');
+                        setCurrentTranscript('');
+                        break;
+                    case 'agent_response':
+                        addCaption(data.text, 'agent');
+                        break;
+                    case 'speaking_started':
+                        setIsSpeaking(true);
+                        break;
+                    case 'speaking_finished':
+                        setIsSpeaking(false);
+                        break;
+                    case 'listening_started':
+                        setIsListening(true);
+                        setCurrentTranscript('Listening...');
+                        break;
+                    case 'listening_stopped':
+                        setIsListening(false);
+                        setCurrentTranscript('');
+                        break;
+                    case 'error':
+                        console.error('Server error:', data.message);
+                        setCurrentTranscript('Error: ' + data.message);
+                        break;
+                    default:
+                        console.log('Unknown message type:', data.type);
+                }
+            };
+
+            useEffect(() => {
+                connectWebSocket();
+
+                return () => {
+                    if (wsRef.current) {
+                        wsRef.current.close();
+                    }
+                    if (reconnectTimeoutRef.current) {
+                        clearTimeout(reconnectTimeoutRef.current);
+                    }
+                };
+            }, []);
+
+            const sendWebSocketMessage = (message) => {
+                if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+                    wsRef.current.send(JSON.stringify(message));
+                } else {
+                    console.error('WebSocket is not connected');
+                    setCurrentTranscript('Connection lost. Reconnecting...');
+                }
+            };
+
+            const addCaption = (text, type = 'user') => {
+                const id = captionIdRef.current++;
+                const newCaption = { id, text, type, timestamp: Date.now() };
+                setCaptions(prev => [...prev, newCaption]);
+                setTimeout(() => {
+                    setCaptions(prev => prev.filter(cap => cap.id !== id));
+                }, 8000);
+            };
+
+            const toggleListening = () => {
+                if (connectionStatus !== 'connected') {
+                    setCurrentTranscript('Not connected to server');
+                    return;
+                }
+                if (isListening) {
+                    sendWebSocketMessage({ type: 'stop_listening' });
+                } else {
+                    sendWebSocketMessage({ type: 'start_listening' });
+                }
+            };
+
+            const sendTestMessage = () => {
+                if (connectionStatus === 'connected') {
+                    sendWebSocketMessage({
+                        type: 'text_input',
+                        text: 'Hello Veena, how are you today?'
+                    });
+                }
+            };
+
+            return React.createElement('div', {
+                className: "min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white flex flex-col items-center justify-center relative overflow-hidden"
+            }, [
+                React.createElement('div', {
+                    key: 'background',
+                    className: "absolute inset-0 opacity-10"
+                }, [
+                    React.createElement('div', {
+                        key: 'bg1',
+                        className: "absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/20 to-transparent",
+                        style: { animation: 'pulse-bg 4s ease-in-out infinite' }
+                    }),
+                    React.createElement('div', {
+                        key: 'bg2',
+                        className: "absolute inset-0",
+                        style: {
+                            backgroundImage: `
+                                linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+                                linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px)
+                            `,
+                            backgroundSize: '60px 60px'
+                        }
+                    })
+                ]),
+                React.createElement('div', {
+                    key: 'status',
+                    className: "absolute top-6 left-6 flex items-center space-x-2 text-sm"
+                }, [
+                    React.createElement('div', {
+                        key: 'status-dot',
+                        className: `w-2 h-2 rounded-full transition-colors duration-300 ${
+                            connectionStatus === 'connected'
+                                ? 'bg-green-500 shadow-lg shadow-green-500/50'
+                                : connectionStatus === 'error'
+                                ? 'bg-red-500 shadow-lg shadow-red-500/50'
+                                : 'bg-yellow-500 shadow-lg shadow-yellow-500/50'
+                        }`
+                    }),
+                    React.createElement('span', {
+                        key: 'status-text',
+                        className: "text-gray-400 capitalize"
+                    }, connectionStatus)
+                ]),
+                React.createElement('div', {
+                    key: 'agent-name',
+                    className: "absolute top-6 right-6 text-xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent"
+                }, "VEENA"),
+                React.createElement('div', {
+                    key: 'globe-container',
+                    className: "flex-1 flex items-center justify-center mb-20"
+                }, React.createElement(NetworkGlobe, { isSpeaking, isListening })),
+                React.createElement('div', {
+                    key: 'captions',
+                    className: "absolute bottom-32 left-1/2 transform -translate-x-1/2 w-full max-w-4xl px-6"
+                }, React.createElement('div', {
+                    className: "space-y-2 max-h-48 overflow-hidden"
+                }, captions.map((caption, index) =>
+                    React.createElement('div', {
+                        key: caption.id,
+                        className: `animate-fade-in-up text-center transition-all duration-500 ${
+                            caption.type === 'user' ? 'text-cyan-300' : 'text-white'
+                        }`,
+                        style: {
+                            animationDelay: `${index * 100}ms`,
+                            textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                            fontSize: '18px',
+                            fontWeight: '500',
+                            opacity: captions.length - index > 3 ? '0.6' : '1',
+                        }
+                    }, [
+                        caption.type === 'agent' && React.createElement('span', {
+                            key: 'agent-prefix',
+                            className: "text-cyan-400 font-bold"
+                        }, "VEENA: "),
+                        caption.text
+                    ])
+                ))),
+                currentTranscript && React.createElement('div', {
+                    key: 'transcript',
+                    className: "absolute bottom-16 left-1/2 transform -translate-x-1/2 text-center"
+                }, React.createElement('div', {
+                    className: "bg-black/50 backdrop-blur-sm rounded-lg px-6 py-3 border border-gray-600"
+                }, React.createElement('span', {
+                    className: "text-gray-300 text-sm"
+                }, currentTranscript))),
+                React.createElement('div', {
+                    key: 'controls',
+                    className: "absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-4"
+                }, [
+                    React.createElement('button', {
+                        key: 'mic-btn',
+                        onClick: toggleListening,
+                        disabled: connectionStatus !== 'connected',
+                        className: `p-4 rounded-full transition-all duration-300 border-2 ${
+                            isListening
+                                ? 'bg-red-500 border-red-400 shadow-lg shadow-red-500/30 hover:bg-red-600'
+                                : connectionStatus === 'connected'
+                                ? 'bg-gray-700 border-gray-600 hover:bg-gray-600 hover:border-gray-500'
+                                : 'bg-gray-800 border-gray-700 opacity-50 cursor-not-allowed'
+                        }`
+                    }, React.createElement(isListening ? MicOffIcon : MicIcon)),
+                    React.createElement('button', {
+                        key: 'test-btn',
+                        onClick: sendTestMessage,
+                        disabled: connectionStatus !== 'connected',
+                        className: `p-4 rounded-full transition-all duration-300 border-2 ${
+                            connectionStatus === 'connected'
+                                ? 'bg-blue-700 border-blue-600 hover:bg-blue-600 hover:border-blue-500'
+                                : 'bg-gray-800 border-gray-700 opacity-50 cursor-not-allowed'
+                        }`,
+                        title: "Send test message"
+                    }, "💬"),
+                    React.createElement('button', {
+                        key: 'volume-btn',
+                        className: "p-4 rounded-full bg-gray-700 border-2 border-gray-600 hover:bg-gray-600 hover:border-gray-500 transition-all duration-300",
+                        disabled: !isSpeaking
+                    }, React.createElement(VolumeIcon, { className: isSpeaking ? 'text-cyan-400' : 'text-gray-400' }))
+                ]),
+                React.createElement('style', {
+                    key: 'styles'
+                }, `
+                    @keyframes fade-in-up {
+                        from { opacity: 0; transform: translateY(20px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                    .animate-fade-in-up { animation: fade-in-up 0.5s ease-out forwards; }
+                    
+                    @keyframes pulse-gentle {
+                        0%, 100% { opacity: 0.8; transform: scale(1); }
+                        50% { opacity: 1; transform: scale(1.02); }
+                    }
+                    
+                    @keyframes pulse-red {
+                        0%, 100% { opacity: 0.7; transform: scale(1); }
+                        50% { opacity: 1; transform: scale(1.05); }
+                    }
+                    
+                    @keyframes pulse-bg {
+                        0%, 100% { opacity: 0.1; }
+                        50% { opacity: 0.2; }
+                    }
+                    
+                    @keyframes spin-slow {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                    
+                    /* Smooth canvas rendering */
+                    canvas {
+                        image-rendering: auto;
+                        -webkit-font-smoothing: antialiased;
+                        -moz-osx-font-smoothing: grayscale;
+                    }
+                `)
+            ]);
+        };
+
+        try {
+            const root = createRoot(document.getElementById('root'));
+            root.render(React.createElement(VeenaAIFrontend));
+        } catch (error) {
+            console.error('Fatal error rendering app:', error);
+            document.body.innerHTML = '<h1>Error: Unable to load Veena AI. Check console for details.</h1>';
+        }
+
+        // Global error handler
+        window.addEventListener('error', (event) => {
+            console.error('Global error caught:', event.message, event.filename, event.lineno);
+            event.preventDefault();
+        });
+    </script>
+</body>
+</html>
