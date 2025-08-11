@@ -1,4 +1,4 @@
-oice-Enabled RAG Insurance Agent: Veena
+Voice-Enabled RAG Insurance Agent: Veena
 Veena is a sophisticated, voice-enabled conversational AI that acts as a friendly insurance agent for ValuEnable Life Insurance.
 Her primary mission: engage customers about their policy renewals — all in real-time, with Agentic RAG and a local Ollama LLM.
 
