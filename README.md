@@ -1,163 +1,146 @@
-Voice-Enabled RAG Insurance Agent: Veena
+oice-Enabled RAG Insurance Agent: Veena
 Veena is a sophisticated, voice-enabled conversational AI that acts as a friendly insurance agent for ValuEnable Life Insurance.
-Her primary goal is to engage customers about policy renewals, offering real-time, human-like conversations using Agentic RAG and a local Ollama LLM.
+Her primary mission: engage customers about their policy renewals — all in real-time, with Agentic RAG and a local Ollama LLM.
 
-1. Executive Overview
-Veena is built as a local-first backend service for real-time voice interactions, combining:
+🚀 Overview
+Veena is a local-first backend service that enables real-time voice conversations with:
 
-Speech-to-text (ASR) with Whisper/Faster-Whisper
+Speech-to-text transcription
 
-Agentic reasoning with LangChain ReAct Agent
+Reasoning & memory with LangChain ReAct Agent
 
-RAG with FAISS vector store
+Retrieval-Augmented Generation (RAG)
 
-Persona-driven responses
+Persona-driven replies
 
-Text-to-speech (TTS) output
+Natural speech output
 
-WebSocket connectivity for frontend integration
+WebSocket frontend integration
 
-2. Core Features
-🎙 Real-Time Voice Conversation
-Captures microphone input, transcribes it, and responds instantly.
+✨ Core Features
+🎧 Real-Time Voice Conversation – Captures microphone input, transcribes, and responds instantly.
 
-🧠 Agentic AI Core
-Uses LangChain’s ReAct agent pattern for reasoning, tool usage, and memory retention.
+🧠 Agentic AI Core – LangChain’s ReAct agent for reasoning, tool use, and memory.
 
-📚 Retrieval-Augmented Generation (RAG)
-Searches internal knowledge base (customer history, policy details) via FAISS for factual, context-aware responses.
+📚 RAG Search – Access internal policy/customer data via FAISS vector store.
 
-🔒 100% Local & Private
-Runs entirely on a local Ollama instance (e.g., LLaMA 3), no external API calls for core AI logic.
+🔒 Fully Local – Runs on local Ollama instance (e.g., LLaMA 3).
 
-🗣 Natural Voice Output
-Generates smooth speech with Google gTTS and plays it using Pygame.
+🗣 Natural Speech Output – gTTS + Pygame for smooth voice playback.
 
-🔌 WebSocket Backend
-Allows any frontend (React, Vue, etc.) to connect to ws://localhost:8765 for live updates and audio exchange.
+🔌 WebSocket Backend – Connect from React, Vue, or any WebSocket client.
 
-3. How It Works (Architecture)
-Audio Capture
-app.py listens continuously for microphone input using PyAudio.
-
-Speech-to-Text (ASR)
-Detected speech is transcribed with Faster-Whisper.
-
-Agent Invocation
-Transcribed text is passed to the LangChain AgentExecutor (agentic_rag.py).
-
-Thought & Action (RAG Search)
-If more information is needed, the agent calls the rag_search_transcripts tool to query FAISS vector store.
-
-Response Generation
-The local Ollama LLM (LLaMA 3) generates a persona-consistent reply as “Veena”.
-
-Text-to-Speech Conversion
-voice_service.py uses gTTS to convert the reply into an MP3 file.
-
-Audio Playback
-Pygame plays the generated speech.
-
-WebSocket Communication
-Status updates (user_message, agent_response, speaking_started, etc.) are broadcast to all connected frontends.
-
-4. Project Structure
+🛠 Architecture
+mermaid
+Copy
+Edit
+flowchart LR
+    A[🎤 Microphone Input] --> B[ASR: Faster-Whisper]
+    B --> C[LangChain Agent: Veena Persona]
+    C -->|Needs Info| D[🔍 FAISS RAG Search]
+    C -->|Generates Reply| E[Local Ollama LLM]
+    E --> F[gTTS Text-to-Speech]
+    F --> G[🔊 Audio Playback]
+    C --> H[🔌 WebSocket Updates to Frontend]
+📂 Project Structure
 graphql
 Copy
 Edit
 .
 ├── app.py                # Main backend app (audio loop + WebSocket server)
-├── agentic_rag.py        # LangChain agent, RAG tool, memory, and "Veena" persona
-├── index_documents.py    # Script to build FAISS vector index from knowledge base
+├── agentic_rag.py        # LangChain agent, RAG tool, memory, and persona
+├── index_documents.py    # Build FAISS vector index from knowledge base
 ├── voice_service.py      # Text-to-speech + audio playback
-├── Requestollama.py      # Test Ollama API connectivity
+├── Requestollama.py      # Test Ollama API connection
 ├── requirements.txt      # Python dependencies
 ├── rag_docs/             # Knowledge base text files
 ├── faiss_rag.index       # Generated FAISS vector store
-└── .gitignore            # Git ignore file
-5. Setup & Installation
-Prerequisites
+└── .gitignore
+⚙️ Setup & Installation
+1️⃣ Prerequisites
 Python 3.8+
 
 Ollama installed & running locally
 
 Working microphone
 
-Steps
-Clone Repository
-
+2️⃣ Installation Steps
 bash
 Copy
 Edit
+# Clone repo
 git clone <repo_url>
 cd <repo_folder>
-Create Virtual Environment
 
-bash
-Copy
-Edit
+# Create virtual environment
 python -m venv venv
 # Windows
 venv\Scripts\activate
 # macOS/Linux
 source venv/bin/activate
-Install Dependencies
 
-bash
-Copy
-Edit
+# Install dependencies
 pip install -r requirements.txt
-Pull Ollama Models
-
+3️⃣ Pull Ollama Models
 bash
 Copy
 Edit
 ollama pull llama3
 ollama pull nomic-embed-text
-Prepare Knowledge Base
-
-Create a rag_docs/ folder.
-
-Place .txt documents with relevant info inside.
-
-Build Vector Index
-
+4️⃣ Prepare Knowledge Base
+bash
+Copy
+Edit
+# Create rag_docs folder and add your .txt files
+mkdir rag_docs
+5️⃣ Build FAISS Vector Index
 bash
 Copy
 Edit
 python index_documents.py
-Run Backend
-
+6️⃣ Run Backend
 bash
 Copy
 Edit
 python app.py
-You should see:
+✅ You should see:
 
 arduino
 Copy
 Edit
 Audio recording started...
 WebSocket server running on ws://localhost:8765
-6. Configuration
-LLM & Embedding Models
-Change LLM_MODEL_NAME and EMBED_MODEL_NAME in agentic_rag.py.
+🛠 Configuration
+Component	File	Setting
+LLM & Embeddings	agentic_rag.py	LLM_MODEL_NAME, EMBED_MODEL_NAME
+RAG Chunking	index_documents.py	Chunk size & overlap
+Persona Behavior	agentic_rag.py	Persona prompt
+Audio Parameters	app.py	DEFAULT_CHUNK_LENGTH
 
-RAG Chunk Size & Overlap
-Adjust in index_documents.py.
-
-Agent Persona
-Modify Veena’s instructions & style in agentic_rag.py.
-
-Audio Recording Parameters
-Edit DEFAULT_CHUNK_LENGTH in app.py.
-
-7. Utility Scripts
-Requestollama.py
-Simple test to confirm Ollama is running and accessible.
-Run:
+🧪 Utility Script
+Test Ollama Connection
 
 bash
 Copy
 Edit
 python Requestollama.py
+📜 License
+MIT License – free to use, modify, and distribute.
+
+💡 Tip
+To integrate with a custom frontend, connect to:
+
+arduino
+Copy
+Edit
+ws://localhost:8765
+and listen for:
+
+user_message
+
+agent_response
+
+speaking_started
+
+speaking_ended
+
