@@ -14,12 +14,18 @@ from websockets.server import serve
 import threading
 import base64
 from datetime import datetime
+from dotenv import load_dotenv
+
+load_dotenv()
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 DEFAULT_MODEL_SIZE = "base"
 DEFAULT_CHUNK_LENGTH = 8
-agent = build_agent()
+
+groq_api_key = os.environ.get("GROQ_API_KEY")
+agent = build_agent(groq_api_key=groq_api_key)
+
 whisper_model = None
 audio = None
 stream = None

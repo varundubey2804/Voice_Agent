@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 from typing import List
 
+from langchain_groq import ChatGroq
 from langchain_ollama import OllamaEmbeddings, ChatOllama
 from langchain_community.vectorstores import FAISS
 from langchain.memory import ConversationBufferMemory
@@ -30,11 +31,20 @@ FAISS_PATH       = "faiss_rag.index"
 # ──────────────────────────────
 # Public factory
 # ──────────────────────────────
-def build_agent():
+def build_agent(groq_api_key=None):
     """Return a LangChain Agent with memory + RAG tool."""
     # 1) Initialize models
     embedding = OllamaEmbeddings(model=EMBED_MODEL_NAME)
-    llm       = ChatOllama(model=LLM_MODEL_NAME)
+
+    if groq_api_key:
+        print("🚀 Using Groq API for LLM")
+        llm = ChatGroq(
+            groq_api_key=groq_api_key,
+            model_name="llama3-8b-8192"
+        )
+    else:
+        print("🦙 Using Ollama for LLM")
+        llm = ChatOllama(model=LLM_MODEL_NAME)
 
     # 2) Load the pre-built vector DB
     if not Path(FAISS_PATH).exists():
@@ -59,13 +69,15 @@ def build_agent():
     tools = [rag_tool]
 
     # 4) Define the agent's persona and instructions
-    persona = """You are "Veena," a female insurance agent for "ValuEnable life insurance".
-Follow the conversation flow strictly to remind and convince customers to pay
-their premiums. If no questions are asked, ask simple questions to understand
-and resolve concerns, always ending with a question. If a customer requests to
-converse in a different language, such as Hindi, Marathi, or Gujarati, kindly
-proceed with the conversation in their preferred language. Use max 35 easy
-english words to respond."""
+    persona = """You are "Veena," a female financial advisor for "ValuEnable".
+Your role is to help customers with Life Insurance (LI) and Mutual Funds policies,
+assess their financial situation, and provide investment advice.
+You must be fully bilingual in Hindi and English. If the user speaks Hindi, reply in Hindi. If English, reply in English.
+You should ask the user about their surplus money ("How much money do you have in surplus?") to better advise them.
+Analyze their needs regarding short-term risks and long-term goals.
+Follow the conversation flow strictly. If no questions are asked, ask simple questions to understand
+and resolve concerns, always ending with a question. Use max 35 easy
+words to respond."""
 
     # 5) Create the prompt template for ReAct agent (using PromptTemplate, not ChatPromptTemplate)
     # This is the correct format for create_react_agent
