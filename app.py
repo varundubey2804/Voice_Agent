@@ -14,11 +14,19 @@ from websockets.server import serve
 import threading
 import base64
 from datetime import datetime
+from pathlib import Path
+import webbrowser
+import http.server
+import socketserver
+import time
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
-DEFAULT_MODEL_SIZE = "base"
+DEFAULT_MODEL_SIZE = "medium"
 DEFAULT_CHUNK_LENGTH = 8
+HTTP_PORT = 8080
+WS_PORT = 8765
+
 agent = build_agent()
 whisper_model = None
 audio = None
@@ -49,16 +57,16 @@ def record_chunk_in_memory(stream, length_sec=DEFAULT_CHUNK_LENGTH):
 def transcribe(model, wav_buffer):
     segments, info = model.transcribe(wav_buffer, beam_size=5)
     text = " ".join(segment.text for segment in segments)
-    return text.strip()
+    return text.strip(), info.language
 
 def load_whisper():
-    size = DEFAULT_MODEL_SIZE + ".en"
+    size = DEFAULT_MODEL_SIZE
     try:
-        print("🔍 Loading Whisper on CUDA ...")
-        return WhisperModel(size, device="cuda", compute_type="float16", num_workers=4)
+        print("🔍 Loading Whisper on CPU ...")
+        return WhisperModel(size, device="cpu", compute_type="int8", num_workers=4)
     except Exception as e:
-        print(f"⚠ CUDA failed: {e} → CPU fallback")
-        return WhisperModel(size, device="cpu", compute_type="int8", num_workers=2)
+        print(f"⚠ CPU failed: {e} → Trying CUDA")
+        return WhisperModel(size, device="cuda", compute_type="float16", num_workers=2)
 
 async def broadcast_message(message):
     """Send message to all connected clients"""
@@ -122,12 +130,13 @@ async def handle_client_message(data, websocket):
     elif message_type == "text_input":
         # Handle direct text input
         text = data.get("text", "")
+        language = data.get("language", "en")
         if text:
-            await process_user_input(text)
+            await process_user_input(text, language=language)
 
-async def process_user_input(user_text):
+async def process_user_input(user_text, language="en"):
     """Process user input and generate response"""
-    print(f"🗣 Customer: {user_text}")
+    print(f"🗣 Customer ({language}): {user_text}")
     
     # Send user message to frontend
     await broadcast_message({
@@ -138,7 +147,8 @@ async def process_user_input(user_text):
     
     # Generate AI response
     try:
-        response = agent.invoke({"input": user_text})["output"].strip()
+        # Pass the language context if needed, or rely on the agent prompt
+        response = agent.invoke({"input": user_text, "language": language})["output"].strip()
         print(f"🤖 Veena: {response}")
         
         # Send agent response to frontend
@@ -154,7 +164,7 @@ async def process_user_input(user_text):
         })
         
         # Play TTS (this will run in background)
-        asyncio.create_task(play_tts_and_notify(response))
+        asyncio.create_task(play_tts_and_notify(response, language))
         
     except Exception as e:
         print(f"Error generating response: {e}")
@@ -163,12 +173,12 @@ async def process_user_input(user_text):
             "message": "Error generating response"
         })
 
-async def play_tts_and_notify(text):
+async def play_tts_and_notify(text, language="en"):
     """Play TTS and notify when finished"""
     try:
         # Play TTS in a separate thread to avoid blocking
         def play_tts():
-            vs.play_text_to_speech_stream(text)
+            vs.play_text_to_speech_stream(text, language=language)
         
         loop = asyncio.get_event_loop()
         await loop.run_in_executor(None, play_tts)
@@ -206,12 +216,12 @@ def audio_recording_loop():
             if not wav_buffer:
                 continue
             
-            user_text = transcribe(whisper_model, wav_buffer)
+            user_text, language = transcribe(whisper_model, wav_buffer)
             if not user_text:
                 continue
             
             # Send to WebSocket clients
-            asyncio.run(process_user_input(user_text))
+            asyncio.run(process_user_input(user_text, language))
             
     except KeyboardInterrupt:
         print("\n🛑 Audio recording stopped.")
@@ -225,20 +235,103 @@ def audio_recording_loop():
 
 async def start_websocket_server():
     """Start the WebSocket server"""
-    print("🌐 Starting WebSocket server on ws://localhost:8765")
-    async with serve(handle_websocket, "localhost", 8765):
+    print(f"🌐 WebSocket server running on ws://localhost:{WS_PORT}")
+    async with serve(handle_websocket, "localhost", WS_PORT):
         await asyncio.Future()  # Keep server running
 
+def start_http_server():
+    """Start HTTP server to serve the frontend"""
+    # Get the directory where app.py is located
+    app_dir = Path(__file__).parent
+    frontend_dir = app_dir / "frontend"
+    
+    # Check if frontend directory exists
+    if not frontend_dir.exists():
+        print(f"❌ Error: frontend directory not found at {frontend_dir}")
+        print("   Please create a 'frontend' folder with index.html")
+        return
+    
+    # Check if index.html exists
+    index_file = frontend_dir / "index.html"
+    if not index_file.exists():
+        print(f"❌ Error: index.html not found at {index_file}")
+        print("   Please create index.html in the frontend folder")
+        return
+    
+    class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, directory=str(frontend_dir), **kwargs)
+        
+        def log_message(self, format, *args):
+            # Suppress HTTP server logs to keep console clean
+            pass
+        
+        def end_headers(self):
+            # Add CORS headers for local development
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+            self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+            super().end_headers()
+    
+    try:
+        with socketserver.TCPServer(("", HTTP_PORT), CustomHTTPRequestHandler) as httpd:
+            print(f"🌍 HTTP server running at http://localhost:{HTTP_PORT}")
+            print(f"📱 Frontend: http://localhost:{HTTP_PORT}/index.html")
+            
+            # Open browser after a short delay
+            def open_browser():
+                time.sleep(2)  # Wait for server to fully start
+                url = f"http://localhost:{HTTP_PORT}/index.html"
+                print(f"\n🚀 Opening browser: {url}")
+                webbrowser.open(url)
+            
+            browser_thread = threading.Thread(target=open_browser, daemon=True)
+            browser_thread.start()
+            
+            httpd.serve_forever()
+    except OSError as e:
+        if "Address already in use" in str(e):
+            print(f"❌ Error: Port {HTTP_PORT} is already in use")
+            print(f"   Please close the other application or change HTTP_PORT in app.py")
+        else:
+            print(f"❌ HTTP Server Error: {e}")
+
 def main():
+    print("=" * 70)
+    print("🎯 VEENA AI - Voice Financial Advisor with VRM Character")
+    print("=" * 70)
+    print()
+    
+    # Start HTTP server in a separate thread (this serves the frontend)
+    http_thread = threading.Thread(target=start_http_server, daemon=True)
+    http_thread.start()
+    
+    # Wait a moment for HTTP server to start
+    time.sleep(1)
+    
     # Start audio recording in a separate thread
     audio_thread = threading.Thread(target=audio_recording_loop, daemon=True)
     audio_thread.start()
     
-    # Start WebSocket server
+    # Give all servers time to start
+    time.sleep(1)
+    
+    print()
+    print("✅ All systems ready!")
+    print(f"🌐 Web Interface: http://localhost:{HTTP_PORT}/index.html")
+    print(f"🔌 WebSocket: ws://localhost:{WS_PORT}")
+    print(f"🎙️  Voice Recording: Active")
+    print()
+    print("Press Ctrl+C to stop all servers")
+    print("=" * 70)
+    print()
+    
+    # Start WebSocket server (blocking - main thread)
     try:
         asyncio.run(start_websocket_server())
     except KeyboardInterrupt:
-        print("\n🛑 Server stopped by user.")
+        print("\n🛑 Shutting down Veena AI...")
+        print("👋 Goodbye!")
 
 if __name__ == "__main__":
     main()

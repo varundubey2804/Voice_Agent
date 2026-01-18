@@ -1,59 +1,47 @@
 """
 index_documents.py
-------------------
-One-time script to read documents from the 'rag_docs' folder,
-generate embeddings using Ollama, and save them to a FAISS vector store.
-
-Run this script once before starting the main application.
 """
-
 import os
 from pathlib import Path
 from langchain_community.vectorstores import FAISS
+# ✅ CHANGED: Use Ollama here too
 from langchain_ollama import OllamaEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-# --- Configuration ---
-EMBED_MODEL_NAME = "nomic-embed-text"
 DOCS_FOLDER      = "rag_docs"
 FAISS_PATH       = "faiss_rag.index"
+EMBED_MODEL_NAME = "nomic-embed-text"
 CHUNK_SIZE       = 500
 CHUNK_OVERLAP    = 50
 
 def main():
-    print("🚀 Starting document indexing...")
+    print(f"🚀 Starting document indexing (Ollama: {EMBED_MODEL_NAME})...")
 
-    # 1. Ensure the folder exists
+    # 1. Load Documents
     doc_path = Path(DOCS_FOLDER)
     if not doc_path.is_dir():
-        print(f"❌ Folder '{DOCS_FOLDER}' not found. Please create it and add .txt files.")
+        print(f"❌ Create '{DOCS_FOLDER}' and add .txt files first.")
         return
 
-    # 2. Load text from all .txt files
     all_text = []
     for file in doc_path.glob("*.txt"):
         content = file.read_text(encoding="utf-8", errors="ignore")
         all_text.append(content)
 
-    if not all_text:
-        print(f"⚠️ No .txt files found in '{DOCS_FOLDER}'. Creating an empty index.")
-    
-    print(f"📚 Loaded {len(all_text)} document(s).")
+    print(f"📚 Loaded {len(all_text)} files.")
 
-    # 3. Split into chunks
+    # 2. Split
     splitter = RecursiveCharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
     chunks = splitter.split_text("\n".join(all_text)) if all_text else []
-    print(f"✂️ Split into {len(chunks)} chunks.")
 
-    # 4. Create embeddings
-    print(f"🧠 Loading embedding model '{EMBED_MODEL_NAME}'...")
+    # 3. Embed (Using Ollama)
+    print(f"🧠 Loading Ollama Embeddings ({EMBED_MODEL_NAME})...")
+    # Ensure you have run: ollama pull nomic-embed-text
     embeddings = OllamaEmbeddings(model=EMBED_MODEL_NAME)
 
-    # 5. Build FAISS index
+    # 4. Save
     print("🧱 Building FAISS index...")
     vectorstore = FAISS.from_texts(chunks, embeddings)
-
-    # 6. Save index
     vectorstore.save_local(FAISS_PATH)
     print(f"✅ Index saved to: {FAISS_PATH}")
 

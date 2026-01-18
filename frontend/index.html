@@ -3,392 +3,1030 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Veena AI Frontend</title>
-    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <title>Veena AI - Your Financial Advisor</title>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #030712;
+        }
+        
+        /* Animated Background */
+        .bg-animated {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(16, 185, 129, 0.15), transparent),
+                radial-gradient(ellipse 60% 40% at 80% 60%, rgba(6, 182, 212, 0.1), transparent),
+                radial-gradient(ellipse 50% 30% at 20% 80%, rgba(139, 92, 246, 0.1), transparent),
+                linear-gradient(180deg, #030712 0%, #0a0f1a 50%, #030712 100%);
+        }
+        
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image: 
+                linear-gradient(rgba(16, 185, 129, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(16, 185, 129, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black 20%, transparent 70%);
+        }
+        
+        /* Floating Orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            animation: float 20s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: rgba(16, 185, 129, 0.15);
+            top: -100px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+        
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: rgba(6, 182, 212, 0.12);
+            bottom: -50px;
+            left: -50px;
+            animation-delay: -7s;
+        }
+        
+        .orb-3 {
+            width: 250px;
+            height: 250px;
+            background: rgba(139, 92, 246, 0.1);
+            top: 50%;
+            left: 20%;
+            animation-delay: -14s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -30px) scale(1.05); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(20px, 10px) scale(1.02); }
+        }
+        
+        /* Glass Morphism Enhanced */
+        .glass {
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.05) 0%, 
+                rgba(255, 255, 255, 0.02) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                0 0 0 1px rgba(255, 255, 255, 0.05);
+        }
+        
+        .glass-hover {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .glass-hover:hover {
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.08) 0%, 
+                rgba(255, 255, 255, 0.04) 100%);
+            border-color: rgba(16, 185, 129, 0.3);
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.4),
+                0 0 30px rgba(16, 185, 129, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        /* Orbiting Words */
+        .orbit-container {
+            position: fixed;
+            top: 50%;
+            left: 45%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            pointer-events: none;
+            z-index: 5;
+        }
+        
+        .orbit-ring {
+            position: absolute;
+            inset: 0;
+            border: 1px dashed rgba(16, 185, 129, 0.15);
+            border-radius: 50%;
+            animation: orbit-glow 4s ease-in-out infinite;
+        }
+        
+        @keyframes orbit-glow {
+            0%, 100% { border-color: rgba(16, 185, 129, 0.1); }
+            50% { border-color: rgba(16, 185, 129, 0.25); }
+        }
+        
+        .orbit-ring-1 {
+            transform: rotateX(75deg);
+            animation: spin 30s linear infinite;
+        }
+        
+        .orbit-ring-2 {
+            transform: rotateX(75deg) rotateZ(60deg);
+            animation: spin 25s linear infinite reverse;
+            width: 90%;
+            height: 90%;
+            top: 5%;
+            left: 5%;
+        }
+        
+        .orbit-ring-3 {
+            transform: rotateX(75deg) rotateZ(-30deg);
+            animation: spin 35s linear infinite;
+            width: 110%;
+            height: 110%;
+            top: -5%;
+            left: -5%;
+        }
+        
+        @keyframes spin {
+            from { transform: rotateX(75deg) rotateZ(0deg); }
+            to { transform: rotateX(75deg) rotateZ(360deg); }
+        }
+        
+        .orbit-word {
+            position: absolute;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(16, 185, 129, 0.7);
+            text-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+            white-space: nowrap;
+            animation: orbit-word 20s linear infinite;
+        }
+        
+        .orbit-word-1 { animation-delay: 0s; }
+        .orbit-word-2 { animation-delay: -5s; }
+        .orbit-word-3 { animation-delay: -10s; }
+        .orbit-word-4 { animation-delay: -15s; }
+        
+        @keyframes orbit-word {
+            0% { 
+                transform: rotate(0deg) translateX(280px) rotate(0deg);
+                opacity: 0.8;
+            }
+            25% { opacity: 0.4; }
+            50% { 
+                transform: rotate(180deg) translateX(280px) rotate(-180deg);
+                opacity: 0.8;
+            }
+            75% { opacity: 0.4; }
+            100% { 
+                transform: rotate(360deg) translateX(280px) rotate(-360deg);
+                opacity: 0.8;
+            }
+        }
+        
+        /* Second orbit layer */
+        .orbit-word-outer {
+            animation: orbit-word-outer 30s linear infinite;
+        }
+        
+        .orbit-word-5 { animation-delay: -3s; }
+        .orbit-word-6 { animation-delay: -10s; }
+        .orbit-word-7 { animation-delay: -17s; }
+        .orbit-word-8 { animation-delay: -24s; }
+        
+        @keyframes orbit-word-outer {
+            0% { 
+                transform: rotate(0deg) translateX(340px) rotate(0deg);
+                opacity: 0.5;
+            }
+            50% { 
+                transform: rotate(180deg) translateX(340px) rotate(-180deg);
+                opacity: 0.7;
+            }
+            100% { 
+                transform: rotate(360deg) translateX(340px) rotate(-360deg);
+                opacity: 0.5;
+            }
+        }
+        
+        /* Chat Bubble Animation */
+        .chat-bubble {
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        /* Canvas */
+        #vrm-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+        }
+        
+        #ui-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+        }
+        
+        #ui-overlay > * {
+            pointer-events: auto;
+        }
+        
+        /* Custom Scrollbar */
+        .messages-area {
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        
+        .messages-area::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .messages-area::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .messages-area::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, rgba(16, 185, 129, 0.5), rgba(6, 182, 212, 0.5));
+            border-radius: 10px;
+        }
+        
+        /* Button Glow */
+        .btn-glow {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-glow::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(45deg, #10b981, #06b6d4, #8b5cf6, #10b981);
+            background-size: 400% 400%;
+            border-radius: inherit;
+            z-index: -1;
+            opacity: 0;
+            animation: gradient-rotate 3s ease infinite;
+            transition: opacity 0.3s ease;
+        }
+        
+        .btn-glow:hover::before {
+            opacity: 1;
+        }
+        
+        .btn-glow::after {
+            content: '';
+            position: absolute;
+            inset: 1px;
+            background: inherit;
+            border-radius: inherit;
+            z-index: -1;
+        }
+        
+        @keyframes gradient-rotate {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Input Glow */
+        .input-glow {
+            transition: all 0.3s ease;
+        }
+        
+        .input-glow:focus {
+            box-shadow: 
+                0 0 0 2px rgba(16, 185, 129, 0.2),
+                0 0 20px rgba(16, 185, 129, 0.1),
+                inset 0 0 10px rgba(16, 185, 129, 0.05);
+        }
+        
+        /* Status Pulse */
+        .status-pulse {
+            animation: status-pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes status-pulse {
+            0%, 100% { 
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            }
+            50% { 
+                box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+            }
+        }
+        
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: #030712;
+        }
+        
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+        
+        .fade-out {
+            animation: fadeOut 1s ease-out forwards;
+        }
+        
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #10b981 0%, #06b6d4 50%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Shimmer Effect */
+        .shimmer {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .shimmer::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.05),
+                transparent
+            );
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        /* Neon Border */
+        .neon-border {
+            position: relative;
+        }
+        
+        .neon-border::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(135deg, 
+                rgba(16, 185, 129, 0.5), 
+                rgba(6, 182, 212, 0.3), 
+                rgba(139, 92, 246, 0.3),
+                rgba(16, 185, 129, 0.5));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0.5;
+        }
+        
+        /* Speaking Indicator */
+        .speaking-wave {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        
+        .speaking-wave span {
+            width: 3px;
+            height: 15px;
+            background: linear-gradient(180deg, #10b981, #06b6d4);
+            border-radius: 3px;
+            animation: wave 1s ease-in-out infinite;
+        }
+        
+        .speaking-wave span:nth-child(2) { animation-delay: 0.1s; }
+        .speaking-wave span:nth-child(3) { animation-delay: 0.2s; }
+        .speaking-wave span:nth-child(4) { animation-delay: 0.3s; }
+        .speaking-wave span:nth-child(5) { animation-delay: 0.4s; }
+        
+        @keyframes wave {
+            0%, 100% { height: 5px; opacity: 0.5; }
+            50% { height: 20px; opacity: 1; }
+        }
+        
+        /* Particles */
+        .particle {
+            position: fixed;
+            width: 2px;
+            height: 2px;
+            background: rgba(16, 185, 129, 0.5);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particle-float 15s linear infinite;
+        }
+        
+        @keyframes particle-float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% {
+                transform: translateY(-100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="bg-animated"></div>
+    <div class="bg-grid"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    
+    <!-- Particles -->
+    <div id="particles"></div>
+    
+    <div id="loading"></div>
+    <div id="vrm-canvas"></div>
+    
+    <!-- Orbiting Words -->
+    <div class="orbit-container">
+        <div class="orbit-ring orbit-ring-1"></div>
+        <div class="orbit-ring orbit-ring-2"></div>
+        <div class="orbit-ring orbit-ring-3"></div>
+        <div class="orbit-word orbit-word-1">Investment</div>
+        <div class="orbit-word orbit-word-2">Wealth</div>
+        <div class="orbit-word orbit-word-3">Growth</div>
+        <div class="orbit-word orbit-word-4">Strategy</div>
+        <div class="orbit-word orbit-word-outer orbit-word-5">Portfolio</div>
+        <div class="orbit-word orbit-word-outer orbit-word-6">Analytics</div>
+        <div class="orbit-word orbit-word-outer orbit-word-7">Markets</div>
+        <div class="orbit-word orbit-word-outer orbit-word-8">Finance</div>
+    </div>
+    
     <div id="root"></div>
+    
+    <script>
+        // Generate particles
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 20; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+            particlesContainer.appendChild(particle);
+        }
+    </script>
+    
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.167.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.167.0/examples/jsm/",
+            "@pixiv/three-vrm": "https://cdn.jsdelivr.net/npm/@pixiv/three-vrm@3/lib/three-vrm.module.js"
+        }
+    }
+    </script>
+    
+    <script type="module">
+        import * as THREE from 'three';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { VRMLoaderPlugin } from '@pixiv/three-vrm';
+        
+        // Global state
+        window.vrmState = {
+            vrm: null,
+            isSpeaking: false,
+            isListening: false,
+            mousePosition: { x: 0, y: 0 }
+        };
+        
+        // Setup Three.js
+        const container = document.getElementById('vrm-canvas');
+        
+        const scene = new THREE.Scene();
+        scene.background = null; // Transparent to show CSS background
+        
+        const camera = new THREE.PerspectiveCamera(
+            35,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
+        camera.position.set(0, 1.2, 1.2);
+        camera.lookAt(0, 1.4, 0);
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        renderer.setClearColor(0x000000, 0);
+        container.appendChild(renderer.domElement);
+        
+        // Lights with colored accent
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        scene.add(ambientLight);
+        
+        const mainLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        mainLight.position.set(1, 2, 3);
+        scene.add(mainLight);
+        
+        const fillLight = new THREE.DirectionalLight(0x10b981, 0.4);
+        fillLight.position.set(-2, 1, 1);
+        scene.add(fillLight);
+        
+        const backLight = new THREE.DirectionalLight(0x06b6d4, 0.3);
+        backLight.position.set(0, 1, -2);
+        scene.add(backLight);
+        
+        const rimLight = new THREE.DirectionalLight(0x8b5cf6, 0.2);
+        rimLight.position.set(2, 0, -1);
+        scene.add(rimLight);
+        
+        // Load VRM
+        const loader = new GLTFLoader();
+        loader.register((parser) => new VRMLoaderPlugin(parser));
+        
+        loader.load(
+            'models/veena.vrm',
+            (gltf) => {
+                const vrm = gltf.userData.vrm;
+                window.vrmState.vrm = vrm;
+                
+                scene.add(vrm.scene);
+                
+                vrm.scene.position.set(-0.1, -1.5, 0.6);
+                vrm.scene.rotation.y = 0.3;
+                
+                console.log('VRM loaded!');
+                console.log('Available expressions:', Object.keys(vrm.expressionManager?.expressionMap || {}));
+                
+                if (vrm.humanoid) {
+                    const leftShoulder = vrm.humanoid.getNormalizedBoneNode('leftShoulder');
+                    const rightShoulder = vrm.humanoid.getNormalizedBoneNode('rightShoulder');
+                    const leftUpperArm = vrm.humanoid.getNormalizedBoneNode('leftUpperArm');
+                    const rightUpperArm = vrm.humanoid.getNormalizedBoneNode('rightUpperArm');
+                    const leftLowerArm = vrm.humanoid.getNormalizedBoneNode('leftLowerArm');
+                    const rightLowerArm = vrm.humanoid.getNormalizedBoneNode('rightLowerArm');
+                    
+                    if (leftShoulder) leftShoulder.rotation.z = 0;
+                    if (rightShoulder) rightShoulder.rotation.z = 0;
+                    if (leftUpperArm) leftUpperArm.rotation.z = -1.4;
+                    if (rightUpperArm) rightUpperArm.rotation.z = 1.4;
+                    if (leftLowerArm) leftLowerArm.rotation.z = -1.2;
+                    if (rightLowerArm) rightLowerArm.rotation.z = 1.2;
+                }
+                
+                if (vrm.expressionManager) {
+                    vrm.expressionManager.setValue('neutral', 0.5);
+                }
+                
+                window.dispatchEvent(new CustomEvent('vrmLoaded'));
+            },
+            (progress) => {
+                const percent = (progress.loaded / progress.total * 100).toFixed(0);
+                window.dispatchEvent(new CustomEvent('vrmLoadProgress', { detail: percent }));
+            },
+            (error) => {
+                console.error('Error loading VRM:', error);
+                window.dispatchEvent(new CustomEvent('vrmLoadError', { detail: error }));
+            }
+        );
+        
+        // Animation
+        const clock = new THREE.Clock();
+        let idleTime = 0;
+        let blinkTimer = 0;
+        let expressionTimer = 0;
+        let currentExpression = 'neutral';
+        
+        let targetLookAt = new THREE.Vector3(0, 1.15, 0);
+        let currentLookAt = new THREE.Vector3(0, 1.15, 0);
+        
+        window.addEventListener('mousemove', (event) => {
+            const mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+            const mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+            window.vrmState.mousePosition = { x: mouseX, y: mouseY };
+        });
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const deltaTime = clock.getDelta();
+            idleTime += deltaTime;
+            blinkTimer += deltaTime;
+            expressionTimer += deltaTime;
+            
+            if (window.vrmState.vrm) {
+                const vrm = window.vrmState.vrm;
+                vrm.update(deltaTime);
+                
+                const breathCycle = 0;
+                vrm.scene.position.y = -0.1 + breathCycle;
+                
+                if (vrm.humanoid) {
+                    const spine = vrm.humanoid.getNormalizedBoneNode('spine');
+                    const chest = vrm.humanoid.getNormalizedBoneNode('chest');
+                    
+                    if (spine) spine.rotation.x = Math.sin(idleTime * 1.5) * 0.015;
+                    if (chest) chest.rotation.x = Math.sin(idleTime * 1.5) * 0.02;
+                }
+                
+                if (blinkTimer > 3 + Math.random() * 3) {
+                    blinkTimer = 0;
+                    if (vrm.expressionManager) {
+                        vrm.expressionManager.setValue('blink', 1);
+                        setTimeout(() => {
+                            if (vrm.expressionManager) vrm.expressionManager.setValue('blink', 0);
+                        }, 150);
+                    }
+                }
+                
+                if (!window.vrmState.isSpeaking && expressionTimer > 4 + Math.random() * 4) {
+                    expressionTimer = 0;
+                    const expressions = ['neutral', 'happy', 'relaxed'];
+                    currentExpression = expressions[Math.floor(Math.random() * expressions.length)];
+                    
+                    if (vrm.expressionManager) {
+                        expressions.forEach(exp => {
+                            vrm.expressionManager.setValue(exp, exp === currentExpression ? 0.5 : 0);
+                        });
+                    }
+                }
+                
+                if (window.vrmState.isSpeaking && vrm.expressionManager) {
+                    const time = Date.now() * 0.01;
+                    const intensity = (Math.sin(time * 2) + 1) * 0.5;
+                    
+                    const vowels = ['aa', 'ih', 'ou', 'ee', 'oh'];
+                    const vowelIndex = Math.floor(time * 1.8) % vowels.length;
+                    const currentVowel = vowels[vowelIndex];
+                    const nextVowel = vowels[(vowelIndex + 1) % vowels.length];
+                    const blend = (time * 1.8 % 1);
+                    
+                    vowels.forEach(v => vrm.expressionManager.setValue(v, 0));
+                    
+                    vrm.expressionManager.setValue(currentVowel, intensity * (1 - blend) * 0.9);
+                    vrm.expressionManager.setValue(nextVowel, intensity * blend * 0.9);
+                    
+                    vrm.expressionManager.setValue('happy', 0.5);
+                    
+                    if (vrm.humanoid) {
+                        const head = vrm.humanoid.getNormalizedBoneNode('head');
+                        const neck = vrm.humanoid.getNormalizedBoneNode('neck');
+                        
+                        if (head) {
+                            head.rotation.x += Math.sin(time * 4) * 0.02;
+                            head.rotation.z += Math.sin(time * 3) * 0.01;
+                        }
+                        if (neck) {
+                            neck.rotation.x += Math.sin(time * 2) * 0.01;
+                        }
+                        
+                        const leftLowerArm = vrm.humanoid.getNormalizedBoneNode('leftLowerArm');
+                        const rightLowerArm = vrm.humanoid.getNormalizedBoneNode('rightLowerArm');
+                        
+                        if (leftLowerArm) leftLowerArm.rotation.z = -0.2 + Math.sin(time * 1.5) * 0.1;
+                        if (rightLowerArm) rightLowerArm.rotation.z = 0.2 - Math.sin(time * 1.8) * 0.1;
+                    }
+                    
+                } else if (vrm.expressionManager) {
+                    const vowels = ['aa', 'ih', 'ou', 'ee', 'oh'];
+                    vowels.forEach(v => {
+                        const current = vrm.expressionManager.getValue(v) || 0;
+                        vrm.expressionManager.setValue(v, current * 0.85);
+                    });
+                    
+                    const currentHappy = vrm.expressionManager.getValue('happy') || 0;
+                    vrm.expressionManager.setValue('happy', currentHappy * 0.95);
+                }
+                
+                if (vrm.humanoid) {
+                    const head = vrm.humanoid.getNormalizedBoneNode('head');
+                    const neck = vrm.humanoid.getNormalizedBoneNode('neck');
+                    
+                    const mouseX = window.vrmState.mousePosition.x;
+                    const mouseY = window.vrmState.mousePosition.y;
+                    
+                    const maxRotationY = 0.4;
+                    const maxRotationX = 0.4;
+                    
+                    const targetRotationY = mouseX * maxRotationY;
+                    const targetRotationX = -mouseY * maxRotationX * 0.5;
+                    
+                    const lerpFactor = window.vrmState.isSpeaking ? 0.03 : 0.05;
+                    
+                    if (head) {
+                        head.rotation.y += (targetRotationY - head.rotation.y) * lerpFactor;
+                        head.rotation.x += (targetRotationX - head.rotation.x) * lerpFactor;
+                        head.rotation.z += (-targetRotationY * 0.1 - head.rotation.z) * lerpFactor;
+                        
+                        if (!window.vrmState.isSpeaking) {
+                            head.rotation.y += Math.sin(idleTime * 0.5) * 0.02;
+                            head.rotation.x += Math.sin(idleTime * 0.4) * 0.01;
+                        }
+                    }
+                    
+                    if (neck) {
+                        neck.rotation.y += (targetRotationY * 0.5 - neck.rotation.y) * lerpFactor;
+                        neck.rotation.x += (targetRotationX * 0.3 - neck.rotation.x) * lerpFactor;
+                        
+                        if (!window.vrmState.isSpeaking) {
+                            neck.rotation.y += Math.sin(idleTime * 0.4) * 0.015;
+                        }
+                    }
+                    
+                    if (!window.vrmState.isSpeaking) {
+                        const leftLowerArm = vrm.humanoid.getNormalizedBoneNode('leftLowerArm');
+                        const rightLowerArm = vrm.humanoid.getNormalizedBoneNode('rightLowerArm');
+                        
+                        if (leftLowerArm) leftLowerArm.rotation.z = -0.2 + Math.sin(idleTime * 0.8) * 0.02;
+                        if (rightLowerArm) rightLowerArm.rotation.z = 0.2 - Math.sin(idleTime * 0.9) * 0.02;
+                    }
+                }
+            }
+            
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+        
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        window.setVRMState = (state) => {
+            Object.assign(window.vrmState, state);
+        };
+    </script>
+    
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
-        const { createRoot } = ReactDOM;
 
-        const MicIcon = () => (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m12 1 0 10"></path>
-                <path d="M9 9v3a3 3 0 0 0 6 0v-3"></path>
-                <path d="M5 10v2a7 7 0 0 0 14 0v-2"></path>
-                <line x1="8" x2="16" y1="21" y2="21"></line>
-                <line x1="12" x2="12" y1="17" y2="21"></line>
-            </svg>
-        );
-
-        const MicOffIcon = () => (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="2" x2="22" y1="2" y2="22"></line>
-                <path d="M9 9v3a3 3 0 0 0 5.12 2.12L9 9z"></path>
-                <path d="M5 10v2a7 7 0 0 0 11.13 5.74l-2.28-2.28"></path>
-                <line x1="8" x2="16" y1="21" y2="21"></line>
-                <line x1="12" x2="12" y1="17" y2="21"></line>
-            </svg>
-        );
-
-        const VolumeIcon = () => (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
-            </svg>
-        );
-
-        const NetworkGlobe = ({ isSpeaking, isListening }) => {
-            const baseSize = isSpeaking ? 260 : 220;
+        // Enhanced Pipe Screensaver
+        const PipeScreensaver = () => {
             const canvasRef = useRef(null);
-            const animationIdRef = useRef(null);
-            const rotationRef = useRef(0);
             
-            // Static particle positions (calculated once)
-            const staticParticles = useRef([]);
-            
-            // Initialize particles once with fixed positions
-            const initializeStaticParticles = () => {
-                const particles = [];
-                const particleCount = 60;
-                const goldenRatio = (1 + Math.sqrt(5)) / 2;
-                
-                for (let i = 0; i < particleCount; i++) {
-                    // Fibonacci spiral for even distribution
-                    const lat = Math.asin(-1 + 2 * i / (particleCount - 1));
-                    const lon = (i % goldenRatio) * 2 * Math.PI / goldenRatio;
-                    
-                    particles.push({
-                        lat: lat,
-                        lon: lon,
-                        brightness: 0.6 + Math.random() * 0.4,
-                        size: 2 + Math.random() * 1,
-                        pulseOffset: Math.random() * Math.PI * 2
-                    });
-                }
-                return particles;
-            };
-
-            // Simple smooth animation loop
-            const animate = () => {
+            useEffect(() => {
                 const canvas = canvasRef.current;
-                if (!canvas) return;
-                
                 const ctx = canvas.getContext('2d');
-                const time = Date.now() * 0.001;
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
                 
-                // Only rotate when speaking
-                if (isSpeaking) {
-                    rotationRef.current += 0.01; // Smooth constant rotation
-                }
+                const pipes = [];
+                const maxPipes = 6;
+                const segmentLength = 25;
                 
-                // Clear canvas
-                ctx.clearRect(0, 0, baseSize, baseSize);
-                
-                const radius = baseSize * 0.35;
-                const centerX = baseSize / 2;
-                const centerY = baseSize / 2;
-                
-                // Convert particles to screen coordinates
-                const screenParticles = staticParticles.current.map(particle => {
-                    const rotatedLon = particle.lon + rotationRef.current;
+                class Pipe {
+                    constructor() {
+                        this.x = Math.random() * canvas.width;
+                        this.y = Math.random() * canvas.height;
+                        this.direction = Math.floor(Math.random() * 4);
+                        this.segments = [];
+                        this.color = this.getRandomColor();
+                        this.thickness = 8;
+                    }
                     
-                    // 3D to 2D conversion
-                    const x = radius * Math.cos(particle.lat) * Math.cos(rotatedLon);
-                    const y = radius * Math.sin(particle.lat);
-                    const z = radius * Math.cos(particle.lat) * Math.sin(rotatedLon);
+                    getRandomColor() {
+                        const colors = ['#10b981', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'];
+                        return colors[Math.floor(Math.random() * colors.length)];
+                    }
                     
-                    return {
-                        x: x + centerX,
-                        y: y + centerY,
-                        z: z,
-                        brightness: particle.brightness + Math.sin(time * 2 + particle.pulseOffset) * 0.15,
-                        size: particle.size
-                    };
-                });
-                
-                // Sort by z-depth (back to front)
-                screenParticles.sort((a, b) => a.z - b.z);
-                
-                // Draw connections first
-                ctx.globalCompositeOperation = 'screen';
-                ctx.lineWidth = 0.5;
-                
-                for (let i = 0; i < screenParticles.length; i++) {
-                    const p1 = screenParticles[i];
-                    if (p1.z < -radius * 0.3) continue; // Skip back particles
-                    
-                    for (let j = i + 1; j < screenParticles.length; j++) {
-                        const p2 = screenParticles[j];
-                        if (p2.z < -radius * 0.3) continue;
+                    move() {
+                        const directions = [
+                            { dx: segmentLength, dy: 0 },
+                            { dx: 0, dy: segmentLength },
+                            { dx: -segmentLength, dy: 0 },
+                            { dx: 0, dy: -segmentLength }
+                        ];
                         
-                        const distance = Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
+                        const dir = directions[this.direction];
+                        const newX = this.x + dir.dx;
+                        const newY = this.y + dir.dy;
                         
-                        if (distance < 100) {
-                            const opacity = (1 - distance / 100) * 0.3;
-                            const depth1 = (p1.z + radius) / (2 * radius);
-                            const depth2 = (p2.z + radius) / (2 * radius);
-                            const avgDepth = (depth1 + depth2) / 2;
+                        this.segments.push({
+                            x1: this.x, y1: this.y,
+                            x2: newX, y2: newY
+                        });
+                        
+                        this.x = newX;
+                        this.y = newY;
+                        
+                        if (Math.random() < 0.25) {
+                            const possibleDirs = [0, 1, 2, 3].filter(d => 
+                                d !== this.direction && d !== (this.direction + 2) % 4
+                            );
+                            this.direction = possibleDirs[Math.floor(Math.random() * possibleDirs.length)];
+                        }
+                        
+                        if (this.x < 0 || this.x > canvas.width || 
+                            this.y < 0 || this.y > canvas.height) {
+                            return false;
+                        }
+                        
+                        if (this.segments.length > 60) this.segments.shift();
+                        return true;
+                    }
+                    
+                    draw() {
+                        ctx.lineWidth = this.thickness;
+                        ctx.lineCap = 'round';
+                        ctx.lineJoin = 'round';
+                        
+                        this.segments.forEach((seg, index) => {
+                            const alpha = (index + 1) / this.segments.length;
+                            ctx.strokeStyle = this.color;
+                            ctx.globalAlpha = alpha * 0.8;
+                            ctx.shadowBlur = 30;
+                            ctx.shadowColor = this.color;
                             
                             ctx.beginPath();
-                            ctx.moveTo(p1.x, p1.y);
-                            ctx.lineTo(p2.x, p2.y);
-                            
-                            if (isSpeaking) {
-                                ctx.strokeStyle = `rgba(6, 182, 212, ${opacity * avgDepth * p1.brightness})`;
-                            } else {
-                                ctx.strokeStyle = `rgba(59, 130, 246, ${opacity * avgDepth * p1.brightness * 0.8})`;
-                            }
+                            ctx.moveTo(seg.x1, seg.y1);
+                            ctx.lineTo(seg.x2, seg.y2);
                             ctx.stroke();
-                        }
+                            
+                            ctx.beginPath();
+                            ctx.arc(seg.x2, seg.y2, this.thickness / 2 + 2, 0, Math.PI * 2);
+                            ctx.fillStyle = this.color;
+                            ctx.fill();
+                        });
+                        ctx.globalAlpha = 1;
                     }
                 }
                 
-                // Draw particles
-                ctx.globalCompositeOperation = 'lighter';
-                
-                screenParticles.forEach(particle => {
-                    const depth = (particle.z + radius) / (2 * radius);
-                    if (depth < 0.2) return; // Skip very back particles
+                const animate = () => {
+                    ctx.fillStyle = 'rgba(3, 7, 18, 0.1)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
                     
-                    const size = particle.size * (0.5 + depth * 0.5);
-                    const alpha = particle.brightness * depth;
-                    
-                    // Particle glow
-                    ctx.beginPath();
-                    ctx.arc(particle.x, particle.y, size + 1, 0, Math.PI * 2);
-                    
-                    const gradient = ctx.createRadialGradient(
-                        particle.x, particle.y, 0,
-                        particle.x, particle.y, size + 1
-                    );
-                    
-                    if (isSpeaking) {
-                        gradient.addColorStop(0, `rgba(6, 182, 212, ${alpha})`);
-                        gradient.addColorStop(0.7, `rgba(6, 182, 212, ${alpha * 0.3})`);
-                    } else {
-                        gradient.addColorStop(0, `rgba(59, 130, 246, ${alpha * 0.8})`);
-                        gradient.addColorStop(0.7, `rgba(59, 130, 246, ${alpha * 0.2})`);
+                    if (pipes.length < maxPipes && Math.random() < 0.03) {
+                        pipes.push(new Pipe());
                     }
-                    gradient.addColorStop(1, 'transparent');
                     
-                    ctx.fillStyle = gradient;
-                    ctx.fill();
-                    
-                    // Bright center
-                    ctx.beginPath();
-                    ctx.arc(particle.x, particle.y, size * 0.4, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.8})`;
-                    ctx.fill();
-                });
-                
-                ctx.globalCompositeOperation = 'source-over';
-                animationIdRef.current = requestAnimationFrame(animate);
-            };
-
-            // Initialize particles once on mount
-            useEffect(() => {
-                if (staticParticles.current.length === 0) {
-                    staticParticles.current = initializeStaticParticles();
-                }
-                
-                animationIdRef.current = requestAnimationFrame(animate);
-                
-                return () => {
-                    if (animationIdRef.current) {
-                        cancelAnimationFrame(animationIdRef.current);
+                    for (let i = pipes.length - 1; i >= 0; i--) {
+                        pipes[i].draw();
+                        if (!pipes[i].move()) pipes.splice(i, 1);
                     }
+                    
+                    requestAnimationFrame(animate);
                 };
-            }, [isSpeaking, baseSize]);
-
-            // Setup canvas
-            useEffect(() => {
-                const canvas = canvasRef.current;
-                if (canvas) {
-                    canvas.width = baseSize;
-                    canvas.height = baseSize;
-                    canvas.style.width = baseSize + 'px';
-                    canvas.style.height = baseSize + 'px';
-                }
-            }, [baseSize]);
+                
+                animate();
+            }, []);
             
-            return React.createElement('div', { 
-                className: "relative flex items-center justify-center",
-                style: { perspective: '1000px' }
-            }, [
-                // Outer glow ring
-                React.createElement('div', {
-                    key: 'outer-ring',
-                    className: `absolute rounded-full transition-all duration-700 ${
-                        isSpeaking ? 'shadow-2xl shadow-cyan-400/60' : 'shadow-lg shadow-blue-600/40'
-                    }`,
-                    style: {
-                        width: baseSize + 120,
-                        height: baseSize + 120,
-                        background: isSpeaking
-                            ? 'radial-gradient(circle, transparent 60%, rgba(6, 182, 212, 0.3) 75%, rgba(59, 130, 246, 0.2) 90%, transparent 100%)'
-                            : 'radial-gradient(circle, transparent 60%, rgba(59, 130, 246, 0.2) 75%, rgba(29, 78, 216, 0.15) 90%, transparent 100%)',
-                        transform: isSpeaking ? 'scale(1.02)' : 'scale(1)',
-                        animation: isSpeaking ? 'pulse-gentle 3s ease-in-out infinite' : 'none'
-                    }
-                }),
-                
-                // Main network sphere container
-                React.createElement('div', {
-                    key: 'network-container',
-                    className: "relative rounded-full transition-all duration-700",
-                    style: {
-                        width: baseSize,
-                        height: baseSize,
-                        transform: isSpeaking ? 'scale(1.05)' : 'scale(1)',
-                        background: isSpeaking
-                            ? 'radial-gradient(circle at 30% 30%, rgba(6, 182, 212, 0.05) 0%, rgba(59, 130, 246, 0.03) 50%, transparent 80%)'
-                            : 'radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.03) 0%, rgba(29, 78, 216, 0.02) 50%, transparent 80%)',
-                        boxShadow: isSpeaking
-                            ? '0 0 100px rgba(6, 182, 212, 0.4), 0 0 150px rgba(59, 130, 246, 0.3), inset 0 0 50px rgba(6, 182, 212, 0.1)'
-                            : '0 0 60px rgba(59, 130, 246, 0.3), inset 0 0 30px rgba(59, 130, 246, 0.05)',
-                    }
-                }, [
-                    // Canvas for network visualization
-                    React.createElement('canvas', {
-                        key: 'network-canvas',
-                        ref: canvasRef,
-                        className: "absolute inset-0 rounded-full",
-                        style: {
-                            filter: isSpeaking 
-                                ? 'drop-shadow(0 0 20px rgba(6, 182, 212, 0.6)) drop-shadow(0 0 40px rgba(59, 130, 246, 0.4))' 
-                                : 'drop-shadow(0 0 10px rgba(59, 130, 246, 0.5))'
-                        }
-                    }),
-                    
-                    // Additional glow effects when speaking
-                    isSpeaking && React.createElement('div', {
-                        key: 'inner-glow',
-                        className: "absolute inset-4 rounded-full opacity-30",
-                        style: {
-                            background: 'radial-gradient(circle, rgba(6, 182, 212, 0.2) 0%, transparent 70%)',
-                            animation: 'pulse-gentle 2s ease-in-out infinite'
-                        }
-                    }),
-                    
-                    // Subtle rotating ring effect when speaking
-                    isSpeaking && React.createElement('div', {
-                        key: 'rotating-ring',
-                        className: "absolute inset-0 rounded-full opacity-30",
-                        style: {
-                            background: `conic-gradient(
-                                from 0deg,
-                                transparent 0deg,
-                                rgba(6, 182, 212, 0.2) 45deg,
-                                transparent 90deg,
-                                rgba(147, 51, 234, 0.2) 180deg,
-                                transparent 270deg,
-                                rgba(6, 182, 212, 0.2) 315deg,
-                                transparent 360deg
-                            )`,
-                            animation: 'spin-slow 12s linear infinite'
-                        }
-                    })
-                ]),
-                
-                // Listening indicator ring
-                isListening && React.createElement('div', {
-                    key: 'listening-ring',
-                    className: "absolute rounded-full border-2 border-red-400",
-                    style: {
-                        width: baseSize + 100,
-                        height: baseSize + 100,
-                        boxShadow: '0 0 40px rgba(239, 68, 68, 0.6)',
-                        animation: 'pulse-red 2s ease-in-out infinite'
-                    }
-                })
-            ]);
+            return <canvas ref={canvasRef} className="w-full h-full" />;
         };
 
-        const VeenaAIFrontend = () => {
+        const LoadingScreen = ({ isLoading, progress }) => {
+            if (!isLoading) return null;
+            
+            return (
+                <div className={`loading-screen flex flex-col items-center justify-center ${!isLoading ? 'fade-out' : ''}`}>
+                    <PipeScreensaver />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <div className="text-center space-y-8 z-10">
+                            <div className="relative">
+                                <h1 className="text-7xl font-bold gradient-text" style={{fontFamily: 'Orbitron, sans-serif'}}>
+                                    VEENA AI
+                                </h1>
+                                <div className="absolute -inset-4 bg-gradient-to-r from-emerald-500/20 via-cyan-500/20 to-purple-500/20 blur-2xl -z-10"></div>
+                            </div>
+                            
+                            <div className="speaking-wave justify-center">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                            
+                            <div className="space-y-2">
+                                <div className="w-64 h-1 bg-white/10 rounded-full overflow-hidden mx-auto">
+                                    <div 
+                                        className="h-full bg-gradient-to-r from-emerald-500 via-cyan-500 to-purple-500 rounded-full transition-all duration-300"
+                                        style={{width: `${progress}%`}}
+                                    ></div>
+                                </div>
+                                <p className="text-emerald-300/80 text-sm tracking-widest uppercase">
+                                    {progress < 100 ? `Initializing... ${progress}%` : 'Ready'}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const VeenaAI = () => {
             const [isListening, setIsListening] = useState(false);
             const [isSpeaking, setIsSpeaking] = useState(false);
-            const [captions, setCaptions] = useState([]);
-            const [currentTranscript, setCurrentTranscript] = useState('');
+            const [messages, setMessages] = useState([]);
             const [connectionStatus, setConnectionStatus] = useState('disconnected');
-            const [reconnectAttempts, setReconnectAttempts] = useState(0);
-            const audioRef = useRef(null);
-            const captionIdRef = useRef(0);
+            const [language, setLanguage] = useState('en');
+            const [inputText, setInputText] = useState('');
+            const [modelLoaded, setModelLoaded] = useState(false);
+            const [loadingProgress, setLoadingProgress] = useState(0);
+            const messagesEndRef = useRef(null);
             const wsRef = useRef(null);
-            const reconnectTimeoutRef = useRef(null);
-
-            const MAX_RECONNECT_ATTEMPTS = 5;
-
+            
+            useEffect(() => {
+                window.addEventListener('vrmLoaded', () => {
+                    setTimeout(() => setModelLoaded(true), 500);
+                });
+                
+                window.addEventListener('vrmLoadProgress', (e) => {
+                    setLoadingProgress(parseInt(e.detail));
+                });
+                
+                window.addEventListener('vrmLoadError', () => {
+                    setModelLoaded(true);
+                });
+                
+                connectWebSocket();
+            }, []);
+            
+            useEffect(() => {
+                messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+            }, [messages]);
+            
+            useEffect(() => {
+                window.setVRMState({ isSpeaking, isListening });
+            }, [isSpeaking, isListening]);
+            
             const connectWebSocket = () => {
-                if (wsRef.current) {
-                    wsRef.current.close();
-                }
-
                 try {
                     wsRef.current = new WebSocket('ws://localhost:8765');
-
+                    
                     wsRef.current.onopen = () => {
-                        console.log('Connected to Veena AI');
                         setConnectionStatus('connected');
-                        setCurrentTranscript('');
-                        setReconnectAttempts(0);
-                        clearTimeout(reconnectTimeoutRef.current);
                     };
-
+                    
                     wsRef.current.onmessage = (event) => {
-                        try {
-                            const data = JSON.parse(event.data);
-                            handleWebSocketMessage(data);
-                        } catch (error) {
-                            console.error('Error parsing WebSocket message:', error);
-                            setCurrentTranscript('Error parsing message');
-                        }
+                        const data = JSON.parse(event.data);
+                        handleWebSocketMessage(data);
                     };
-
-                    wsRef.current.onclose = (event) => {
-                        console.log('Disconnected from Veena AI:', event.code, event.reason);
+                    
+                    wsRef.current.onclose = () => {
                         setConnectionStatus('disconnected');
-                        setIsListening(false);
-                        setIsSpeaking(false);
-
-                        if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-                            const delay = Math.min(3000 * (2 ** reconnectAttempts), 30000);
-                            setReconnectAttempts(prev => prev + 1);
-                            reconnectTimeoutRef.current = setTimeout(() => {
-                                connectWebSocket();
-                            }, delay);
-                        } else {
-                            setCurrentTranscript('Max reconnect attempts reached');
-                        }
-                    };
-
-                    wsRef.current.onerror = (error) => {
-                        console.error('WebSocket error:', error);
-                        setConnectionStatus('error');
+                        setTimeout(connectWebSocket, 3000);
                     };
                 } catch (error) {
-                    console.error('Error connecting to WebSocket:', error);
-                    setConnectionStatus('error');
+                    console.error('WebSocket error:', error);
                 }
             };
-
+            
             const handleWebSocketMessage = (data) => {
                 switch (data.type) {
-                    case 'connection_status':
-                        setConnectionStatus(data.status);
-                        break;
                     case 'user_message':
-                        addCaption(data.text, 'user');
-                        setCurrentTranscript('');
+                        setMessages(prev => [...prev, { text: data.text, type: 'user', timestamp: Date.now() }]);
                         break;
                     case 'agent_response':
-                        addCaption(data.text, 'agent');
+                        setMessages(prev => [...prev, { text: data.text, type: 'agent', timestamp: Date.now() }]);
                         break;
                     case 'speaking_started':
                         setIsSpeaking(true);
@@ -398,243 +1036,225 @@
                         break;
                     case 'listening_started':
                         setIsListening(true);
-                        setCurrentTranscript('Listening...');
                         break;
                     case 'listening_stopped':
                         setIsListening(false);
-                        setCurrentTranscript('');
                         break;
-                    case 'error':
-                        console.error('Server error:', data.message);
-                        setCurrentTranscript('Error: ' + data.message);
-                        break;
-                    default:
-                        console.log('Unknown message type:', data.type);
                 }
             };
-
-            useEffect(() => {
-                connectWebSocket();
-
-                return () => {
-                    if (wsRef.current) {
-                        wsRef.current.close();
-                    }
-                    if (reconnectTimeoutRef.current) {
-                        clearTimeout(reconnectTimeoutRef.current);
-                    }
-                };
-            }, []);
-
-            const sendWebSocketMessage = (message) => {
-                if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-                    wsRef.current.send(JSON.stringify(message));
-                } else {
-                    console.error('WebSocket is not connected');
-                    setCurrentTranscript('Connection lost. Reconnecting...');
-                }
+            
+            const sendMessage = (text) => {
+                if (!text.trim() || connectionStatus !== 'connected') return;
+                
+                const languageInstruction = language === 'hi' 
+                    ? ' [RESPOND IN HINDI - हिंदी में जवाब दें]' 
+                    : ' [RESPOND IN ENGLISH]';
+                
+                wsRef.current.send(JSON.stringify({
+                    type: 'text_input',
+                    text: text + languageInstruction,
+                    language: language
+                }));
+                
+                setInputText('');
             };
-
-            const addCaption = (text, type = 'user') => {
-                const id = captionIdRef.current++;
-                const newCaption = { id, text, type, timestamp: Date.now() };
-                setCaptions(prev => [...prev, newCaption]);
-                setTimeout(() => {
-                    setCaptions(prev => prev.filter(cap => cap.id !== id));
-                }, 8000);
-            };
-
+            
             const toggleListening = () => {
-                if (connectionStatus !== 'connected') {
-                    setCurrentTranscript('Not connected to server');
-                    return;
-                }
+                if (connectionStatus !== 'connected') return;
+                
                 if (isListening) {
-                    sendWebSocketMessage({ type: 'stop_listening' });
+                    wsRef.current.send(JSON.stringify({ type: 'stop_listening' }));
                 } else {
-                    sendWebSocketMessage({ type: 'start_listening' });
+                    wsRef.current.send(JSON.stringify({ type: 'start_listening' }));
                 }
             };
-
-            const sendTestMessage = () => {
-                if (connectionStatus === 'connected') {
-                    sendWebSocketMessage({
-                        type: 'text_input',
-                        text: 'Hello Veena, how are you today?'
-                    });
-                }
-            };
-
-            return React.createElement('div', {
-                className: "min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white flex flex-col items-center justify-center relative overflow-hidden"
-            }, [
-                React.createElement('div', {
-                    key: 'background',
-                    className: "absolute inset-0 opacity-10"
-                }, [
-                    React.createElement('div', {
-                        key: 'bg1',
-                        className: "absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/20 to-transparent",
-                        style: { animation: 'pulse-bg 4s ease-in-out infinite' }
-                    }),
-                    React.createElement('div', {
-                        key: 'bg2',
-                        className: "absolute inset-0",
-                        style: {
-                            backgroundImage: `
-                                linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
-                                linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px)
-                            `,
-                            backgroundSize: '60px 60px'
-                        }
-                    })
-                ]),
-                React.createElement('div', {
-                    key: 'status',
-                    className: "absolute top-6 left-6 flex items-center space-x-2 text-sm"
-                }, [
-                    React.createElement('div', {
-                        key: 'status-dot',
-                        className: `w-2 h-2 rounded-full transition-colors duration-300 ${
-                            connectionStatus === 'connected'
-                                ? 'bg-green-500 shadow-lg shadow-green-500/50'
-                                : connectionStatus === 'error'
-                                ? 'bg-red-500 shadow-lg shadow-red-500/50'
-                                : 'bg-yellow-500 shadow-lg shadow-yellow-500/50'
-                        }`
-                    }),
-                    React.createElement('span', {
-                        key: 'status-text',
-                        className: "text-gray-400 capitalize"
-                    }, connectionStatus)
-                ]),
-                React.createElement('div', {
-                    key: 'agent-name',
-                    className: "absolute top-6 right-6 text-xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent"
-                }, "VEENA"),
-                React.createElement('div', {
-                    key: 'globe-container',
-                    className: "flex-1 flex items-center justify-center mb-20"
-                }, React.createElement(NetworkGlobe, { isSpeaking, isListening })),
-                React.createElement('div', {
-                    key: 'captions',
-                    className: "absolute bottom-32 left-1/2 transform -translate-x-1/2 w-full max-w-4xl px-6"
-                }, React.createElement('div', {
-                    className: "space-y-2 max-h-48 overflow-hidden"
-                }, captions.map((caption, index) =>
-                    React.createElement('div', {
-                        key: caption.id,
-                        className: `animate-fade-in-up text-center transition-all duration-500 ${
-                            caption.type === 'user' ? 'text-cyan-300' : 'text-white'
-                        }`,
-                        style: {
-                            animationDelay: `${index * 100}ms`,
-                            textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-                            fontSize: '18px',
-                            fontWeight: '500',
-                            opacity: captions.length - index > 3 ? '0.6' : '1',
-                        }
-                    }, [
-                        caption.type === 'agent' && React.createElement('span', {
-                            key: 'agent-prefix',
-                            className: "text-cyan-400 font-bold"
-                        }, "VEENA: "),
-                        caption.text
-                    ])
-                ))),
-                currentTranscript && React.createElement('div', {
-                    key: 'transcript',
-                    className: "absolute bottom-16 left-1/2 transform -translate-x-1/2 text-center"
-                }, React.createElement('div', {
-                    className: "bg-black/50 backdrop-blur-sm rounded-lg px-6 py-3 border border-gray-600"
-                }, React.createElement('span', {
-                    className: "text-gray-300 text-sm"
-                }, currentTranscript))),
-                React.createElement('div', {
-                    key: 'controls',
-                    className: "absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-4"
-                }, [
-                    React.createElement('button', {
-                        key: 'mic-btn',
-                        onClick: toggleListening,
-                        disabled: connectionStatus !== 'connected',
-                        className: `p-4 rounded-full transition-all duration-300 border-2 ${
-                            isListening
-                                ? 'bg-red-500 border-red-400 shadow-lg shadow-red-500/30 hover:bg-red-600'
-                                : connectionStatus === 'connected'
-                                ? 'bg-gray-700 border-gray-600 hover:bg-gray-600 hover:border-gray-500'
-                                : 'bg-gray-800 border-gray-700 opacity-50 cursor-not-allowed'
-                        }`
-                    }, React.createElement(isListening ? MicOffIcon : MicIcon)),
-                    React.createElement('button', {
-                        key: 'test-btn',
-                        onClick: sendTestMessage,
-                        disabled: connectionStatus !== 'connected',
-                        className: `p-4 rounded-full transition-all duration-300 border-2 ${
-                            connectionStatus === 'connected'
-                                ? 'bg-blue-700 border-blue-600 hover:bg-blue-600 hover:border-blue-500'
-                                : 'bg-gray-800 border-gray-700 opacity-50 cursor-not-allowed'
-                        }`,
-                        title: "Send test message"
-                    }, "💬"),
-                    React.createElement('button', {
-                        key: 'volume-btn',
-                        className: "p-4 rounded-full bg-gray-700 border-2 border-gray-600 hover:bg-gray-600 hover:border-gray-500 transition-all duration-300",
-                        disabled: !isSpeaking
-                    }, React.createElement(VolumeIcon, { className: isSpeaking ? 'text-cyan-400' : 'text-gray-400' }))
-                ]),
-                React.createElement('style', {
-                    key: 'styles'
-                }, `
-                    @keyframes fade-in-up {
-                        from { opacity: 0; transform: translateY(20px); }
-                        to { opacity: 1; transform: translateY(0); }
-                    }
-                    .animate-fade-in-up { animation: fade-in-up 0.5s ease-out forwards; }
+            
+            return (
+                <>
+                    <LoadingScreen isLoading={!modelLoaded} progress={loadingProgress} />
                     
-                    @keyframes pulse-gentle {
-                        0%, 100% { opacity: 0.8; transform: scale(1); }
-                        50% { opacity: 1; transform: scale(1.02); }
-                    }
-                    
-                    @keyframes pulse-red {
-                        0%, 100% { opacity: 0.7; transform: scale(1); }
-                        50% { opacity: 1; transform: scale(1.05); }
-                    }
-                    
-                    @keyframes pulse-bg {
-                        0%, 100% { opacity: 0.1; }
-                        50% { opacity: 0.2; }
-                    }
-                    
-                    @keyframes spin-slow {
-                        0% { transform: rotate(0deg); }
-                        100% { transform: rotate(360deg); }
-                    }
-                    
-                    /* Smooth canvas rendering */
-                    canvas {
-                        image-rendering: auto;
-                        -webkit-font-smoothing: antialiased;
-                        -moz-osx-font-smoothing: grayscale;
-                    }
-                `)
-            ]);
+                    <div id="ui-overlay" className="text-white">
+                        {/* Header */}
+                        <header className="m-4">
+                            <div className="glass glass-hover rounded-2xl px-6 py-4 flex items-center justify-between neon-border shimmer">
+                                <div className="flex items-center space-x-4">
+                                    <div className="relative">
+                                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 via-cyan-500 to-purple-500 flex items-center justify-center font-bold text-xl shadow-lg" style={{fontFamily: 'Orbitron, sans-serif'}}>
+                                            V
+                                        </div>
+                                        <div className="absolute -inset-1 bg-gradient-to-br from-emerald-500 via-cyan-500 to-purple-500 rounded-xl blur opacity-40 -z-10"></div>
+                                    </div>
+                                    <div>
+                                        <h1 className="text-2xl font-bold gradient-text" style={{fontFamily: 'Orbitron, sans-serif'}}>
+                                            Veena AI
+                                        </h1>
+                                        <p className="text-xs text-gray-400 tracking-widest uppercase">Financial Intelligence</p>
+                                    </div>
+                                </div>
+                                
+                                <div className="flex items-center space-x-6">
+                                    {/* Language Toggle */}
+                                    <div className="glass rounded-xl p-1 flex items-center">
+                                        <button
+                                            onClick={() => setLanguage('en')}
+                                            className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${
+                                                language === 'en' 
+                                                    ? 'bg-gradient-to-r from-emerald-600 to-cyan-600 text-white shadow-lg shadow-emerald-500/25' 
+                                                    : 'text-gray-400 hover:text-white'
+                                            }`}
+                                        >
+                                            English
+                                        </button>
+                                        <button
+                                            onClick={() => setLanguage('hi')}
+                                            className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${
+                                                language === 'hi' 
+                                                    ? 'bg-gradient-to-r from-emerald-600 to-cyan-600 text-white shadow-lg shadow-emerald-500/25' 
+                                                    : 'text-gray-400 hover:text-white'
+                                            }`}
+                                        >
+                                            हिंदी
+                                        </button>
+                                    </div>
+                                    
+                                    {/* Connection Status */}
+                                    <div className="glass rounded-xl px-4 py-2 flex items-center space-x-3">
+                                        <div className={`relative w-2 h-2 rounded-full ${
+                                            connectionStatus === 'connected' ? 'bg-emerald-500' : 'bg-red-500'
+                                        }`}>
+                                            <div className={`absolute inset-0 rounded-full ${
+                                                connectionStatus === 'connected' ? 'bg-emerald-500' : 'bg-red-500'
+                                            } status-pulse`}></div>
+                                        </div>
+                                        <span className="text-sm text-gray-300 capitalize tracking-wide">{connectionStatus}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </header>
+                        
+                        {/* Status Indicators */}
+                        {modelLoaded && isSpeaking && (
+                            <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 glass rounded-2xl px-8 py-4 flex items-center space-x-4 neon-border">
+                                <div className="speaking-wave">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                                <span className="text-lg font-semibold gradient-text">Speaking...</span>
+                            </div>
+                        )}
+                        
+                        {modelLoaded && isListening && (
+                            <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 glass rounded-2xl px-8 py-4 flex items-center space-x-4" style={{border: '1px solid rgba(239, 68, 68, 0.3)'}}>
+                                <div className="relative">
+                                    <div className="w-4 h-4 bg-red-500 rounded-full"></div>
+                                    <div className="absolute inset-0 bg-red-500 rounded-full animate-ping opacity-75"></div>
+                                </div>
+                                <span className="text-lg font-semibold text-red-400">Listening...</span>
+                            </div>
+                        )}
+                        
+                        {/* Chat Panel */}
+                        <div className="fixed bottom-6 right-6 w-[380px]">
+                            <div className="glass rounded-3xl p-5 shadow-2xl neon-border">
+                                <div className="flex items-center justify-center mb-4">
+                                    <div className="flex items-center space-x-2">
+                                        <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                                        <h2 className="text-lg font-bold gradient-text tracking-wider" style={{fontFamily: 'Orbitron, sans-serif'}}>
+                                            CONVERSATION
+                                        </h2>
+                                        <div className="w-2 h-2 rounded-full bg-cyan-500"></div>
+                                    </div>
+                                </div>
+                                
+                                <div className="messages-area space-y-3 mb-4 pr-2">
+                                    {messages.length === 0 && (
+                                        <div className="text-center py-8">
+                                            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 mb-4">
+                                                <span className="text-3xl">👋</span>
+                                            </div>
+                                            <p className="text-lg font-medium text-white mb-1">
+                                                {language === 'hi' ? 'नमस्ते!' : 'Hello!'}
+                                            </p>
+                                            <p className="text-sm text-gray-400">
+                                                {language === 'hi' 
+                                                    ? 'मैं वीना हूं, आपकी वित्तीय सलाहकार।'
+                                                    : "I'm Veena, your financial advisor."}
+                                            </p>
+                                        </div>
+                                    )}
+                                    
+                                    {messages.map((msg, idx) => (
+                                        <div
+                                            key={idx}
+                                            className={`chat-bubble flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                                        >
+                                            <div className={`max-w-[85%] px-4 py-3 text-sm ${
+                                                msg.type === 'user'
+                                                    ? 'bg-gradient-to-r from-emerald-600 to-cyan-600 text-white rounded-2xl rounded-br-md shadow-lg shadow-emerald-500/20'
+                                                    : 'glass rounded-2xl rounded-bl-md'
+                                            }`}>
+                                                {msg.type === 'agent' && (
+                                                    <p className="text-xs gradient-text mb-1 font-semibold tracking-wide">VEENA</p>
+                                                )}
+                                                <p className="leading-relaxed">{msg.text}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    <div ref={messagesEndRef} />
+                                </div>
+                                
+                                <div className="flex items-center space-x-2">
+                                    <input
+                                        type="text"
+                                        value={inputText}
+                                        onChange={(e) => setInputText(e.target.value)}
+                                        onKeyPress={(e) => e.key === 'Enter' && sendMessage(inputText)}
+                                        placeholder={language === 'hi' ? 'संदेश टाइप करें...' : 'Type your message...'}
+                                        className="flex-1 glass input-glow rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 focus:outline-none bg-transparent"
+                                        disabled={connectionStatus !== 'connected'}
+                                    />
+                                    <button
+                                        onClick={() => sendMessage(inputText)}
+                                        disabled={connectionStatus !== 'connected'}
+                                        className="btn-glow bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 disabled:from-gray-700 disabled:to-gray-700 p-3 rounded-xl transition-all shadow-lg shadow-emerald-500/20"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                        </svg>
+                                    </button>
+                                    <button
+                                        onClick={toggleListening}
+                                        disabled={connectionStatus !== 'connected'}
+                                        className={`btn-glow p-3 rounded-xl transition-all shadow-lg ${
+                                            isListening 
+                                                ? 'bg-red-600 hover:bg-red-500 shadow-red-500/20' 
+                                                : 'glass hover:bg-white/10'
+                                        } disabled:bg-gray-800`}
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {/* Bottom Left Info */}
+                        <div className="fixed bottom-6 left-6">
+                            <div className="glass rounded-2xl px-5 py-3 neon-border">
+                                <p className="text-xs text-gray-400 tracking-widest uppercase mb-1">Powered by</p>
+                                <p className="text-sm font-semibold gradient-text">Advanced AI Technology</p>
+                            </div>
+                        </div>
+                    </div>
+                </>
+            );
         };
 
-        try {
-            const root = createRoot(document.getElementById('root'));
-            root.render(React.createElement(VeenaAIFrontend));
-        } catch (error) {
-            console.error('Fatal error rendering app:', error);
-            document.body.innerHTML = '<h1>Error: Unable to load Veena AI. Check console for details.</h1>';
-        }
-
-        // Global error handler
-        window.addEventListener('error', (event) => {
-            console.error('Global error caught:', event.message, event.filename, event.lineno);
-            event.preventDefault();
-        });
+        ReactDOM.createRoot(document.getElementById('root')).render(<VeenaAI />);
     </script>
 </body>
 </html>
