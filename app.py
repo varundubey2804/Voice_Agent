@@ -14,6 +14,7 @@ from websockets.server import serve
 import threading
 import base64
 from datetime import datetime
+from langdetect import detect, LangDetectException
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
@@ -49,10 +50,11 @@ def record_chunk_in_memory(stream, length_sec=DEFAULT_CHUNK_LENGTH):
 def transcribe(model, wav_buffer):
     segments, info = model.transcribe(wav_buffer, beam_size=5)
     text = " ".join(segment.text for segment in segments)
-    return text.strip()
+    return text.strip(), info.language
 
 def load_whisper():
-    size = DEFAULT_MODEL_SIZE + ".en"
+    # Use multilingual model (remove .en suffix) to support Hindi
+    size = DEFAULT_MODEL_SIZE
     try:
         print("🔍 Loading Whisper on CUDA ...")
         return WhisperModel(size, device="cuda", compute_type="float16", num_workers=4)
@@ -123,11 +125,16 @@ async def handle_client_message(data, websocket):
         # Handle direct text input
         text = data.get("text", "")
         if text:
-            await process_user_input(text)
+            # For text input, we can auto-detect language or default to en
+            try:
+                lang = detect(text)
+            except:
+                lang = 'en'
+            await process_user_input(text, lang)
 
-async def process_user_input(user_text):
+async def process_user_input(user_text, input_lang='en'):
     """Process user input and generate response"""
-    print(f"🗣 Customer: {user_text}")
+    print(f"🗣 Customer ({input_lang}): {user_text}")
     
     # Send user message to frontend
     await broadcast_message({
@@ -138,9 +145,18 @@ async def process_user_input(user_text):
     
     # Generate AI response
     try:
+        # Append language instruction to input if needed, or rely on agent prompt
         response = agent.invoke({"input": user_text})["output"].strip()
         print(f"🤖 Veena: {response}")
         
+        # Detect response language for TTS
+        try:
+            response_lang = detect(response)
+        except LangDetectException:
+            response_lang = input_lang # Fallback to input language
+
+        print(f"🗣 TTS Language: {response_lang}")
+
         # Send agent response to frontend
         await broadcast_message({
             "type": "agent_response",
@@ -154,7 +170,7 @@ async def process_user_input(user_text):
         })
         
         # Play TTS (this will run in background)
-        asyncio.create_task(play_tts_and_notify(response))
+        asyncio.create_task(play_tts_and_notify(response, response_lang))
         
     except Exception as e:
         print(f"Error generating response: {e}")
@@ -163,12 +179,12 @@ async def process_user_input(user_text):
             "message": "Error generating response"
         })
 
-async def play_tts_and_notify(text):
+async def play_tts_and_notify(text, language='en'):
     """Play TTS and notify when finished"""
     try:
         # Play TTS in a separate thread to avoid blocking
         def play_tts():
-            vs.play_text_to_speech_stream(text)
+            vs.play_text_to_speech_stream(text, language=language)
         
         loop = asyncio.get_event_loop()
         await loop.run_in_executor(None, play_tts)
@@ -206,12 +222,12 @@ def audio_recording_loop():
             if not wav_buffer:
                 continue
             
-            user_text = transcribe(whisper_model, wav_buffer)
+            user_text, lang = transcribe(whisper_model, wav_buffer)
             if not user_text:
                 continue
             
             # Send to WebSocket clients
-            asyncio.run(process_user_input(user_text))
+            asyncio.run(process_user_input(user_text, lang))
             
     except KeyboardInterrupt:
         print("\n🛑 Audio recording stopped.")
