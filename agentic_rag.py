@@ -10,7 +10,8 @@ import os
 from pathlib import Path
 from typing import List
 
-from langchain_ollama import OllamaEmbeddings, ChatOllama
+from langchain_ollama import OllamaEmbeddings
+from langchain_groq import ChatGroq
 from langchain_community.vectorstores import FAISS
 from langchain.memory import ConversationBufferMemory
 from langchain.tools import Tool
@@ -24,7 +25,7 @@ from langchain.agents import create_react_agent, AgentExecutor
 # Configuration
 # ──────────────────────────────
 EMBED_MODEL_NAME = "nomic-embed-text"
-LLM_MODEL_NAME   = "llama3"
+LLM_MODEL_NAME   = "llama-3.3-70b-versatile"
 FAISS_PATH       = "faiss_rag.index"
 
 # ──────────────────────────────
@@ -34,7 +35,19 @@ def build_agent():
     """Return a LangChain Agent with memory + RAG tool."""
     # 1) Initialize models
     embedding = OllamaEmbeddings(model=EMBED_MODEL_NAME)
-    llm       = ChatOllama(model=LLM_MODEL_NAME)
+    
+    groq_api_key = os.environ.get("GROQ_API_KEY")
+    if not groq_api_key:
+         # Try to load from .env if not in env vars (though app.py usually handles this, we make sure)
+         from dotenv import load_dotenv
+         load_dotenv()
+         groq_api_key = os.environ.get("GROQ_API_KEY")
+         
+    llm = ChatGroq(
+        model=LLM_MODEL_NAME,
+        temperature=0,
+        api_key=groq_api_key
+    )
 
     # 2) Load the pre-built vector DB
     if not Path(FAISS_PATH).exists():
@@ -62,10 +75,16 @@ def build_agent():
     persona = """You are "Veena," a female insurance agent for "ValuEnable life insurance".
 Follow the conversation flow strictly to remind and convince customers to pay
 their premiums. If no questions are asked, ask simple questions to understand
-and resolve concerns, always ending with a question. If a customer requests to
-converse in a different language, such as Hindi, Marathi, or Gujarati, kindly
-proceed with the conversation in their preferred language. Use max 35 easy
-english words to respond."""
+and resolve concerns, always ending with a question.
+
+IMPORTANT:
+1. LANGUAGE CONSISTENCY: The detected language of the user is: {language}. You MUST respond in this language ({language}).
+   - If {language} is Hindi (or 'hi'), you MUST respond in Hindi (Devanagari script).
+   - If {language} is English (or 'en'), you MUST respond in English.
+   - Do NOT switch languages unless the user explicitly requests it.
+
+2. Keep your response concise (max 35 words).
+3. Do NOT hallucinate or make up facts. Use the available tools to find information about policies or customer history. If the information is not in the tools, admit you don't know."""
 
     # 5) Create the prompt template for ReAct agent (using PromptTemplate, not ChatPromptTemplate)
     # This is the correct format for create_react_agent
@@ -104,7 +123,7 @@ Thought: {agent_scratchpad}"""
     # Create the prompt template
     prompt = PromptTemplate(
         template=template,
-        input_variables=["input", "chat_history", "agent_scratchpad", "tools", "tool_names"]
+        input_variables=["input", "chat_history", "agent_scratchpad", "tools", "tool_names", "language"]
     )
 
     # 6) Create the agent
@@ -138,13 +157,23 @@ Thought: {agent_scratchpad}"""
 # ──────────────────────────────
 if __name__ == "__main__":
     ag = build_agent()
+    # Mock detected language for testing
+    detected_language = "en"
+    print(f"🌍 Defaulting test language to: {detected_language}")
+    
     while True:
         q = input("🗣  You: ")
         if q.lower() in {"exit", "quit"}:
             break
         # Correctly invoke the agent and access the output
         try:
-            response = ag.invoke({"input": q})
+            # Simple heuristic for testing: if input has devanagari, assume Hindi
+            if any(u'\u0900' <= c <= u'\u097f' for c in q):
+                lang = "hi"
+            else:
+                lang = "en"
+                
+            response = ag.invoke({"input": q, "language": lang})
             print("🤖 Veena:", response['output'])
         except Exception as e:
             print(f"❌ Error: {e}")
