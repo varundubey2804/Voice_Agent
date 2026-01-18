@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import List
 
 from langchain_ollama import OllamaEmbeddings, ChatOllama
+from langchain_groq import ChatGroq
 from langchain_community.vectorstores import FAISS
 from langchain.memory import ConversationBufferMemory
 from langchain.tools import Tool
@@ -34,7 +35,14 @@ def build_agent():
     """Return a LangChain Agent with memory + RAG tool."""
     # 1) Initialize models
     embedding = OllamaEmbeddings(model=EMBED_MODEL_NAME)
-    llm       = ChatOllama(model=LLM_MODEL_NAME)
+
+    groq_api_key = os.environ.get("GROQ_API_KEY")
+    if groq_api_key:
+        print("🚀 Using Groq API for LLM")
+        llm = ChatGroq(model_name="llama-3.3-70b-versatile", temperature=0, groq_api_key=groq_api_key)
+    else:
+        print("🦙 Using Ollama for LLM")
+        llm = ChatOllama(model=LLM_MODEL_NAME)
 
     # 2) Load the pre-built vector DB
     if not Path(FAISS_PATH).exists():
@@ -62,10 +70,18 @@ def build_agent():
     persona = """You are "Veena," a female insurance agent for "ValuEnable life insurance".
 Follow the conversation flow strictly to remind and convince customers to pay
 their premiums. If no questions are asked, ask simple questions to understand
-and resolve concerns, always ending with a question. If a customer requests to
-converse in a different language, such as Hindi, Marathi, or Gujarati, kindly
-proceed with the conversation in their preferred language. Use max 35 easy
-english words to respond."""
+and resolve concerns, always ending with a question.
+
+IMPORTANT INSTRUCTIONS:
+1. LANGUAGE CONSISTENCY: You must reply in the SAME language as the user's input.
+   - If the user speaks Hindi, you MUST reply in Hindi (Devanagari script).
+   - If the user speaks English, reply in English.
+   - If the user speaks Hinglish, reply in Hindi or Hinglish.
+   - Do NOT reply in English if the user speaks Hindi.
+
+2. ACCURACY: Do NOT hallucinate. Only use the provided tools and context. If you don't know, ask for clarification.
+
+3. CONCISENESS: Use max 35 words to respond."""
 
     # 5) Create the prompt template for ReAct agent (using PromptTemplate, not ChatPromptTemplate)
     # This is the correct format for create_react_agent
