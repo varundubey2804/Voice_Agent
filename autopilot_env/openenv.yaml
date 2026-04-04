@@ -1,0 +1,35 @@
+name: "AutoPilot-Env++"
+version: "1.0.0"
+description: "A comprehensive digital assistant simulation environment testing real-world email management, task extraction, and action execution."
+domain: "Assistant"
+interface_type: "api"
+action_space:
+  type: "dict"
+  properties:
+    action_type:
+      type: "string"
+      enum: ["read_email", "reply_email", "archive_email", "create_task", "prioritize_tasks", "do_nothing"]
+    target_id:
+      type: "string"
+      description: "ID of the email or task to interact with."
+    content:
+      type: "string"
+      description: "Content for reply or task creation."
+observation_space:
+  type: "dict"
+  properties:
+    emails:
+      type: "list"
+    tasks:
+      type: "list"
+    current_time:
+      type: "string"
+    last_action_result:
+      type: "string"
+tasks:
+  - name: "triage_emails"
+    difficulty: "easy"
+  - name: "extract_tasks"
+    difficulty: "medium"
+  - name: "full_workflow"
+    difficulty: "hard"
