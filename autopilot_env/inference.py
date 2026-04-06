@@ -9,7 +9,7 @@ load_dotenv()
 
 # Constants
 API_BASE_URL = os.environ.get("API_BASE_URL", "http://localhost:8000")
-MODEL_NAME = os.environ.get("MODEL_NAME", "llama3-8b-8192")
+MODEL_NAME = os.environ.get("MODEL_NAME", "llama-3.1-8b-instant")
 
 # OpenAI Client using Groq endpoint
 openai_client = OpenAI(

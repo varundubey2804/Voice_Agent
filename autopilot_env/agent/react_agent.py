@@ -14,7 +14,7 @@ class ReActAgent:
             raise ValueError("GROQ_API_KEY environment variable is required")
 
         self.llm = ChatGroq(
-            model="llama3-8b-8192", # Using a fast model, adjust if needed
+            model="llama-3.1-8b-instant", # Using a fast model, adjust if needed
             temperature=0,
             max_tokens=None,
             timeout=None,
