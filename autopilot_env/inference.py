@@ -59,12 +59,23 @@ Ensure your response always ends with the JSON block.
     messages = [{"role": "system", "content": prompt}]
 
     try:
-        response = openai_client.chat.completions.create(
-            model=MODEL_NAME,
-            messages=messages,
-            temperature=0.0
-        )
-        text = response.choices[0].message.content
+        import time
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                response = openai_client.chat.completions.create(
+                    model=MODEL_NAME,
+                    messages=messages,
+                    temperature=0.0
+                )
+                text = response.choices[0].message.content
+                break
+            except Exception as e:
+                if "429" in str(e) and attempt < max_retries - 1:
+                    print(f"Rate limited (429). Retrying in 5 seconds... (Attempt {attempt+1}/{max_retries})")
+                    time.sleep(5)
+                else:
+                    raise e
 
         # Print the thought process for ReAct tracing
         print("\n--- Agent Thought Process ---")
@@ -87,7 +98,18 @@ Ensure your response always ends with the JSON block.
             if start != -1 and end != -1:
                 json_str = text[start:end+1]
 
-        action_dict = json.loads(json_str)
+        # Handle case where LLM outputs multiple JSON objects by splitting on newlines/braces
+        # We just want the first valid JSON object we can parse
+        try:
+            action_dict = json.loads(json_str)
+        except json.JSONDecodeError:
+            # If multiple dicts are present, try finding the first { ... } pair accurately
+            import re
+            match = re.search(r'\{[^{}]*\}', json_str)
+            if match:
+                action_dict = json.loads(match.group(0))
+            else:
+                raise
 
         # Basic validation
         if action_dict.get("action_type") not in ["read_email", "reply_email", "archive_email", "create_task", "prioritize_tasks", "do_nothing"]:
