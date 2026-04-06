@@ -1,52 +1,9 @@
-INFO:     Started server process [39397]
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [39397]
+INFO:     Started server process [64165]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-INFO:     127.0.0.1:40686 - "POST /reset HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40692 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40708 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40714 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40728 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40742 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40744 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40748 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40758 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40762 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40764 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40778 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40782 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40788 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40790 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:40798 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46968 - "POST /reset HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46974 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46982 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:46994 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47004 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47010 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47024 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47026 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47034 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47048 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47056 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47060 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47064 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47078 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47090 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47102 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47118 - "POST /reset HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47126 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47138 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47142 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47144 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47152 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47162 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47164 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47166 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47172 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47180 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47182 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47190 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47202 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47214 - "POST /step HTTP/1.1" 200 OK
-INFO:     127.0.0.1:47228 - "POST /step HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45020 - "GET / HTTP/1.1" 200 OK

@@ -43,6 +43,15 @@ The final score evaluates the target state against the current state, outputting
    ```
 3. Ensure Docker is installed.
 
+## Features Added
+- **Modern Dashboard UI:** A professional frontend interface using Tailwind CSS and vanilla JS allowing you to visualize agent actions, tasks, and email inbox in real-time.
+- **Real Email Ingestion via IMAP:** You can authenticate your real email account (using an App Password) to inject live emails into the simulation.
+
+### Accessing Real Emails (IMAP)
+If you wish to test the agent on your real emails:
+1. Generate an **App Password** for your email provider (e.g. Google App Passwords). *Do not use your main account password.*
+2. Enter your email and the App Password in the web UI sidebar to ingest the 5 latest emails into the agent's environment.
+
 ## How to Run
 ### Using Docker
 1. Build the Docker image:
