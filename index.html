@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feed | Professional Network</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="flex items-center">
+        <a href="index.html" class="nav-brand">
+          <i class="fab fa-linkedin" style="font-size: 2rem;"></i>
+        </a>
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search">
+        </div>
+      </div>
+
+      <div class="nav-links">
+        <a href="index.html" class="nav-item active">
+          <i class="fas fa-home"></i>
+          <span>Home</span>
+        </a>
+        <a href="connections.html" class="nav-item">
+          <i class="fas fa-user-friends"></i>
+          <span>My Network</span>
+        </a>
+        <a href="#" class="nav-item">
+          <i class="fas fa-briefcase"></i>
+          <span>Jobs</span>
+        </a>
+        <a href="#" class="nav-item">
+          <i class="fas fa-comment-dots"></i>
+          <span>Messaging</span>
+        </a>
+        <a href="notifications.html" class="nav-item">
+          <i class="fas fa-bell"></i>
+          <span>Notifications</span>
+          <span class="badge">3</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+          <img src="https://i.pravatar.cc/150?u=jane" alt="Profile" style="width: 24px; height: 24px; border-radius: 50%; margin-bottom: 2px;">
+          <span>Me <i class="fas fa-caret-down"></i></span>
+        </a>
+        <button id="themeToggle" class="theme-toggle">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Layout -->
+  <div class="container main-layout">
+
+    <!-- Left Sidebar -->
+    <aside class="left-sidebar">
+      <div class="card profile-sidebar">
+        <div class="profile-cover"></div>
+        <img src="https://i.pravatar.cc/150?u=jane" alt="Jane Doe" class="profile-avatar">
+        <div class="card-body" style="padding-top: 0;">
+          <a href="profile.html"><h3 class="font-semibold text-lg">Jane Doe</h3></a>
+          <p class="text-xs text-secondary mt-2">Senior Frontend Engineer | UI/UX Designer at TechCorp</p>
+
+          <div class="stat-row mt-4">
+            <span class="stat-label">Connections</span>
+            <span class="stat-value">500+</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Who viewed your profile</span>
+            <span class="stat-value">120</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mt-4">
+        <div class="card-body text-xs">
+          <p class="font-semibold mb-2 text-primary">Recent</p>
+          <div class="flex items-center gap-2 mb-2 text-secondary hover-text-primary cursor-pointer"><i class="fas fa-hashtag"></i> frontend</div>
+          <div class="flex items-center gap-2 mb-2 text-secondary hover-text-primary cursor-pointer"><i class="fas fa-hashtag"></i> uiux</div>
+          <div class="flex items-center gap-2 mb-2 text-secondary hover-text-primary cursor-pointer"><i class="fas fa-users"></i> JavaScript Developers</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Feed -->
+    <main class="main-feed">
+      <!-- Create Post Box -->
+      <div class="card card-body">
+        <div class="create-post">
+          <img src="https://i.pravatar.cc/150?u=jane" alt="Jane" class="create-post-avatar">
+          <button id="createPostBtn" class="create-post-btn">Start a post</button>
+        </div>
+        <div class="create-post-actions">
+          <button class="action-btn text-photo"><i class="fas fa-image"></i> Photo</button>
+          <button class="action-btn text-video"><i class="fas fa-video"></i> Video</button>
+          <button class="action-btn text-event"><i class="far fa-calendar-alt"></i> Event</button>
+          <button class="action-btn text-article"><i class="far fa-newspaper"></i> Write article</button>
+        </div>
+      </div>
+
+      <hr class="mb-4" style="border:none; border-top: 1px solid var(--border-color);">
+
+      <!-- Posts Container -->
+      <div id="postsContainer">
+        <!-- Posts injected by JS -->
+      </div>
+    </main>
+
+    <!-- Right Panel -->
+    <aside class="right-panel">
+      <div class="card card-body">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="widget-title mb-0">Add to your feed</h3>
+          <i class="fas fa-info-circle text-secondary text-xs"></i>
+        </div>
+
+        <div id="suggestionsContainer">
+          <!-- Suggestions injected by JS -->
+        </div>
+
+        <a href="invite.html" class="text-sm font-semibold text-primary mt-2 inline-block">View all recommendations <i class="fas fa-arrow-right"></i></a>
+      </div>
+
+      <div class="text-center text-xs text-secondary mt-4">
+        <ul class="flex justify-center gap-3 flex-wrap">
+          <li><a href="#" class="text-secondary hover-text-primary">About</a></li>
+          <li><a href="#" class="text-secondary hover-text-primary">Accessibility</a></li>
+          <li><a href="#" class="text-secondary hover-text-primary">Help Center</a></li>
+          <li><a href="#" class="text-secondary hover-text-primary">Privacy & Terms</a></li>
+        </ul>
+        <p class="mt-4">NetworkIn Corporation © 2024</p>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="postModalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="font-semibold">Create a post</h3>
+        <button class="modal-close" id="closeModalBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="flex items-center gap-3 mb-4">
+          <img src="https://i.pravatar.cc/150?u=jane" alt="Jane" class="create-post-avatar" style="width:40px; height:40px;">
+          <div>
+            <h4 class="font-semibold text-sm">Jane Doe</h4>
+            <div class="btn btn-outline text-xs" style="padding: 2px 8px; margin-top: 2px;"><i class="fas fa-globe-americas"></i> Anyone</div>
+          </div>
+        </div>
+        <textarea id="postTextarea" placeholder="What do you want to talk about?"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="submitPostBtn">Post</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
