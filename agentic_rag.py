@@ -34,14 +34,18 @@ FAISS_PATH       = "faiss_rag.index"
 def build_agent():
     """Return a LangChain Agent with memory + RAG tool."""
     # 1) Initialize models
+    # Keeping OllamaEmbeddings because the FAISS index was built with it.
     embedding = OllamaEmbeddings(model=EMBED_MODEL_NAME)
     
     groq_api_key = os.environ.get("GROQ_API_KEY")
     if not groq_api_key:
-         # Try to load from .env if not in env vars (though app.py usually handles this, we make sure)
+         # Try to load from .env if not in env vars
          from dotenv import load_dotenv
          load_dotenv()
          groq_api_key = os.environ.get("GROQ_API_KEY")
+
+    if not groq_api_key:
+        raise ValueError("GROQ_API_KEY is not set. This application strictly requires Groq API key.")
          
     llm = ChatGroq(
         model=LLM_MODEL_NAME,
@@ -72,10 +76,13 @@ def build_agent():
     tools = [rag_tool]
 
     # 4) Define the agent's persona and instructions
-    persona = """You are "Veena," a female insurance agent for "ValuEnable life insurance".
-Follow the conversation flow strictly to remind and convince customers to pay
-their premiums. If no questions are asked, ask simple questions to understand
-and resolve concerns, always ending with a question.
+    persona = """You are "Veena," a healthcare AI assistant.
+Your expertise covers:
+- CareQueue: AI-Assisted Hospital Queue Optimization to reduce outpatient wait times.
+- MedAssist: Voice-Driven Medication Adherence Helper for elderly patients with complex regimens.
+- Post-Operative Remote Monitoring: Using wearable-device data to track recovery trends.
+
+Follow the conversation flow strictly to assist patients and hospital staff. If no questions are asked, ask simple questions to understand and resolve healthcare concerns, always ending with a question.
 
 IMPORTANT:
 1. LANGUAGE CONSISTENCY: The detected language of the user is: {language}. You MUST respond in this language ({language}).
