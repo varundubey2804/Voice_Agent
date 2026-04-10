@@ -248,19 +248,33 @@ def get_dashboard_data() -> dict:
     except Exception:
         market_data = None
 
-    # 2. Fetch Portfolio (fallback local)
+    # 2. Fetch Portfolio
+    use_supabase = bool(SUPABASE_URL and SUPABASE_KEY)
     LOCAL_DB = "portfolio_db.json"
+
     portfolio_holdings = []
     total_invested = 0
     total_current_value = 0
     total_pnl = 0
     total_pnl_pct = 0
 
-    if os.path.exists(LOCAL_DB):
-        try:
+    try:
+        holdings_raw = []
+        if use_supabase:
+            url = f"{SUPABASE_URL}/rest/v1/portfolio?select=*"
+            headers = {
+                "apikey": SUPABASE_KEY,
+                "Authorization": f"Bearer {SUPABASE_KEY}",
+                "Content-Type": "application/json"
+            }
+            req = urllib.request.Request(url, headers=headers, method="GET")
+            with urllib.request.urlopen(req) as response:
+                holdings_raw = json.loads(response.read().decode())
+        elif os.path.exists(LOCAL_DB):
             with open(LOCAL_DB, "r") as f:
                 holdings_raw = json.load(f)
 
+        if holdings_raw:
             aggregated = {}
             for h in holdings_raw:
                 sym = h['symbol']
@@ -298,8 +312,8 @@ def get_dashboard_data() -> dict:
 
             total_pnl = total_current_value - total_invested
             total_pnl_pct = (total_pnl / total_invested) * 100 if total_invested > 0 else 0
-        except Exception:
-            pass
+    except Exception:
+        pass
 
     portfolio_data = {
         "holdings": portfolio_holdings,

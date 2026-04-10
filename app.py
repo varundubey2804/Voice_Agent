@@ -36,10 +36,36 @@ stream = None
 # WebSocket clients
 connected_clients = set()
 
+# State variables for Voice-to-Voice architecture
+is_speaking = False
+is_thinking = False
+current_ai_text = ""
+main_loop = None # Reference to the main event loop
+
 def is_silence(data, threshold=3000):
     if data.ndim > 1:
         data = data[:, 0]
     return np.max(np.abs(data)) <= threshold
+
+def is_echo(transcription: str, ai_text: str) -> bool:
+    """
+    Heuristic to determine if the transcribed text is the AI hearing its own voice.
+    Checks word overlap percentage.
+    """
+    if not transcription or not ai_text:
+        return False
+
+    t_words = set(transcription.lower().replace('.', '').replace(',', '').split())
+    a_words = set(ai_text.lower().replace('.', '').replace(',', '').split())
+
+    if not t_words:
+        return False
+
+    overlap = t_words.intersection(a_words)
+    overlap_pct = len(overlap) / len(t_words)
+
+    # If more than 50% of the transcribed words are in the AI's current text, it's an echo
+    return overlap_pct > 0.5
 
 def record_chunk_in_memory(stream, length_sec=DEFAULT_CHUNK_LENGTH):
     """Record audio directly to BytesIO instead of saving to disk."""
@@ -157,8 +183,9 @@ async def handle_client_message(data, websocket):
             pass
             
     elif message_type == "get_dashboard_data":
-        # Handle dashboard data request
-        dashboard_data = finance_tools.get_dashboard_data()
+        # Handle dashboard data request asynchronously
+        loop = asyncio.get_running_loop()
+        dashboard_data = await loop.run_in_executor(None, finance_tools.get_dashboard_data)
         await websocket.send(json.dumps({
             "type": "dashboard_data",
             "data": dashboard_data
@@ -174,7 +201,10 @@ async def handle_client_message(data, websocket):
 
 async def process_user_input(user_text, language="en", emotion="neutral"):
     """Process user input and generate response"""
+    global is_thinking, is_speaking, current_ai_text
     print(f"🗣 Customer ({language}, {emotion}): {user_text}")
+
+    is_thinking = True
     
     # Send user message to frontend
     await broadcast_message({
@@ -186,9 +216,17 @@ async def process_user_input(user_text, language="en", emotion="neutral"):
     
     # Generate AI response
     try:
-        # Pass the language and emotion context to the agent prompt
-        response = agent.invoke({"input": user_text, "language": language, "emotion": emotion})["output"].strip()
+        # Run agent invocation in executor to avoid blocking the WebSocket loop
+        loop = asyncio.get_running_loop()
+        def invoke_agent():
+            return agent.invoke({"input": user_text, "language": language, "emotion": emotion})["output"].strip()
+
+        response = await loop.run_in_executor(None, invoke_agent)
         print(f"🤖 Veena ({emotion}): {response}")
+
+        is_thinking = False
+        is_speaking = True
+        current_ai_text = response
         
         # Send agent response to frontend
         await broadcast_message({
@@ -206,6 +244,7 @@ async def process_user_input(user_text, language="en", emotion="neutral"):
         asyncio.create_task(play_tts_and_notify(response, language))
         
     except Exception as e:
+        is_thinking = False
         print(f"Error generating response: {e}")
         await broadcast_message({
             "type": "error",
@@ -214,28 +253,28 @@ async def process_user_input(user_text, language="en", emotion="neutral"):
 
 async def play_tts_and_notify(text, language="en"):
     """Play TTS and notify when finished"""
+    global is_speaking, current_ai_text
     try:
         # Play TTS in a separate thread to avoid blocking
         def play_tts():
             vs.play_text_to_speech_stream(text, language=language)
         
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         await loop.run_in_executor(None, play_tts)
-        
-        # Notify frontend that speaking is finished
-        await broadcast_message({
-            "type": "speaking_finished"
-        })
         
     except Exception as e:
         print(f"Error playing TTS: {e}")
+    finally:
+        is_speaking = False
+        current_ai_text = ""
+        # Notify frontend that speaking is finished
         await broadcast_message({
             "type": "speaking_finished"
         })
 
 def audio_recording_loop():
     """Background audio recording loop"""
-    global whisper_model, audio, stream
+    global whisper_model, audio, stream, is_speaking, is_thinking, current_ai_text, main_loop
     
     whisper_model = load_whisper()
     audio = pyaudio.PyAudio()
@@ -249,18 +288,41 @@ def audio_recording_loop():
     
     print("🎙 Audio recording started...")
     
+    import pygame
     try:
         while True:
             wav_buffer = record_chunk_in_memory(stream)
             if not wav_buffer:
                 continue
+
+            # If AI is thinking, ignore audio to avoid capturing keyboard clatter or sighs while waiting
+            if is_thinking:
+                continue
             
             user_text, language, emotion = transcribe(whisper_model, wav_buffer)
             if not user_text:
                 continue
+
+            # Echo Cancellation
+            if is_speaking:
+                if is_echo(user_text, current_ai_text):
+                    print(f"🔇 Ignored echo: {user_text}")
+                    continue
+                else:
+                    # Not an echo but AI is speaking -> Barge-in/Interruption!
+                    print(f"🛑 Interruption detected: {user_text}")
+                    if pygame.mixer.get_init() and pygame.mixer.music.get_busy():
+                        pygame.mixer.music.stop() # Immediately stop TTS
+                    is_speaking = False
             
-            # Send to WebSocket clients
-            asyncio.run(process_user_input(user_text, language, emotion))
+            # Send to WebSocket clients via the main loop
+            if main_loop and not main_loop.is_closed():
+                asyncio.run_coroutine_threadsafe(
+                    process_user_input(user_text, language, emotion),
+                    main_loop
+                )
+            else:
+                print("⚠ Main loop not ready. Dropping audio input.")
             
     except KeyboardInterrupt:
         print("\n🛑 Audio recording stopped.")
@@ -274,6 +336,8 @@ def audio_recording_loop():
 
 async def start_websocket_server():
     """Start the WebSocket server"""
+    global main_loop
+    main_loop = asyncio.get_running_loop()
     print(f"🌐 WebSocket server running on ws://localhost:{WS_PORT}")
     async with serve(handle_websocket, "localhost", WS_PORT):
         await asyncio.Future()  # Keep server running
