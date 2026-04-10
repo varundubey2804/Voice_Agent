@@ -19,6 +19,7 @@ import webbrowser
 import http.server
 import socketserver
 import time
+import finance_tools
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
@@ -155,6 +156,14 @@ async def handle_client_message(data, websocket):
             # Process audio data here
             pass
             
+    elif message_type == "get_dashboard_data":
+        # Handle dashboard data request
+        dashboard_data = finance_tools.get_dashboard_data()
+        await websocket.send(json.dumps({
+            "type": "dashboard_data",
+            "data": dashboard_data
+        }))
+
     elif message_type == "text_input":
         # Handle direct text input
         text = data.get("text", "")

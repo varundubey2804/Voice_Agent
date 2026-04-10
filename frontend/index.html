@@ -971,8 +971,22 @@
             const [inputText, setInputText] = useState('');
             const [modelLoaded, setModelLoaded] = useState(false);
             const [loadingProgress, setLoadingProgress] = useState(0);
+            const [showDashboard, setShowDashboard] = useState(false);
+            const [dashboardData, setDashboardData] = useState(null);
             const messagesEndRef = useRef(null);
             const wsRef = useRef(null);
+
+            const fetchDashboardData = () => {
+                if (wsRef.current && connectionStatus === 'connected') {
+                    wsRef.current.send(JSON.stringify({ type: 'get_dashboard_data' }));
+                }
+            };
+
+            useEffect(() => {
+                if (showDashboard) {
+                    fetchDashboardData();
+                }
+            }, [showDashboard]);
             
             useEffect(() => {
                 window.addEventListener('vrmLoaded', () => {
@@ -1044,6 +1058,9 @@
                         break;
                     case 'listening_stopped':
                         setIsListening(false);
+                        break;
+                    case 'dashboard_data':
+                        setDashboardData(data.data);
                         break;
                 }
             };
@@ -1161,8 +1178,181 @@
                             </div>
                         )}
                         
+                        {/* Floating Dashboard Button */}
+                        <div className="fixed top-24 right-6 z-50">
+                            <button
+                                onClick={() => setShowDashboard(true)}
+                                className="glass btn-glow px-4 py-2 rounded-xl flex items-center space-x-2 text-white shadow-lg neon-border transition-all hover:scale-105"
+                            >
+                                <span className="text-xl">📊</span>
+                                <span className="font-semibold text-sm tracking-wide">Financial Dashboard</span>
+                            </button>
+                        </div>
+
+                        {/* Dashboard Modal/Sidebar */}
+                        <div className={`fixed inset-y-0 right-0 w-[450px] glass shadow-2xl z-50 transform transition-transform duration-500 ease-in-out ${showDashboard ? 'translate-x-0' : 'translate-x-full'}`} style={{ backdropFilter: 'blur(40px)' }}>
+                            <div className="h-full flex flex-col p-6 overflow-y-auto">
+                                <div className="flex justify-between items-center mb-8">
+                                    <h2 className="text-2xl font-bold gradient-text tracking-wider" style={{fontFamily: 'Orbitron, sans-serif'}}>VEENA ANALYTICS</h2>
+                                    <button onClick={() => setShowDashboard(false)} className="text-gray-400 hover:text-white transition-colors">
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    </button>
+                                </div>
+
+                                {dashboardData ? (
+                                    <div className="space-y-6">
+                                        {/* Market Summary */}
+                                        <div className="glass rounded-xl p-5 border border-white/10">
+                                            <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                                                <span className="w-2 h-2 rounded-full bg-cyan-500 mr-2"></span>
+                                                Market Summary
+                                            </h3>
+                                            {dashboardData.market_summary ? (
+                                                <div className="space-y-4">
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        <div className="bg-white/5 rounded-lg p-3">
+                                                            <div className="text-xs text-gray-400 uppercase tracking-wider mb-1">NIFTY 50</div>
+                                                            <div className="text-lg font-bold text-white">₹{dashboardData.market_summary.nifty.price.toFixed(2)}</div>
+                                                            <div className={`text-xs font-semibold mt-1 ${dashboardData.market_summary.nifty.change >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                                                {dashboardData.market_summary.nifty.change >= 0 ? '▲ ' : '▼ '}{Math.abs(dashboardData.market_summary.nifty.change).toFixed(2)} ({dashboardData.market_summary.nifty.percent.toFixed(2)}%)
+                                                            </div>
+                                                        </div>
+                                                        <div className="bg-white/5 rounded-lg p-3">
+                                                            <div className="text-xs text-gray-400 uppercase tracking-wider mb-1">SENSEX</div>
+                                                            <div className="text-lg font-bold text-white">₹{dashboardData.market_summary.sensex.price.toFixed(2)}</div>
+                                                            <div className={`text-xs font-semibold mt-1 ${dashboardData.market_summary.sensex.change >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                                                {dashboardData.market_summary.sensex.change >= 0 ? '▲ ' : '▼ '}{Math.abs(dashboardData.market_summary.sensex.change).toFixed(2)} ({dashboardData.market_summary.sensex.percent.toFixed(2)}%)
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="pt-2 border-t border-white/10">
+                                                        <div className="flex items-center justify-between">
+                                                            <span className="text-sm text-gray-400">Market Trend</span>
+                                                            <span className={`text-sm font-bold ${dashboardData.market_summary.trend === 'Bullish' ? 'text-emerald-400' : 'text-red-400'}`}>
+                                                                {dashboardData.market_summary.trend} {dashboardData.market_summary.trend === 'Bullish' ? '📈' : '📉'}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="text-sm text-gray-400 italic text-center py-4">Market data temporarily unavailable.</div>
+                                            )}
+                                        </div>
+
+                                        {/* Portfolio Summary */}
+                                        <div className="glass rounded-xl p-5 border border-white/10 relative overflow-hidden">
+                                            {/* Decorative gradient blob */}
+                                            <div className="absolute -top-10 -right-10 w-32 h-32 bg-emerald-500/20 rounded-full blur-2xl"></div>
+
+                                            <div className="flex justify-between items-center mb-4 relative z-10">
+                                                <h3 className="text-lg font-semibold text-white flex items-center">
+                                                    <span className="w-2 h-2 rounded-full bg-emerald-500 mr-2 shadow-[0_0_10px_rgba(16,185,129,0.8)]"></span>
+                                                    Your Portfolio
+                                                </h3>
+                                                <button onClick={fetchDashboardData} className="text-xs bg-white/10 hover:bg-white/20 px-2 py-1.5 rounded-md text-white transition-colors flex items-center">
+                                                    <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                                    Sync
+                                                </button>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-4 mb-4 relative z-10">
+                                                <div className="bg-black/30 rounded-lg p-4 border border-white/5">
+                                                    <div className="text-xs text-gray-400 uppercase tracking-wider mb-1">Total Invested</div>
+                                                    <div className="text-xl font-medium text-white">₹{dashboardData.portfolio.summary.total_invested.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                                                </div>
+                                                <div className="bg-black/30 rounded-lg p-4 border border-white/5">
+                                                    <div className="text-xs text-gray-400 uppercase tracking-wider mb-1">Current Value</div>
+                                                    <div className="text-xl font-medium text-white">₹{dashboardData.portfolio.summary.total_current_value.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                                                </div>
+                                            </div>
+
+                                            <div className={`bg-gradient-to-r ${dashboardData.portfolio.summary.total_pnl >= 0 ? 'from-emerald-500/20 to-transparent' : 'from-red-500/20 to-transparent'} rounded-lg p-4 flex justify-between items-center border-l-4 ${dashboardData.portfolio.summary.total_pnl >= 0 ? 'border-emerald-500' : 'border-red-500'} relative z-10`}>
+                                                <span className="text-sm font-medium text-gray-200">Total P&L</span>
+                                                <div className="text-right">
+                                                    <div className={`font-bold text-lg ${dashboardData.portfolio.summary.total_pnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                                        {dashboardData.portfolio.summary.total_pnl >= 0 ? '+' : ''}₹{Math.abs(dashboardData.portfolio.summary.total_pnl).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                                                    </div>
+                                                    <div className={`text-xs ${dashboardData.portfolio.summary.total_pnl >= 0 ? 'text-emerald-400/80' : 'text-red-400/80'}`}>
+                                                        {dashboardData.portfolio.summary.total_pnl >= 0 ? '▲' : '▼'} {Math.abs(dashboardData.portfolio.summary.total_pnl_pct).toFixed(2)}%
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {dashboardData.portfolio.holdings.length > 0 && (
+                                                <div className="mt-5 relative z-10">
+                                                    <div className="text-xs text-gray-400 mb-3 uppercase tracking-widest border-b border-white/10 pb-1">Current Holdings</div>
+                                                    <div className="space-y-2 max-h-40 overflow-y-auto pr-1 custom-scrollbar">
+                                                        {dashboardData.portfolio.holdings.map((holding, idx) => (
+                                                            <div key={idx} className="flex justify-between items-center bg-black/20 hover:bg-black/40 transition-colors rounded-lg px-3 py-2 border border-white/5">
+                                                                <div>
+                                                                    <div className="text-sm font-bold text-white tracking-wide">{holding.symbol}</div>
+                                                                    <div className="text-[10px] text-gray-400">{holding.quantity} shares @ ₹{holding.buy_price.toFixed(1)}</div>
+                                                                </div>
+                                                                <div className="text-right">
+                                                                    <div className="text-sm text-gray-200">₹{holding.current_price.toFixed(1)}</div>
+                                                                    <div className={`text-xs font-semibold ${holding.pnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                                                        {holding.pnl >= 0 ? '+' : ''}{holding.pnl_pct.toFixed(2)}%
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Upcoming IPOs */}
+                                        <div className="glass rounded-xl p-5 border border-white/10">
+                                            <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                                                <span className="w-2 h-2 rounded-full bg-purple-500 mr-2 shadow-[0_0_10px_rgba(168,85,247,0.8)]"></span>
+                                                Upcoming IPOs
+                                            </h3>
+                                            <div className="space-y-3">
+                                                {dashboardData.ipos.map((ipo, idx) => (
+                                                    <div key={idx} className="bg-black/30 rounded-lg p-4 border border-white/5 hover:border-purple-500/30 transition-colors group">
+                                                        <div className="flex justify-between items-start mb-2">
+                                                            <span className="font-semibold text-white group-hover:text-purple-300 transition-colors">{ipo.name}</span>
+                                                            <span className="text-[10px] font-bold tracking-wider bg-purple-500/20 text-purple-300 px-2 py-1 rounded-full border border-purple-500/30">GMP: {ipo.gmp}</span>
+                                                        </div>
+
+                                                        <div className="grid grid-cols-2 gap-2 mt-3">
+                                                            <div className="bg-white/5 rounded p-2">
+                                                                <div className="text-[10px] text-gray-500 uppercase">Dates</div>
+                                                                <div className="text-xs text-gray-300">{ipo.open} - {ipo.close}</div>
+                                                            </div>
+                                                            <div className="bg-white/5 rounded p-2">
+                                                                <div className="text-[10px] text-gray-500 uppercase">Price Band</div>
+                                                                <div className="text-xs text-gray-300">{ipo.price_band}</div>
+                                                            </div>
+                                                            <div className="bg-white/5 rounded p-2">
+                                                                <div className="text-[10px] text-gray-500 uppercase">Lot Size</div>
+                                                                <div className="text-xs text-gray-300">{ipo.lot_size} shares</div>
+                                                            </div>
+                                                            <div className="bg-white/5 rounded p-2">
+                                                                <div className="text-[10px] text-gray-500 uppercase">Status</div>
+                                                                <div className="text-xs text-purple-400 font-medium">{ipo.status}</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="flex-1 flex flex-col items-center justify-center text-gray-400 h-64">
+                                        <div className="relative w-12 h-12 mb-4">
+                                            <div className="absolute inset-0 rounded-full border-t-2 border-emerald-500 animate-spin"></div>
+                                            <div className="absolute inset-2 rounded-full border-r-2 border-cyan-500 animate-spin" style={{animationDirection: 'reverse', animationDuration: '1.5s'}}></div>
+                                        </div>
+                                        <p className="tracking-widest text-sm uppercase">Loading Financial Data...</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
                         {/* Chat Panel */}
-                        <div className="fixed bottom-6 right-6 w-[380px]">
+                        <div className={`fixed bottom-6 w-[380px] z-40 transition-all duration-500 ease-in-out ${showDashboard ? 'right-[470px]' : 'right-6'}`}>
                             <div className="glass rounded-3xl p-5 shadow-2xl neon-border">
                                 <div className="flex items-center justify-center mb-4">
                                     <div className="flex items-center space-x-2">

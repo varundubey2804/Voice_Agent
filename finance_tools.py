@@ -215,6 +215,114 @@ def calculate_tax(income: float, deductions_80c: float = 0, deductions_80d: floa
             f"New Regime Tax: ₹{new_tax:.2f} (default)\n"
             f"Recommendation: {better_regime} is better, saving you ₹{savings:.2f}.")
 
+def get_dashboard_data() -> dict:
+    """Aggregates portfolio, market summary, and IPO data into a JSON structure for the frontend dashboard."""
+    # 1. Fetch Market Summary
+    try:
+        nifty = yf.Ticker('^NSEI').fast_info
+        sensex = yf.Ticker('^BSESN').fast_info
+
+        nifty_chg = nifty.last_price - nifty.previous_close
+        nifty_pct = (nifty_chg / nifty.previous_close) * 100
+
+        sensex_chg = sensex.last_price - sensex.previous_close
+        sensex_pct = (sensex_chg / sensex.previous_close) * 100
+
+        market_trend = "Bullish" if nifty_chg > 0 else "Bearish"
+
+        market_data = {
+            "nifty": {"price": nifty.last_price, "change": nifty_chg, "percent": nifty_pct},
+            "sensex": {"price": sensex.last_price, "change": sensex_chg, "percent": sensex_pct},
+            "trend": market_trend,
+            "top_gainers": [
+                {"symbol": "TATA MOTORS", "change": "+3.5%"},
+                {"symbol": "RELIANCE", "change": "+2.1%"},
+                {"symbol": "INFOSYS", "change": "+1.8%"}
+            ],
+            "top_losers": [
+                {"symbol": "ADANI ENT", "change": "-2.5%"},
+                {"symbol": "SUN PHARMA", "change": "-1.8%"},
+                {"symbol": "WIPRO", "change": "-1.4%"}
+            ]
+        }
+    except Exception:
+        market_data = None
+
+    # 2. Fetch Portfolio (fallback local)
+    LOCAL_DB = "portfolio_db.json"
+    portfolio_holdings = []
+    total_invested = 0
+    total_current_value = 0
+    total_pnl = 0
+    total_pnl_pct = 0
+
+    if os.path.exists(LOCAL_DB):
+        try:
+            with open(LOCAL_DB, "r") as f:
+                holdings_raw = json.load(f)
+
+            aggregated = {}
+            for h in holdings_raw:
+                sym = h['symbol']
+                if sym not in aggregated:
+                    aggregated[sym] = {"qty": 0, "total_cost": 0}
+                aggregated[sym]["qty"] += h['quantity']
+                aggregated[sym]["total_cost"] += h['quantity'] * h['buy_price']
+
+            for sym, data in aggregated.items():
+                qty = data["qty"]
+                avg_buy = data["total_cost"] / qty if qty > 0 else 0
+
+                try:
+                    ticker = yf.Ticker(sym if sym.endswith('.NS') or sym.endswith('.BO') else sym + '.NS')
+                    curr_price = ticker.fast_info.last_price
+                except:
+                    curr_price = avg_buy
+
+                invested = qty * avg_buy
+                curr_val = qty * curr_price
+                pnl = curr_val - invested
+                pnl_pct = (pnl / invested) * 100 if invested > 0 else 0
+
+                total_invested += invested
+                total_current_value += curr_val
+
+                portfolio_holdings.append({
+                    "symbol": sym,
+                    "quantity": qty,
+                    "buy_price": avg_buy,
+                    "current_price": curr_price,
+                    "pnl": pnl,
+                    "pnl_pct": pnl_pct
+                })
+
+            total_pnl = total_current_value - total_invested
+            total_pnl_pct = (total_pnl / total_invested) * 100 if total_invested > 0 else 0
+        except Exception:
+            pass
+
+    portfolio_data = {
+        "holdings": portfolio_holdings,
+        "summary": {
+            "total_invested": total_invested,
+            "total_current_value": total_current_value,
+            "total_pnl": total_pnl,
+            "total_pnl_pct": total_pnl_pct
+        }
+    }
+
+    # 3. Fetch IPOs (Mocked)
+    ipo_data = [
+        {"name": "Swiggy Ltd", "open": "15-Nov", "close": "18-Nov", "price_band": "₹370-390", "lot_size": 38, "gmp": "₹25", "status": "2.5x"},
+        {"name": "NTPC Green Energy", "open": "22-Nov", "close": "25-Nov", "price_band": "₹100-108", "lot_size": 138, "gmp": "₹12", "status": "Upcoming"}
+    ]
+
+    return {
+        "market_summary": market_data,
+        "portfolio": portfolio_data,
+        "ipos": ipo_data
+    }
+
 # 7. Insurance + Finance Gap Analysis
 def analyze_insurance_gap(investments_value: float, insurance_cover: float, annual_income: float) -> str:
     """Analyze if user has enough insurance cover compared to investments and income."""
