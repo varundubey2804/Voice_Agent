@@ -1023,7 +1023,12 @@
             const handleWebSocketMessage = (data) => {
                 switch (data.type) {
                     case 'user_message':
-                        setMessages(prev => [...prev, { text: data.text, type: 'user', timestamp: Date.now() }]);
+                        setMessages(prev => [...prev, { text: data.text, emotion: data.emotion_detected, type: 'user', timestamp: Date.now() }]);
+                        // Optionally change UI state based on emotion
+                        if (data.emotion_detected === 'stressed') {
+                            // Show calming indicator or adjust background slightly
+                            console.log('User is stressed, adapting UI...');
+                        }
                         break;
                     case 'agent_response':
                         setMessages(prev => [...prev, { text: data.text, type: 'agent', timestamp: Date.now() }]);
@@ -1191,7 +1196,7 @@
                                             key={idx}
                                             className={`chat-bubble flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
                                         >
-                                            <div className={`max-w-[85%] px-4 py-3 text-sm ${
+                                            <div className={`max-w-[85%] px-4 py-3 text-sm flex flex-col ${
                                                 msg.type === 'user'
                                                     ? 'bg-gradient-to-r from-emerald-600 to-cyan-600 text-white rounded-2xl rounded-br-md shadow-lg shadow-emerald-500/20'
                                                     : 'glass rounded-2xl rounded-bl-md'
@@ -1199,7 +1204,12 @@
                                                 {msg.type === 'agent' && (
                                                     <p className="text-xs gradient-text mb-1 font-semibold tracking-wide">VEENA</p>
                                                 )}
-                                                <p className="leading-relaxed">{msg.text}</p>
+                                                <p className="leading-relaxed whitespace-pre-wrap">{msg.text}</p>
+                                                {msg.type === 'user' && msg.emotion && msg.emotion !== 'neutral' && (
+                                                    <span className="text-[10px] mt-1 opacity-70 italic self-end bg-black/20 px-2 py-0.5 rounded-full">
+                                                        Emotion: {msg.emotion}
+                                                    </span>
+                                                )}
                                             </div>
                                         </div>
                                     ))}

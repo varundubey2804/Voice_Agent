@@ -54,10 +54,38 @@ def record_chunk_in_memory(stream, length_sec=DEFAULT_CHUNK_LENGTH):
     buffer.seek(0)
     return buffer
 
+def detect_emotion(wav_buffer, text):
+    """Mock emotion detection using basic audio/text heuristics."""
+    wav_buffer.seek(0)
+    data, sr = sf.read(wav_buffer)
+    wav_buffer.seek(0)
+
+    if data.ndim > 1:
+        data = data[:, 0]
+
+    duration = len(data) / sr
+    words = len(text.split())
+    words_per_sec = words / duration if duration > 0 else 0
+
+    amplitude = np.max(np.abs(data))
+
+    if words_per_sec > 3 or amplitude > 0.8:
+        return "stressed"
+    elif words_per_sec < 1.5 and amplitude < 0.3:
+        return "calm"
+    elif "confused" in text.lower() or "how" in text.lower() or "what" in text.lower() or "?" in text:
+        return "confused"
+    else:
+        return "neutral"
+
 def transcribe(model, wav_buffer):
     segments, info = model.transcribe(wav_buffer, beam_size=5)
     text = " ".join(segment.text for segment in segments)
-    return text.strip(), info.language
+
+    text = text.strip()
+    emotion = detect_emotion(wav_buffer, text) if text else "neutral"
+
+    return text, info.language, emotion
 
 def load_whisper():
     size = DEFAULT_MODEL_SIZE
@@ -131,25 +159,27 @@ async def handle_client_message(data, websocket):
         # Handle direct text input
         text = data.get("text", "")
         language = data.get("language", "en")
+        emotion = data.get("emotion", "neutral")
         if text:
-            await process_user_input(text, language=language)
+            await process_user_input(text, language=language, emotion=emotion)
 
-async def process_user_input(user_text, language="en"):
+async def process_user_input(user_text, language="en", emotion="neutral"):
     """Process user input and generate response"""
-    print(f"🗣 Customer ({language}): {user_text}")
+    print(f"🗣 Customer ({language}, {emotion}): {user_text}")
     
     # Send user message to frontend
     await broadcast_message({
         "type": "user_message",
         "text": user_text,
+        "emotion_detected": emotion,
         "timestamp": datetime.now().isoformat()
     })
     
     # Generate AI response
     try:
-        # Pass the language context if needed, or rely on the agent prompt
-        response = agent.invoke({"input": user_text, "language": language})["output"].strip()
-        print(f"🤖 Veena: {response}")
+        # Pass the language and emotion context to the agent prompt
+        response = agent.invoke({"input": user_text, "language": language, "emotion": emotion})["output"].strip()
+        print(f"🤖 Veena ({emotion}): {response}")
         
         # Send agent response to frontend
         await broadcast_message({
@@ -216,12 +246,12 @@ def audio_recording_loop():
             if not wav_buffer:
                 continue
             
-            user_text, language = transcribe(whisper_model, wav_buffer)
+            user_text, language, emotion = transcribe(whisper_model, wav_buffer)
             if not user_text:
                 continue
             
             # Send to WebSocket clients
-            asyncio.run(process_user_input(user_text, language))
+            asyncio.run(process_user_input(user_text, language, emotion))
             
     except KeyboardInterrupt:
         print("\n🛑 Audio recording stopped.")
