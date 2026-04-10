@@ -62,20 +62,81 @@ def build_agent():
         allow_dangerous_deserialization=True,
     )
 
-    # 3) Create the retriever tool
+    # 3) Create the retriever tool and new finance tools
     retriever = vector_db.as_retriever(search_type="similarity", search_kwargs={"k": 4})
     rag_tool  = Tool(
         name="rag_search_transcripts",
         func=lambda q: "\n".join([d.page_content for d in retriever.invoke(q)]),
         description="Search internal knowledge base (FAISS) for facts about customer history and policies.",
     )
-    tools = [rag_tool]
+
+    import finance_tools
+    stock_price_tool = Tool(
+        name="StockPrice",
+        func=finance_tools.get_stock_price,
+        description="Get real-time price, change, high, low, and volume of a stock. Input should be the stock ticker symbol (e.g., RELIANCE.NS, TCS)."
+    )
+
+    def _portfolio_wrapper(input_str: str) -> str:
+        parts = [p.strip() for p in input_str.split(',')]
+        action = parts[0]
+        if action.lower() == 'view':
+            return finance_tools.portfolio_manager(action='view')
+        elif action.lower() == 'add':
+            if len(parts) >= 4:
+                return finance_tools.portfolio_manager(action='add', symbol=parts[1], quantity=int(parts[2]), buy_price=float(parts[3]))
+            return "To add, provide: add, symbol, quantity, buy_price"
+        return "Invalid action. Use 'add' or 'view'."
+
+    portfolio_tool = Tool(
+        name="PortfolioManager",
+        func=_portfolio_wrapper,
+        description="Manage user's stock portfolio. Input format: 'view' OR 'add, symbol, quantity, buy_price' (e.g. 'add, TCS, 10, 2500')."
+    )
+    market_summary_tool = Tool(
+        name="MarketSummary",
+        func=lambda _: finance_tools.get_market_summary(),
+        description="Get overall market summary (NIFTY 50, SENSEX) and trend. The input should be an empty string."
+    )
+    ipo_tracker_tool = Tool(
+        name="IPOTracker",
+        func=lambda _: finance_tools.get_upcoming_ipos(),
+        description="Get list of upcoming IPOs, dates, and Grey Market Premium (GMP). The input should be an empty string."
+    )
+
+    def _tax_wrapper(input_str: str) -> str:
+        parts = [p.strip() for p in input_str.split(',')]
+        if len(parts) >= 1 and parts[0]:
+            income = float(parts[0])
+            d80c = float(parts[1]) if len(parts) >= 2 and parts[1] else 0.0
+            d80d = float(parts[2]) if len(parts) >= 3 and parts[2] else 0.0
+            return finance_tools.calculate_tax(income, d80c, d80d)
+        return "Please provide income."
+
+    tax_calculator_tool = Tool(
+        name="TaxCalculator",
+        func=_tax_wrapper,
+        description="Calculate and compare income tax for Old vs New regime. Input format: income, deductions_80c, deductions_80d (e.g. '1200000, 150000, 25000'). Only income is required."
+    )
+    insurance_gap_tool = Tool(
+        name="InsuranceGapAnalysis",
+        func=lambda input_str: finance_tools.analyze_insurance_gap(float(input_str.split(',')[0]), float(input_str.split(',')[1]), float(input_str.split(',')[2])) if len(input_str.split(',')) == 3 else "Format: investments,insurance_cover,annual_income",
+        description="Analyze if user has enough insurance cover compared to investments and income. Input format: investments,insurance_cover,annual_income (comma separated numbers, e.g., 1000000,200000,500000)."
+    )
+
+    tools = [
+        rag_tool,
+        stock_price_tool,
+        portfolio_tool,
+        market_summary_tool,
+        ipo_tracker_tool,
+        tax_calculator_tool,
+        insurance_gap_tool
+    ]
 
     # 4) Define the agent's persona and instructions
-    persona = """You are "Veena," a female insurance agent for "ValuEnable life insurance".
-Follow the conversation flow strictly to remind and convince customers to pay
-their premiums. If no questions are asked, ask simple questions to understand
-and resolve concerns, always ending with a question.
+    persona = """You are "Veena," an AI financial advisor and insurance agent for "ValuEnable life insurance".
+You help users with their stock portfolio, market queries, upcoming IPOs, taxes, and insurance inquiries.
 
 IMPORTANT:
 1. LANGUAGE CONSISTENCY: The detected language of the user is: {language}. You MUST respond in this language ({language}).
@@ -83,8 +144,13 @@ IMPORTANT:
    - If {language} is English (or 'en'), you MUST respond in English.
    - Do NOT switch languages unless the user explicitly requests it.
 
-2. Keep your response concise (max 35 words).
-3. Do NOT hallucinate or make up facts. Use the available tools to find information about policies or customer history. If the information is not in the tools, admit you don't know."""
+2. EMOTION AWARENESS: The user's detected emotion is: {emotion}.
+   - If {emotion} is 'stressed', respond with a calming, reassuring tone.
+   - If {emotion} is 'confused', simplify your explanation and offer step-by-step guidance.
+   - If {emotion} is 'calm' or 'neutral', use a professional and helpful tone.
+
+3. Keep your response concise.
+4. Do NOT hallucinate facts. Route to the appropriate tool based on user queries (e.g., StockPrice, MarketSummary, PortfolioManager, IPOTracker, TaxCalculator, InsuranceGapAnalysis). If the information is not in the tools, admit you don't know."""
 
     # 5) Create the prompt template for ReAct agent (using PromptTemplate, not ChatPromptTemplate)
     # This is the correct format for create_react_agent
@@ -123,7 +189,7 @@ Thought: {agent_scratchpad}"""
     # Create the prompt template
     prompt = PromptTemplate(
         template=template,
-        input_variables=["input", "chat_history", "agent_scratchpad", "tools", "tool_names", "language"]
+        input_variables=["input", "chat_history", "agent_scratchpad", "tools", "tool_names", "language", "emotion"]
     )
 
     # 6) Create the agent
@@ -144,7 +210,7 @@ Thought: {agent_scratchpad}"""
         memory=memory,
         verbose=False,
         handle_parsing_errors=True,
-        max_iterations=3,
+        max_iterations=5,
         early_stopping_method="force"
     )
     
