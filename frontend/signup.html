@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Veena AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&display=swap');
+        
+        * { font-family: 'Inter', sans-serif; }
+        body { margin: 0; overflow-x: hidden; background: #030712; min-height: 100vh; }
+        
+        .bg-animated {
+            position: fixed; inset: 0; z-index: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(16, 185, 129, 0.15), transparent),
+                radial-gradient(ellipse 60% 40% at 80% 60%, rgba(139, 92, 246, 0.1), transparent),
+                linear-gradient(180deg, #030712 0%, #0a0f1a 50%, #030712 100%);
+        }
+        
+        .bg-grid {
+            position: fixed; inset: 0; z-index: 0;
+            background-image: 
+                linear-gradient(rgba(16, 185, 129, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(16, 185, 129, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+        
+        .orb {
+            position: fixed; border-radius: 50%; filter: blur(80px);
+            animation: float 20s ease-in-out infinite; pointer-events: none;
+        }
+        .orb-1 { width: 400px; height: 400px; background: rgba(16, 185, 129, 0.15); top: -100px; right: -100px; }
+        .orb-2 { width: 300px; height: 300px; background: rgba(139, 92, 246, 0.12); bottom: -50px; left: -50px; }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+        
+        .glass {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #10b981 0%, #06b6d4 50%, #8b5cf6 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        
+        .input-glow:focus {
+            outline: none;
+            border-color: rgba(16, 185, 129, 0.5);
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(16, 185, 129, 0.4); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        
+        .btn-primary.agent {
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+        }
+        .btn-primary.agent:hover { box-shadow: 0 8px 30px rgba(139, 92, 246, 0.4); }
+        
+        .spinner {
+            width: 20px; height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .particle {
+            position: fixed; width: 2px; height: 2px;
+            background: rgba(16, 185, 129, 0.5); border-radius: 50%;
+            pointer-events: none; animation: particle-float 15s linear infinite;
+        }
+        @keyframes particle-float {
+            0% { transform: translateY(100vh); opacity: 0; }
+            10% { opacity: 1; } 90% { opacity: 1; }
+            100% { transform: translateY(-100vh); opacity: 0; }
+        }
+        
+        /* User Type Toggle */
+        .user-type-toggle {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .type-option {
+            flex: 1;
+            padding: 16px;
+            border-radius: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .type-option:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .type-option.selected.customer {
+            border-color: rgba(16, 185, 129, 0.5);
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .type-option.selected.agent {
+            border-color: rgba(139, 92, 246, 0.5);
+            background: rgba(139, 92, 246, 0.1);
+        }
+        
+        .type-option .icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 12px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .type-option.customer .icon {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2));
+        }
+        
+        .type-option.agent .icon {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(236, 72, 153, 0.2));
+        }
+        
+        .type-option .title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .type-option .desc {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animated"></div>
+    <div class="bg-grid"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div id="particles"></div>
+    
+    <div class="min-h-screen flex items-center justify-center p-6 relative z-10">
+        <div class="glass rounded-3xl p-8 md:p-10 w-full max-w-lg">
+            
+            <a href="login.html" class="inline-flex items-center text-gray-400 hover:text-white mb-6 transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Back to Login
+            </a>
+            
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 via-cyan-500 to-purple-500 mb-4 shadow-lg">
+                    <span class="text-2xl font-bold text-white" style="font-family: 'Orbitron', sans-serif;">V</span>
+                </div>
+                <h1 class="text-2xl font-bold text-white mb-2">Create Account</h1>
+                <p class="text-gray-400">Join Veena AI Financial Intelligence</p>
+            </div>
+            
+            <div id="error-message" class="hidden bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl mb-6 text-sm"></div>
+            <div id="success-message" class="hidden bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-4 py-3 rounded-xl mb-6 text-sm"></div>
+            
+            <form id="signup-form" onsubmit="handleSignup(event)">
+                
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-300 mb-3">I am a:</label>
+                    <div class="user-type-toggle">
+                        <div class="type-option customer selected" onclick="selectUserType('customer')">
+                            <div class="icon">
+                                <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                            </div>
+                            <div class="title text-white">Customer</div>
+                            <div class="desc">Get financial advice</div>
+                        </div>
+                        <div class="type-option agent" onclick="selectUserType('agent')">
+                            <div class="icon">
+                                <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
+                            </div>
+                            <div class="title text-white">Bank Agent</div>
+                            <div class="desc">Manage policies</div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="user-type" value="customer">
+                </div>
+                
+                <div class="mb-5">
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
+                    <input 
+                        type="text" 
+                        id="full-name" 
+                        class="w-full glass input-glow rounded-xl px-4 py-3 text-white placeholder-gray-500 bg-transparent border border-white/10"
+                        placeholder="Enter your full name"
+                        required
+                    >
+                </div>
+                
+                <div class="mb-5">
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        class="w-full glass input-glow rounded-xl px-4 py-3 text-white placeholder-gray-500 bg-transparent border border-white/10"
+                        placeholder="Enter your email"
+                        required
+                    >
+                </div>
+                
+                <div class="mb-5">
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        class="w-full glass input-glow rounded-xl px-4 py-3 text-white placeholder-gray-500 bg-transparent border border-white/10"
+                        placeholder="Create a password (min. 6 characters)"
+                        minlength="6"
+                        required
+                    >
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Confirm Password</label>
+                    <input 
+                        type="password" 
+                        id="confirm-password" 
+                        class="w-full glass input-glow rounded-xl px-4 py-3 text-white placeholder-gray-500 bg-transparent border border-white/10"
+                        placeholder="Confirm your password"
+                        required
+                    >
+                </div>
+                
+                <div class="flex items-start mb-6">
+                    <input type="checkbox" id="terms" class="mt-1 mr-3 rounded bg-transparent border-gray-600" required>
+                    <label for="terms" class="text-sm text-gray-400">
+                        I agree to the <a href="#" class="text-emerald-400 hover:underline">Terms of Service</a> 
+                        and <a href="#" class="text-emerald-400 hover:underline">Privacy Policy</a>
+                    </label>
+                </div>
+                
+                <button type="submit" id="submit-btn" class="btn-primary w-full py-3 rounded-xl text-white font-semibold flex items-center justify-center">
+                    <span id="btn-text">Create Customer Account</span>
+                    <div id="btn-spinner" class="spinner hidden ml-2"></div>
+                </button>
+            </form>
+            
+            <div class="mt-8 text-center">
+                <p class="text-gray-400">
+                    Already have an account? 
+                    <a href="login.html" class="text-emerald-400 hover:text-emerald-300 font-semibold">Sign In</a>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 15; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            particlesContainer.appendChild(particle);
+        }
+    </script>
+    
+    <script>
+        // ----------------------------------------------------
+        // REPLACE WITH YOUR SUPABASE PROJECT DETAILS
+        // ----------------------------------------------------
+        const SUPABASE_URL = 'https://genrfjbmyitomplekptg.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdlbnJmamJteWl0b21wbGVrcHRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg3NDU5NzksImV4cCI6MjA4NDMyMTk3OX0.K7imwFUcO3hQnEX4uTuV4Clij7-ZVEwPTicj8JawQFQ';
+        // ----------------------------------------------------
+
+        // Initialize Supabase Client
+        let supabase;
+        try {
+            if (!SUPABASE_URL.includes('URL_HERE')) {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch (e) {
+            console.error("Supabase initialization failed. Check your credentials.");
+        }
+
+        let selectedUserType = 'customer';
+        
+        function selectUserType(type) {
+            selectedUserType = type;
+            document.getElementById('user-type').value = type;
+            
+            // Update UI
+            document.querySelectorAll('.type-option').forEach(el => {
+                el.classList.remove('selected');
+            });
+            document.querySelector(`.type-option.${type}`).classList.add('selected');
+            
+            // Update button
+            const btn = document.getElementById('submit-btn');
+            const btnText = document.getElementById('btn-text');
+            
+            if (type === 'agent') {
+                btn.classList.add('agent');
+                btnText.textContent = 'Create Agent Account';
+            } else {
+                btn.classList.remove('agent');
+                btnText.textContent = 'Create Customer Account';
+            }
+        }
+        
+        async function handleSignup(event) {
+            event.preventDefault();
+
+            // Check if Supabase keys are set
+            if (!supabase) {
+                const errorMsg = document.getElementById('error-message');
+                errorMsg.textContent = 'Configuration Error: Please add your Supabase URL and Key in the code.';
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+            
+            const fullName = document.getElementById('full-name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const userType = document.getElementById('user-type').value;
+            
+            const submitBtn = document.getElementById('submit-btn');
+            const btnText = document.getElementById('btn-text');
+            const spinner = document.getElementById('btn-spinner');
+            const errorMsg = document.getElementById('error-message');
+            const successMsg = document.getElementById('success-message');
+            
+            // Validate passwords
+            if (password !== confirmPassword) {
+                errorMsg.textContent = 'Passwords do not match.';
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+            
+            if (password.length < 6) {
+                errorMsg.textContent = 'Password must be at least 6 characters.';
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+            
+            // Show loading
+            submitBtn.disabled = true;
+            btnText.textContent = 'Creating account...';
+            spinner.classList.remove('hidden');
+            errorMsg.classList.add('hidden');
+            successMsg.classList.add('hidden');
+            
+            try {
+                // Sign up with Supabase using metadata
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            full_name: fullName,
+                            user_type: userType
+                        }
+                    }
+                });
+
+                if (error) throw error;
+                
+                successMsg.innerHTML = `
+                    <strong>Account created successfully!</strong><br>
+                    <span class="text-sm opacity-80">Please check your email to verify your account, then you can log in.</span>
+                `;
+                successMsg.classList.remove('hidden');
+                
+                // Reset form
+                document.getElementById('signup-form').reset();
+                selectUserType('customer');
+                
+                // Redirect after delay
+                setTimeout(() => {
+                    if (userType === 'agent') {
+                        window.location.href = 'agent-login.html';
+                    } else {
+                        window.location.href = 'customer-login.html';
+                    }
+                }, 3000);
+                
+            } catch (error) {
+                console.error('Signup error:', error);
+                errorMsg.textContent = error.message || 'Failed to create account. Please try again.';
+                errorMsg.classList.remove('hidden');
+                
+                submitBtn.disabled = false;
+                btnText.textContent = userType === 'agent' ? 'Create Agent Account' : 'Create Customer Account';
+                spinner.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

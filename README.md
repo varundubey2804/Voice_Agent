@@ -1,127 +1,163 @@
-Voice-Enabled RAG Insurance Agent: "Veena"
-This project implements Veena, a sophisticated, voice-enabled conversational AI. Veena assumes the persona of an insurance agent for "ValuEnable Life Insurance," with the primary goal of engaging customers about their policy renewals.
+Voice-Enabled RAG Insurance Agent: Veena
+Veena is a sophisticated, voice-enabled conversational AI that acts as a friendly insurance agent for ValuEnable Life Insurance.
+Her primary goal is to engage customers about policy renewals, offering real-time, human-like conversations using Agentic RAG and a local Ollama LLM.
 
-This application functions as a powerful backend service that handles real-time audio processing, agentic thinking with RAG, and voice synthesis. It operates a WebSocket server, allowing any compatible frontend (e.g., a web application) to connect and interact with Veena.
+1. Executive Overview
+Veena is built as a local-first backend service for real-time voice interactions, combining:
 
- Core Features
-Real-time Voice Conversation: Captures microphone input using PyAudio and performs fast, accurate speech-to-text transcription with faster-whisper.
+Speech-to-text (ASR) with Whisper/Faster-Whisper
 
-Agentic AI Core: Utilizes the LangChain framework to create a ReAct agent. This allows Veena to reason, use tools, and maintain conversational memory.
+Agentic reasoning with LangChain ReAct Agent
 
-Retrieval-Augmented Generation (RAG): Veena can access a knowledge base of internal documents (e.g., customer history, policy details) using a FAISS vector store. This ensures responses are factual and context-aware.
+RAG with FAISS vector store
 
-Local & Private: Powered entirely by a local Ollama instance (using models like Llama 3), ensuring complete data privacy and no reliance on external APIs for core AI logic.
+Persona-driven responses
 
-Text-to-Speech (TTS): The agent's responses are converted back to natural-sounding speech using Google's Text-to-Speech (gTTS) service.
+Text-to-speech (TTS) output
 
-WebSocket Backend: Runs a websockets server, making it easy to integrate with modern web frontends or other client applications for a seamless user experience.
+WebSocket connectivity for frontend integration
 
- How It Works (Architecture)
-The application follows a clear, sequential process for handling user interaction:
+2. Core Features
+🎙 Real-Time Voice Conversation
+Captures microphone input, transcribes it, and responds instantly.
 
-Audio Capture: The audio_recording_loop in app.py continuously listens for audio from the microphone using PyAudio.
+🧠 Agentic AI Core
+Uses LangChain’s ReAct agent pattern for reasoning, tool usage, and memory retention.
 
-Speech-to-Text: Once a non-silent chunk of audio is detected, it's sent to the WhisperModel for transcription into text.
+📚 Retrieval-Augmented Generation (RAG)
+Searches internal knowledge base (customer history, policy details) via FAISS for factual, context-aware responses.
 
-Agent Invocation: The transcribed text is passed as input to the LangChain AgentExecutor (agentic_rag.py).
+🔒 100% Local & Private
+Runs entirely on a local Ollama instance (e.g., LLaMA 3), no external API calls for core AI logic.
 
-Thought & Action (RAG): The agent decides if it needs more information. If so, it uses its rag_search_transcripts tool to query the FAISS vector store for relevant documents.
+🗣 Natural Voice Output
+Generates smooth speech with Google gTTS and plays it using Pygame.
 
-Response Generation: With the necessary context, the agent prompts the local Ollama LLM (llama3) to generate a final, human-like response based on its "Veena" persona.
+🔌 WebSocket Backend
+Allows any frontend (React, Vue, etc.) to connect to ws://localhost:8765 for live updates and audio exchange.
 
-Text-to-Speech: The generated text response is passed to the voice_service.py, which uses gTTS to create an MP3 audio file.
+3. How It Works (Architecture)
+Audio Capture
+app.py listens continuously for microphone input using PyAudio.
 
-Audio Playback: Pygame is used to play the generated audio file back to the user.
+Speech-to-Text (ASR)
+Detected speech is transcribed with Faster-Whisper.
 
-WebSocket Communication: Throughout the process, status updates (e.g., "user_message", "agent_response", "speaking_started") are broadcast to all connected frontend clients via the WebSocket server.
+Agent Invocation
+Transcribed text is passed to the LangChain AgentExecutor (agentic_rag.py).
 
- Project Structure
+Thought & Action (RAG Search)
+If more information is needed, the agent calls the rag_search_transcripts tool to query FAISS vector store.
+
+Response Generation
+The local Ollama LLM (LLaMA 3) generates a persona-consistent reply as “Veena”.
+
+Text-to-Speech Conversion
+voice_service.py uses gTTS to convert the reply into an MP3 file.
+
+Audio Playback
+Pygame plays the generated speech.
+
+WebSocket Communication
+Status updates (user_message, agent_response, speaking_started, etc.) are broadcast to all connected frontends.
+
+4. Project Structure
+graphql
+Copy
+Edit
 .
-├── app.py                  # Main application: handles audio, websockets, and glues all services together.
-├── agentic_rag.py          # Defines the LangChain agent, RAG tool, memory, and "Veena" persona.
-├── index_documents.py      # One-time script to create the FAISS vector index from your documents.
-├── voice_service.py        # Handles text-to-speech conversion and playback using gTTS and Pygame.
-├── requirments.txt         # All Python dependencies for the project.
-├── rag_docs/               # Folder to store your knowledge base documents (.txt files).
-├── faiss_rag.index         # The generated FAISS vector store file (binary).
-├── Requestollama.py        # A simple utility script to test connection to the Ollama API directly.
-└── .gitignore              # Specifies files and folders (like /venv) to be ignored by Git.
- Setup and Installation
+├── app.py                # Main backend app (audio loop + WebSocket server)
+├── agentic_rag.py        # LangChain agent, RAG tool, memory, and "Veena" persona
+├── index_documents.py    # Script to build FAISS vector index from knowledge base
+├── voice_service.py      # Text-to-speech + audio playback
+├── Requestollama.py      # Test Ollama API connectivity
+├── requirements.txt      # Python dependencies
+├── rag_docs/             # Knowledge base text files
+├── faiss_rag.index       # Generated FAISS vector store
+└── .gitignore            # Git ignore file
+5. Setup & Installation
 Prerequisites
 Python 3.8+
 
-Ollama installed and running.
+Ollama installed & running locally
 
-A working microphone.
+Working microphone
 
-Installation Steps
-Clone the repository:
+Steps
+Clone Repository
 
-Bash
+bash
+Copy
+Edit
+git clone <repo_url>
+cd <repo_folder>
+Create Virtual Environment
 
-git clone <repository-url>
-cd <repository-folder>
-Create and activate a virtual environment:
-
-Bash
-
+bash
+Copy
+Edit
 python -m venv venv
-# On Windows
+# Windows
 venv\Scripts\activate
-# On macOS/Linux
+# macOS/Linux
 source venv/bin/activate
-Install the required Python packages:
+Install Dependencies
 
-Bash
+bash
+Copy
+Edit
+pip install -r requirements.txt
+Pull Ollama Models
 
-pip install -r requirments.txt
-Set up Ollama Models:
-
-Ensure the Ollama application is running in your terminal or as a desktop application.
-
-Pull the necessary models for the agent and embeddings:
-
-Bash
-
+bash
+Copy
+Edit
 ollama pull llama3
 ollama pull nomic-embed-text
-▶ How to Run
-Prepare Your Knowledge Base:
+Prepare Knowledge Base
 
-Create a folder named rag_docs in the project's root directory.
+Create a rag_docs/ folder.
 
-Place any text documents (.txt files) you want the agent to have access to inside this folder.
+Place .txt documents with relevant info inside.
 
-Build the Vector Index:
+Build Vector Index
 
-Run the index_documents.py script once. This will read the files in rag_docs, generate embeddings, and create the faiss_rag.index file.
-
-Bash
-
+bash
+Copy
+Edit
 python index_documents.py
-Start the Backend Server:
+Run Backend
 
-Run the main application script. This will start the audio recording loop and the WebSocket server.
-
-Bash
-
+bash
+Copy
+Edit
 python app.py
-You should see messages indicating that the audio recording has started and the WebSocket server is running on ws://localhost:8765.
+You should see:
 
-Connect a Frontend:
+arduino
+Copy
+Edit
+Audio recording started...
+WebSocket server running on ws://localhost:8765
+6. Configuration
+LLM & Embedding Models
+Change LLM_MODEL_NAME and EMBED_MODEL_NAME in agentic_rag.py.
 
-This project is a backend service. To interact with it, you need a WebSocket client.
+RAG Chunk Size & Overlap
+Adjust in index_documents.py.
 
-You can use a simple web-based WebSocket client for testing or build a full-fledged chat interface (e.g., using React, Vue, or Svelte) that connects to ws://localhost:8765.
+Agent Persona
+Modify Veena’s instructions & style in agentic_rag.py.
 
- Configuration
-AI Models: The LLM and embedding models can be changed by modifying the LLM_MODEL_NAME and EMBED_MODEL_NAME constants in agentic_rag.py.
+Audio Recording Parameters
+Edit DEFAULT_CHUNK_LENGTH in app.py.
 
-RAG Parameters: The chunk size and overlap for document splitting can be adjusted in index_documents.py.
+7. Utility Scripts
+Requestollama.py
+Simple test to confirm Ollama is running and accessible.
+Run:
 
-Agent Persona: Veena's core instructions, rules, and personality can be modified in the persona string within the agentic_rag.py file.
-
-Audio: The recording chunk length can be adjusted via DEFAULT_CHUNK_LENGTH in app.py.
-
- Utility Scripts
-Requestollama.py: This is a simple script to send a direct request to your Ollama server. You can run python Requestollama.py to quickly verify that Ollama is running and the specified model (mistral in the script) is accessible before launching the main application.
+bash
+Copy
+Edit
+python Requestollama.py

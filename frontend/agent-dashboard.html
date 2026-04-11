@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Dashboard - Veena AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&display=swap');
+        
+        * { font-family: 'Inter', sans-serif; }
+        body { margin: 0; background: #030712; min-height: 100vh; overflow-x: hidden; }
+        
+        .bg-animated {
+            position: fixed; inset: 0; z-index: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139, 92, 246, 0.15), transparent),
+                radial-gradient(ellipse 60% 40% at 80% 60%, rgba(236, 72, 153, 0.1), transparent),
+                linear-gradient(180deg, #030712 0%, #0a0f1a 50%, #030712 100%);
+        }
+        
+        .glass {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        
+        #vrm-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 35%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .main-content {
+            position: relative;
+            z-index: 10;
+            margin-left: 30%;
+            width: 70%;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        @media (max-width: 1024px) {
+            .main-content { margin-left: 0; width: 100%; }
+            #vrm-canvas { display: none; }
+        }
+        
+        .input-glow:focus {
+            outline: none;
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(139, 92, 246, 0.4); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.15); }
+        
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3); }
+        
+        .spinner {
+            width: 20px; height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active { display: flex; }
+        
+        /* Toast */
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 200;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        #toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(139, 92, 246, 0.3); border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="bg-animated"></div>
+    
+    <div id="vrm-canvas"></div>
+    
+    <div class="main-content text-white">
+        
+        <header class="glass rounded-2xl px-6 py-4 mb-6 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center font-bold text-xl" style="font-family: 'Orbitron', sans-serif;">
+                    V
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold gradient-text" style="font-family: 'Orbitron', sans-serif;">Veena AI</h1>
+                    <p class="text-xs text-gray-400">Agent Dashboard</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-3 glass rounded-xl px-4 py-2">
+                    <div id="user-avatar" class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-sm font-bold">A</div>
+                    <span id="user-name" class="text-sm text-gray-300 hidden md:block">Agent</span>
+                </div>
+                <button onclick="handleLogout()" class="glass rounded-xl p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors" title="Logout">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                </button>
+            </div>
+        </header>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="glass rounded-2xl p-5 card-hover">
+                <p class="text-gray-400 text-sm mb-2">Total Policies</p>
+                <p id="stat-total" class="text-3xl font-bold">0</p>
+            </div>
+            <div class="glass rounded-2xl p-5 card-hover">
+                <p class="text-gray-400 text-sm mb-2">Categories</p>
+                <p id="stat-categories" class="text-3xl font-bold">0</p>
+            </div>
+            <div class="glass rounded-2xl p-5 card-hover">
+                <p class="text-gray-400 text-sm mb-2">Last Update</p>
+                <p id="stat-last-update" class="text-lg font-bold">--</p>
+            </div>
+            <div class="glass rounded-2xl p-5 card-hover">
+                <p class="text-gray-400 text-sm mb-2">Status</p>
+                <p class="text-lg font-bold text-emerald-400">Active</p>
+            </div>
+        </div>
+        
+        <div class="glass rounded-2xl p-6 mb-6">
+            <h2 class="text-xl font-bold mb-6 flex items-center">
+                <svg class="w-6 h-6 mr-3 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Add New Policy
+            </h2>
+            
+            <form id="add-form" onsubmit="handleAddPolicy(event)">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">Title *</label>
+                        <input 
+                            type="text" 
+                            id="policy-title"
+                            class="w-full glass input-glow rounded-xl px-4 py-3 text-white placeholder-gray-500 bg-transparent border border-white/10"
+                            placeholder="e.g., Home Loan Interest Rates 2024"
+                            required
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2">Category *</label>
+                        <select 
+                            id="policy-category"
+                            class="w-full glass rounded-xl px-4 py-3 text-white bg-transparent border border-white/10 cursor-pointer"
+                            required
+                        >
+                            <option value="">Select category</option>
+                            <option value="Loans">Loans</option>
+                            <option value="Accounts">Accounts</option>
+                            <option value="Insurance">Insurance</option>
+                            <option value="Investments">Investments</option>
+                            <option value="Credit Cards">Credit Cards</option>
+                            <option value="General">General</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm text-gray-400 mb-2">Content *</label>
+                    <textarea 
+                        id="policy-content"
+                        rows="6"
+                        class="w-full glass input-glow rounded-xl px-4 py-3 text-white placeholder-gray-500 bg-transparent border border-white/10 resize-none"
+                        placeholder="Enter the policy information here. This content will be used by Veena AI to answer customer queries."
+                        required
+                    ></textarea>
+                </div>
+                
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="clearForm()" class="btn-secondary rounded-xl px-6 py-3">
+                        Clear
+                    </button>
+                    <button type="submit" id="submit-btn" class="btn-primary rounded-xl px-8 py-3 font-semibold flex items-center">
+                        <span id="submit-text">Add Policy</span>
+                        <div id="submit-spinner" class="spinner hidden ml-2"></div>
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="glass rounded-2xl p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold flex items-center">
+                    <svg class="w-6 h-6 mr-3 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    All Policies
+                </h2>
+                <button onclick="loadPolicies()" class="btn-secondary rounded-xl px-4 py-2 flex items-center text-sm">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+            
+            <div class="mb-4">
+                <input 
+                    type="text" 
+                    id="search-input"
+                    placeholder="Search policies..."
+                    class="w-full glass input-glow rounded-xl px-4 py-3 text-white placeholder-gray-500 bg-transparent border border-white/10"
+                    oninput="handleSearch(this.value)"
+                >
+            </div>
+            
+            <div id="policies-list" class="space-y-3">
+                <div class="text-center py-8 text-gray-400">
+                    <div class="spinner mx-auto mb-4" style="width:32px;height:32px;"></div>
+                    <p>Loading policies...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="edit-modal" class="modal">
+        <div class="glass rounded-2xl p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold gradient-text">Edit Policy</h2>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="edit-form" onsubmit="handleUpdatePolicy(event)">
+                <input type="hidden" id="edit-id">
+                
+                <div class="mb-4">
+                    <label class="block text-sm text-gray-400 mb-2">Title</label>
+                    <input 
+                        type="text" 
+                        id="edit-title"
+                        class="w-full glass input-glow rounded-xl px-4 py-3 text-white bg-transparent border border-white/10"
+                        required
+                    >
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm text-gray-400 mb-2">Category</label>
+                    <select id="edit-category" class="w-full glass rounded-xl px-4 py-3 text-white bg-transparent border border-white/10" required>
+                        <option value="Loans">Loans</option>
+                        <option value="Accounts">Accounts</option>
+                        <option value="Insurance">Insurance</option>
+                        <option value="Investments">Investments</option>
+                        <option value="Credit Cards">Credit Cards</option>
+                        <option value="General">General</option>
+                    </select>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-sm text-gray-400 mb-2">Content</label>
+                    <textarea 
+                        id="edit-content"
+                        rows="8"
+                        class="w-full glass input-glow rounded-xl px-4 py-3 text-white bg-transparent border border-white/10 resize-none"
+                        required
+                    ></textarea>
+                </div>
+                
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeEditModal()" class="btn-secondary rounded-xl px-6 py-3">Cancel</button>
+                    <button type="submit" class="btn-primary rounded-xl px-6 py-3">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="toast" class="glass rounded-xl px-6 py-4">
+        <div class="flex items-center space-x-3">
+            <div id="toast-icon"></div>
+            <span id="toast-message"></span>
+        </div>
+    </div>
+    
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.167.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.167.0/examples/jsm/",
+            "@pixiv/three-vrm": "https://cdn.jsdelivr.net/npm/@pixiv/three-vrm@3/lib/three-vrm.module.js"
+        }
+    }
+    </script>
+    
+    <script type="module">
+        import * as THREE from 'three';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { VRMLoaderPlugin } from '@pixiv/three-vrm';
+        
+        const container = document.getElementById('vrm-canvas');
+        
+        const scene = new THREE.Scene();
+        scene.background = null;
+        
+        const camera = new THREE.PerspectiveCamera(15, container.clientWidth / container.clientHeight, 0.1, 1000);
+        camera.position.set(0, 2, 2);
+        camera.lookAt(0, 0, -0.2);
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setClearColor(0x000000, 0);
+        container.appendChild(renderer.domElement);
+        
+        // Lights
+        scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+        const mainLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        mainLight.position.set(1, 2, 3);
+        scene.add(mainLight);
+        const fillLight = new THREE.DirectionalLight(0x8b5cf6, 0.4);
+        fillLight.position.set(-2, 1, 1);
+        scene.add(fillLight);
+        
+        // Load VRM
+        const loader = new GLTFLoader();
+        loader.register((parser) => new VRMLoaderPlugin(parser));
+        
+        let vrm = null;
+        
+        loader.load('models/agent.vrm', (gltf) => {
+            vrm = gltf.userData.vrm;
+            scene.add(vrm.scene);
+            vrm.scene.position.set(0, -1.5, 0);
+            vrm.scene.rotation.y = 0.2;
+            vrm.scene.rotation.x = -0.5;
+            
+            if (vrm.humanoid) {
+                const leftUpperArm = vrm.humanoid.getNormalizedBoneNode('leftUpperArm');
+                const rightUpperArm = vrm.humanoid.getNormalizedBoneNode('rightUpperArm');
+                const leftLowerArm = vrm.humanoid.getNormalizedBoneNode('leftLowerArm');
+                const rightLowerArm = vrm.humanoid.getNormalizedBoneNode('rightLowerArm');
+                if (leftUpperArm) leftUpperArm.rotation.z = -1.4;
+                if (rightUpperArm) rightUpperArm.rotation.z = 1.4;
+                if (leftLowerArm) leftLowerArm.rotation.z = -0.8;
+                if (rightLowerArm) rightLowerArm.rotation.z = 0.8;
+            }
+            
+            if (vrm.expressionManager) vrm.expressionManager.setValue('neutral', 0.5);
+        }, undefined, (error) => console.log('VRM not loaded'));
+        
+        // Animation
+        const clock = new THREE.Clock();
+        let blinkTimer = 0;
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            const dt = clock.getDelta();
+            blinkTimer += dt;
+            
+            if (vrm) {
+                vrm.update(dt);
+                vrm.scene.position.y = -1.5 + Math.sin(clock.getElapsedTime() * 1.5) * 0.005;
+                
+                if (blinkTimer > 3 + Math.random() * 3) {
+                    blinkTimer = 0;
+                    if (vrm.expressionManager) {
+                        vrm.expressionManager.setValue('blink', 1);
+                        setTimeout(() => vrm.expressionManager?.setValue('blink', 0), 150);
+                    }
+                }
+            }
+            renderer.render(scene, camera);
+        }
+        animate();
+        
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+    </script>
+    
+    <script>
+        // =============================================
+        // CONFIGURATION (REPLACE WITH YOUR KEYS)
+        // =============================================
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL_HERE';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY_HERE';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        let currentUser = null;
+        let allPolicies = []; // Local cache for search
+        
+        // =============================================
+        // INITIALIZATION
+        // =============================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkAuth();
+            await loadPolicies();
+        });
+        
+        async function checkAuth() {
+            try {
+                const storedUser = localStorage.getItem('veena_user');
+                console.log('Stored user:', storedUser);
+                
+                if (!storedUser) {
+                    console.log('No user in localStorage, redirecting to login');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                currentUser = JSON.parse(storedUser);
+                
+                const userNameEl = document.getElementById('user-name');
+                const userAvatarEl = document.getElementById('user-avatar');
+                if (userNameEl) userNameEl.textContent = currentUser.full_name || 'Agent';
+                if (userAvatarEl) userAvatarEl.textContent = (currentUser.full_name || 'A')[0].toUpperCase();
+                
+            } catch (error) {
+                console.error('Auth error:', error);
+                localStorage.removeItem('veena_user');
+                window.location.href = 'login.html';
+            }
+        }
+        
+        // =============================================
+        // CORE DATABASE FUNCTIONS
+        // =============================================
+        
+        // 1. Load Policies
+        async function loadPolicies() {
+            const listContainer = document.getElementById('policies-list');
+            
+            // Show Loading UI
+            listContainer.innerHTML = `
+                <div class="text-center py-8 text-gray-400">
+                    <div class="spinner mx-auto mb-4" style="width:32px;height:32px;"></div>
+                    <p>Syncing with database...</p>
+                </div>`;
+            
+            try {
+                const { data, error } = await supabase
+                    .from('policies')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                
+                if (error) throw error;
+                
+                allPolicies = data || [];
+                updateStats(allPolicies);
+                renderPolicies(allPolicies);
+                
+                const now = new Date();
+                document.getElementById('stat-last-update').textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+            } catch (error) {
+                console.error('Load Error:', error);
+                showToast('Failed to load policies', 'error');
+                listContainer.innerHTML = `<div class="text-center py-8 text-red-400">Error loading data. Check console.</div>`;
+            }
+        }
+        
+        // 2. Add Policy
+        async function handleAddPolicy(event) {
+            event.preventDefault();
+            
+            const title = document.getElementById('policy-title').value;
+            const category = document.getElementById('policy-category').value;
+            const content = document.getElementById('policy-content').value;
+            
+            const btn = document.getElementById('submit-btn');
+            const spinner = document.getElementById('submit-spinner');
+            const btnText = document.getElementById('submit-text');
+            
+            btn.disabled = true;
+            spinner.classList.remove('hidden');
+            btnText.textContent = 'Saving...';
+            
+            try {
+                const { error } = await supabase
+                    .from('policies')
+                    .insert([{ 
+                        title, 
+                        category, 
+                        content,
+                        // Optional: remove user_id if your table doesn't require it
+                        user_id: currentUser?.id 
+                    }]);
+                
+                if (error) throw error;
+                
+                showToast('Policy added successfully', 'success');
+                clearForm();
+                loadPolicies(); // Refresh list
+                
+            } catch (error) {
+                console.error('Add Error:', error);
+                showToast('Error adding policy: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                spinner.classList.add('hidden');
+                btnText.textContent = 'Add Policy';
+            }
+        }
+        
+        // 3. Delete Policy
+        async function handleDeletePolicy(id) {
+            if(!confirm('Are you sure you want to delete this policy?')) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('policies')
+                    .delete()
+                    .eq('id', id);
+                
+                if (error) throw error;
+                
+                showToast('Policy deleted', 'success');
+                // Remove from local array immediately for snappy feel
+                allPolicies = allPolicies.filter(p => p.id !== id);
+                renderPolicies(allPolicies);
+                updateStats(allPolicies);
+                
+            } catch (error) {
+                console.error('Delete Error:', error);
+                showToast('Failed to delete policy', 'error');
+            }
+        }
+        
+        // =============================================
+        // UI & HELPERS
+        // =============================================
+        
+        function renderPolicies(policies) {
+            const listContainer = document.getElementById('policies-list');
+            
+            if (policies.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <p>No policies found. Add one above.</p>
+                    </div>`;
+                return;
+            }
+            
+            listContainer.innerHTML = policies.map(policy => `
+                <div class="glass rounded-xl p-4 card-hover border border-white/5 relative group">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <span class="inline-block px-2 py-1 rounded-md text-xs font-medium bg-purple-500/20 text-purple-300 mb-2 border border-purple-500/30">
+                                ${escapeHtml(policy.category)}
+                            </span>
+                            <h3 class="text-lg font-bold text-white">${escapeHtml(policy.title)}</h3>
+                        </div>
+                        <div class="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="handleDeletePolicy('${policy.id}')" class="p-2 hover:bg-white/10 rounded-lg text-red-400 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-gray-400 text-sm line-clamp-3">${escapeHtml(policy.content)}</p>
+                    <div class="mt-3 pt-3 border-t border-white/5 flex justify-between items-center text-xs text-gray-500">
+                        <span>ID: ${policy.id.slice(0,8)}...</span>
+                        <span>${new Date(policy.created_at).toLocaleDateString()}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function updateStats(policies) {
+            document.getElementById('stat-total').textContent = policies.length;
+            const uniqueCategories = new Set(policies.map(p => p.category));
+            document.getElementById('stat-categories').textContent = uniqueCategories.size;
+        }
+        
+        function handleSearch(query) {
+            const lowerQuery = query.toLowerCase();
+            const filtered = allPolicies.filter(p => 
+                p.title.toLowerCase().includes(lowerQuery) || 
+                p.content.toLowerCase().includes(lowerQuery) ||
+                p.category.toLowerCase().includes(lowerQuery)
+            );
+            renderPolicies(filtered);
+        }
+        
+        function clearForm() {
+            document.getElementById('add-form').reset();
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toast-icon');
+            const msg = document.getElementById('toast-message');
+            
+            const icons = {
+                success: '<svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>',
+                error: '<svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>',
+                info: '<svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>'
+            };
+            
+            icon.innerHTML = icons[type] || icons.info;
+            msg.textContent = message;
+            
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+        
+        function handleLogout() {
+            localStorage.removeItem('veena_user');
+            window.location.href = 'login.html';
+        }
+        
+        // Modal functions
+        function closeEditModal() {
+            document.getElementById('edit-modal').classList.remove('active');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veena AI - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&display=swap');
+        
+        * { font-family: 'Inter', sans-serif; }
+        body { margin: 0; overflow: hidden; background: #030712; }
+        
+        .bg-animated {
+            position: fixed; inset: 0; z-index: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(16, 185, 129, 0.15), transparent),
+                radial-gradient(ellipse 60% 40% at 80% 60%, rgba(6, 182, 212, 0.1), transparent),
+                radial-gradient(ellipse 50% 30% at 20% 80%, rgba(139, 92, 246, 0.1), transparent),
+                linear-gradient(180deg, #030712 0%, #0a0f1a 50%, #030712 100%);
+        }
+        
+        .bg-grid {
+            position: fixed; inset: 0; z-index: 0;
+            background-image: 
+                linear-gradient(rgba(16, 185, 129, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(16, 185, 129, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black 20%, transparent 70%);
+        }
+        
+        .orb {
+            position: fixed; border-radius: 50%; filter: blur(80px);
+            animation: float 20s ease-in-out infinite; pointer-events: none;
+        }
+        .orb-1 { width: 400px; height: 400px; background: rgba(16, 185, 129, 0.15); top: -100px; right: -100px; }
+        .orb-2 { width: 300px; height: 300px; background: rgba(6, 182, 212, 0.12); bottom: -50px; left: -50px; animation-delay: -7s; }
+        .orb-3 { width: 250px; height: 250px; background: rgba(139, 92, 246, 0.1); top: 50%; left: 20%; animation-delay: -14s; }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -30px) scale(1.05); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(20px, 10px) scale(1.02); }
+        }
+        
+        .glass {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #10b981 0%, #06b6d4 50%, #8b5cf6 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        
+        .role-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        .role-card:hover { transform: translateY(-8px) scale(1.02); }
+        .role-card.customer:hover { box-shadow: 0 20px 60px rgba(16, 185, 129, 0.3); border-color: rgba(16, 185, 129, 0.5); }
+        .role-card.agent:hover { box-shadow: 0 20px 60px rgba(139, 92, 246, 0.3); border-color: rgba(139, 92, 246, 0.5); }
+        
+        .particle {
+            position: fixed; width: 2px; height: 2px;
+            background: rgba(16, 185, 129, 0.5); border-radius: 50%;
+            pointer-events: none; animation: particle-float 15s linear infinite;
+        }
+        @keyframes particle-float {
+            0% { transform: translateY(100vh); opacity: 0; }
+            10% { opacity: 1; } 90% { opacity: 1; }
+            100% { transform: translateY(-100vh); opacity: 0; }
+        }
+        
+        #vrm-canvas {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; z-index: 2;
+        }
+        
+        .content-overlay {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; z-index: 10;
+            pointer-events: none;
+        }
+        .content-overlay > * { pointer-events: auto; }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .welcome-text { animation: fadeInUp 1s ease-out; }
+        .cards-container { animation: fadeInUp 1s ease-out 0.3s both; }
+    </style>
+</head>
+<body>
+    <div class="bg-animated"></div>
+    <div class="bg-grid"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div id="particles"></div>
+    <div id="vrm-canvas"></div>
+    
+    <div class="content-overlay flex flex-col items-center justify-center min-h-screen p-6">
+        
+        <div class="welcome-text text-center mb-10">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 via-cyan-500 to-purple-500 mb-6 shadow-lg shadow-emerald-500/25">
+                <span class="text-4xl font-bold text-white" style="font-family: 'Orbitron', sans-serif;">V</span>
+            </div>
+            <h1 class="text-5xl font-bold gradient-text mb-4" style="font-family: 'Orbitron', sans-serif;">
+                VEENA AI
+            </h1>
+            <p class="text-xl text-gray-400">Your Intelligent Financial Companion</p>
+        </div>
+        
+        <div class="cards-container grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl w-full">
+            
+            <a href="customer-login.html" class="role-card customer glass rounded-3xl p-8 text-center relative">
+                <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center mb-5 shadow-lg shadow-emerald-500/30">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                </div>
+                <h2 class="text-xl font-bold text-white mb-2">Customer</h2>
+                <p class="text-gray-400 text-sm mb-4">Access your personal financial advisor</p>
+                <span class="inline-flex items-center text-emerald-400 text-sm font-semibold">
+                    Login / Sign Up
+                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </span>
+            </a>
+            
+            <a href="agent-login.html" class="role-card agent glass rounded-3xl p-8 text-center relative">
+                <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-5 shadow-lg shadow-purple-500/30">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                </div>
+                <h2 class="text-xl font-bold text-white mb-2">Bank Agent</h2>
+                <p class="text-gray-400 text-sm mb-4">Manage knowledge base & policies</p>
+                <span class="inline-flex items-center text-purple-400 text-sm font-semibold">
+                    Agent Login
+                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </span>
+            </a>
+            
+        </div>
+        
+        <div class="mt-10 text-center">
+            <p class="text-gray-400">
+                New customer? 
+                <a href="signup.html" class="text-emerald-400 hover:text-emerald-300 font-semibold ml-1">
+                    Create Account
+                </a>
+            </p>
+            <p class="text-xs text-gray-600 mt-2">
+                 created by blackdragons
+            </p>
+        </div>
+        
+        <div class="fixed bottom-6 text-center">
+            <p class="text-xs text-gray-600">
+                © 2026 Veena AI Financial Intelligence. All rights reserved.
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        // Generate particles
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 20; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+            particlesContainer.appendChild(particle);
+        }
+    </script>
+    
+    <script src="js/supabase-client.js"></script>
+    <script>
+        // Check if already logged in
+        (async function() {
+            try {
+                const isAuth = await SupabaseAuth.isAuthenticated();
+                if (isAuth) {
+                    const user = await SupabaseAuth.getCurrentUser();
+                    const profile = await SupabaseAuth.getProfile(user.id);
+                    
+                    // Redirect based on user type
+                    switch(profile.user_type) {
+                        case 'admin':
+                            window.location.href = 'admin-dashboard.html';
+                            break;
+                        case 'agent':
+                            window.location.href = 'agent-dashboard.html';
+                            break;
+                        default:
+                            window.location.href = 'index.html';
+                    }
+                }
+            } catch (e) {
+                console.log('Not logged in');
+            }
+        })();
+    </script>
+    
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.167.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.167.0/examples/jsm/",
+            "@pixiv/three-vrm": "https://cdn.jsdelivr.net/npm/@pixiv/three-vrm@3/lib/three-vrm.module.js"
+        }
+    }
+    </script>
+    
+    <script type="module">
+        import * as THREE from 'three';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { VRMLoaderPlugin } from '@pixiv/three-vrm';
+        
+        const container = document.getElementById('vrm-canvas');
+        const scene = new THREE.Scene();
+        scene.background = null;
+        
+        const camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 1.3, 2.5);
+        camera.lookAt(0, 1.2, 0);
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setClearColor(0x000000, 0);
+        container.appendChild(renderer.domElement);
+        
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        scene.add(ambientLight);
+        const mainLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        mainLight.position.set(1, 2, 3);
+        scene.add(mainLight);
+        
+        const loader = new GLTFLoader();
+        loader.register((parser) => new VRMLoaderPlugin(parser));
+        
+        let vrm = null;
+        
+        loader.load('models/veena.vrm', (gltf) => {
+            vrm = gltf.userData.vrm;
+            scene.add(vrm.scene);
+            vrm.scene.position.set(0, -1.5, 0);
+            
+            if (vrm.humanoid) {
+                const leftUpperArm = vrm.humanoid.getNormalizedBoneNode('leftUpperArm');
+                const rightUpperArm = vrm.humanoid.getNormalizedBoneNode('rightUpperArm');
+                if (leftUpperArm) leftUpperArm.rotation.z = -1.0;
+                if (rightUpperArm) rightUpperArm.rotation.z = 1.0;
+            }
+            
+            if (vrm.expressionManager) {
+                vrm.expressionManager.setValue('happy', 0.6);
+            }
+        }, undefined, (error) => console.log('VRM loading skipped'));
+        
+        const clock = new THREE.Clock();
+        let blinkTimer = 0;
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            const deltaTime = clock.getDelta();
+            const time = clock.getElapsedTime();
+            blinkTimer += deltaTime;
+            
+            if (vrm) {
+                vrm.update(deltaTime);
+                vrm.scene.position.y = -1.5 + Math.sin(time * 1.5) * 0.01;
+                
+                if (blinkTimer > 3 + Math.random() * 3) {
+                    blinkTimer = 0;
+                    if (vrm.expressionManager) {
+                        vrm.expressionManager.setValue('blink', 1);
+                        setTimeout(() => {
+                            if (vrm.expressionManager) vrm.expressionManager.setValue('blink', 0);
+                        }, 150);
+                    }
+                }
+            }
+            renderer.render(scene, camera);
+        }
+        animate();
+        
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>

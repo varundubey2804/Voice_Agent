@@ -1,27 +1,31 @@
-# voice_service.py
-
-import os
-import time
+import asyncio
+import edge_tts
 import pygame
-from gtts import gTTS
+import os
 
-def play_text_to_speech_stream(text, language='en', slow=False):
-    """Convert text to speech and play it."""
+# Initialize mixer once at the start to improve latency
+pygame.mixer.init()
+
+async def generate_speech(text, output_file, language=None):
+    voice = "hi-IN-SwaraNeural" if (language == "hi" or any(u'\u0900' <= c <= u'\u097f' for c in text)) else "en-IN-NeerjaNeural"
+    communicate = edge_tts.Communicate(text, voice)
+    await communicate.save(output_file)
+
+def play_text_to_speech_stream(text, language=None):
+    output_file = "temp_audio.mp3"
     try:
-        tts = gTTS(text=text, lang=language, slow=slow)
-        temp_audio_file = "temp_audio.mp3"
-        tts.save(temp_audio_file)
-
-        pygame.mixer.init()
-        pygame.mixer.music.load(temp_audio_file)
+        asyncio.run(generate_speech(text, output_file, language))
+        
+        pygame.mixer.music.load(output_file)
         pygame.mixer.music.play()
 
         while pygame.mixer.music.get_busy():
             pygame.time.Clock().tick(10)
 
-        pygame.mixer.music.stop()
-        pygame.mixer.quit()
-        os.remove(temp_audio_file)
-
+        # UNLOAD is critical to allow file deletion
+        pygame.mixer.music.unload() 
+        
+        if os.path.exists(output_file):
+            os.remove(output_file)
     except Exception as e:
         print(f"🔊 TTS Error: {e}")

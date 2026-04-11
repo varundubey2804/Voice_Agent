@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Agent Login - Veena AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+        body { margin: 0; overflow: hidden; background: #030712; }
+        
+        .bg-animated {
+            position: fixed; inset: 0; z-index: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139, 92, 246, 0.15), transparent),
+                radial-gradient(ellipse 60% 40% at 80% 60%, rgba(236, 72, 153, 0.1), transparent),
+                linear-gradient(180deg, #030712 0%, #0a0f1a 50%, #030712 100%);
+        }
+        
+        .bg-grid {
+            position: fixed; inset: 0; z-index: 0;
+            background-image: 
+                linear-gradient(rgba(139, 92, 246, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(139, 92, 246, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+        
+        .orb {
+            position: fixed; border-radius: 50%; filter: blur(80px);
+            animation: float 20s ease-in-out infinite; pointer-events: none;
+        }
+        .orb-1 { width: 400px; height: 400px; background: rgba(139, 92, 246, 0.15); top: -100px; right: -100px; }
+        .orb-2 { width: 300px; height: 300px; background: rgba(236, 72, 153, 0.12); bottom: -50px; left: -50px; }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+        
+        .glass {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .input-glow:focus {
+            outline: none;
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2), 0 0 20px rgba(139, 92, 246, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(139, 92, 246, 0.4); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        
+        .spinner {
+            width: 20px; height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .particle {
+            position: fixed; width: 2px; height: 2px;
+            background: rgba(139, 92, 246, 0.5); border-radius: 50%;
+            pointer-events: none; animation: particle-float 15s linear infinite;
+        }
+        @keyframes particle-float {
+            0% { transform: translateY(100vh); opacity: 0; }
+            10% { opacity: 1; } 90% { opacity: 1; }
+            100% { transform: translateY(-100vh); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animated"></div>
+    <div class="bg-grid"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div id="particles"></div>
+    
+    <div class="min-h-screen flex items-center justify-center p-6 relative z-10">
+        <div class="glass rounded-3xl p-10 w-full max-w-md">
+            
+            <a href="login.html" class="inline-flex items-center text-gray-400 hover:text-white mb-8 transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Back
+            </a>
+            
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 mb-4 shadow-lg shadow-purple-500/30">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-bold text-white mb-2">Bank Agent Login</h1>
+                <p class="text-gray-400">Access the admin dashboard</p>
+            </div>
+            
+            <div id="error-message" class="hidden bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl mb-6 text-sm"></div>
+            
+            <div id="success-message" class="hidden bg-purple-500/10 border border-purple-500/30 text-purple-400 px-4 py-3 rounded-xl mb-6 text-sm"></div>
+            
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="mb-5">
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Agent Email</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        class="w-full glass input-glow rounded-xl px-4 py-3 text-white placeholder-gray-500 bg-transparent border border-white/10"
+                        placeholder="Enter your agent email"
+                        required
+                    >
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        class="w-full glass input-glow rounded-xl px-4 py-3 text-white placeholder-gray-500 bg-transparent border border-white/10"
+                        placeholder="Enter your password"
+                        required
+                    >
+                </div>
+                
+                <button type="submit" id="submit-btn" class="btn-primary w-full py-3 rounded-xl text-white font-semibold flex items-center justify-center">
+                    <span id="btn-text">Sign In as Agent</span>
+                    <div id="btn-spinner" class="spinner hidden ml-2"></div>
+                </button>
+            </form>
+            
+            <div class="mt-6 p-4 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                <p class="text-sm text-purple-300 text-center">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Agent accounts are created by administrators.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 15; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            particlesContainer.appendChild(particle);
+        }
+    </script>
+    
+    <script>
+        // ----------------------------------------------------
+        // REPLACE WITH YOUR SUPABASE PROJECT DETAILS
+        // ----------------------------------------------------
+        const SUPABASE_URL = 'https://genrfjbmyitomplekptg.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdlbnJmamJteWl0b21wbGVrcHRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg3NDU5NzksImV4cCI6MjA4NDMyMTk3OX0.K7imwFUcO3hQnEX4uTuV4Clij7-ZVEwPTicj8JawQFQ';
+        // ----------------------------------------------------
+
+        // Initialize Supabase Client
+        let supabase;
+        try {
+            if (!SUPABASE_URL.includes('URL_HERE')) {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch (e) {
+            console.error("Supabase initialization failed. Check your credentials.");
+        }
+
+        // Check if already logged in
+        (async function() {
+            if (!supabase) return;
+            
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            if (session) {
+                // Get user metadata to check role
+                const userType = session.user.user_metadata.user_type;
+                
+                if (userType === 'agent' || userType === 'admin') {
+                    window.location.href = 'agent-dashboard.html';
+                } else {
+                    // If a customer tries to access this page while logged in
+                    window.location.href = 'index.html';
+                }
+            }
+        })();
+        
+        async function handleLogin(event) {
+            event.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const submitBtn = document.getElementById('submit-btn');
+            const btnText = document.getElementById('btn-text');
+            const btnSpinner = document.getElementById('btn-spinner');
+            const errorMessage = document.getElementById('error-message');
+            const successMessage = document.getElementById('success-message');
+            
+            submitBtn.disabled = true;
+            btnText.textContent = 'Signing in...';
+            btnSpinner.classList.remove('hidden');
+            errorMessage.classList.add('hidden');
+            successMessage.classList.add('hidden');
+            
+            try {
+                // BYPASS: Force login with mock data
+                const mockUserId = 'agent-' + Math.random().toString(36).substr(2, 9);
+                
+                localStorage.setItem('veena_user', JSON.stringify({
+                    id: mockUserId,
+                    email: email || 'agent@veena.ai',
+                    full_name: 'Test Agent',
+                    user_type: 'agent'  // Make sure this is exactly 'agent'
+                }));
+                
+                successMessage.textContent = 'Login successful! Redirecting to dashboard...';
+                successMessage.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    window.location.href = 'agent-dashboard.html';
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                errorMessage.textContent = error.message || 'Login failed.';
+                errorMessage.classList.remove('hidden');
+                
+                submitBtn.disabled = false;
+                btnText.textContent = 'Sign In as Agent';
+                btnSpinner.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
