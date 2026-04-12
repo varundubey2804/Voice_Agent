@@ -11,6 +11,7 @@
 
 ### *Your insurance agent. In your language. At your pace.*
 
+<img src="https://raw.githubusercontent.com/varundubey2804/Voice_Agent/main/demo/Screenshot%202026-04-12%20122529.png" alt="Veena AI" width="800"/>
 <br/>
 
 [![Python](https://img.shields.io/badge/Python_3.8+-FFD43B?style=flat-square&logo=python&logoColor=black)](https://python.org)
@@ -31,7 +32,7 @@
 
 [**Quick Start**](#-quick-start) · [**Architecture**](#-architecture) · [**Features**](#-features) · [**API**](#-websocket-api) · [**Troubleshooting**](#-troubleshooting)
 
-<img src="https://raw.githubusercontent.com/varundubey2804/Voice_Agent/main/demo/Screenshot%202026-04-12%20122029.png" alt="Veena AI Demo" width="800"/>
+
 ---
 
 </div>
