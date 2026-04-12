@@ -31,7 +31,7 @@
 
 [**Quick Start**](#-quick-start) · [**Architecture**](#-architecture) · [**Features**](#-features) · [**API**](#-websocket-api) · [**Troubleshooting**](#-troubleshooting)
 
-![Veena AI Demo]([demo/Screenshot 2026-04-12 122029.png](https://github.com/varundubey2804/Voice_Agent/blob/main/demo/Screenshot%202026-04-12%20122029.png))
+<img src="https://raw.githubusercontent.com/varundubey2804/Voice_Agent/main/demo/Screenshot%202026-04-12%20122029.png" alt="Veena AI Demo" width="800"/>
 ---
 
 </div>
