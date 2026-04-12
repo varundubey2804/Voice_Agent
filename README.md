@@ -44,6 +44,25 @@ Built for hackathon speed, designed for production scale.
 
 ---
 
+
+## 📸 Screenshots
+
+<div align="center">
+
+### 🏠 Landing Page
+<img src="https://raw.githubusercontent.com/varundubey2804/Voice_Agent/main/demo/Screenshot%202026-04-12%20122529.png" alt="Landing Page" width="800"/>
+
+<br/><br/>
+
+### ✨ Features
+<img src="https://raw.githubusercontent.com/varundubey2804/Voice_Agent/main/demo/Screenshot%202026-04-12%20122503.png" alt="Features" width="800"/>
+
+<br/><br/>
+
+### 🎙️ Agent in Action
+<img src="https://raw.githubusercontent.com/varundubey2804/Voice_Agent/main/demo/Screenshot%202026-04-12%20101022.png" alt="Agent Working" width="800"/>
+
+</div>
 ## ✨ Features
 
 ### 🎙️ Voice — Hear and Be Heard
