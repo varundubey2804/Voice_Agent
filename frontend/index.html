@@ -11,6 +11,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
         
         * {
             font-family: 'Inter', sans-serif;
@@ -22,7 +23,6 @@
             background: #030712;
         }
         
-        /* Animated Background */
         .bg-animated {
             position: fixed;
             inset: 0;
@@ -45,7 +45,6 @@
             mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black 20%, transparent 70%);
         }
         
-        /* Floating Orbs */
         .orb {
             position: fixed;
             border-radius: 50%;
@@ -88,7 +87,6 @@
             75% { transform: translate(20px, 10px) scale(1.02); }
         }
         
-        /* Glass Morphism Enhanced */
         .glass {
             background: linear-gradient(135deg, 
                 rgba(255, 255, 255, 0.05) 0%, 
@@ -118,7 +116,6 @@
             transform: translateY(-2px);
         }
         
-        /* Orbiting Words */
         .orbit-container {
             position: fixed;
             top: 50%;
@@ -190,23 +187,13 @@
         .orbit-word-4 { animation-delay: -15s; }
         
         @keyframes orbit-word {
-            0% { 
-                transform: rotate(0deg) translateX(280px) rotate(0deg);
-                opacity: 0.8;
-            }
+            0% { transform: rotate(0deg) translateX(280px) rotate(0deg); opacity: 0.8; }
             25% { opacity: 0.4; }
-            50% { 
-                transform: rotate(180deg) translateX(280px) rotate(-180deg);
-                opacity: 0.8;
-            }
+            50% { transform: rotate(180deg) translateX(280px) rotate(-180deg); opacity: 0.8; }
             75% { opacity: 0.4; }
-            100% { 
-                transform: rotate(360deg) translateX(280px) rotate(-360deg);
-                opacity: 0.8;
-            }
+            100% { transform: rotate(360deg) translateX(280px) rotate(-360deg); opacity: 0.8; }
         }
         
-        /* Second orbit layer */
         .orbit-word-outer {
             animation: orbit-word-outer 30s linear infinite;
         }
@@ -217,37 +204,20 @@
         .orbit-word-8 { animation-delay: -24s; }
         
         @keyframes orbit-word-outer {
-            0% { 
-                transform: rotate(0deg) translateX(340px) rotate(0deg);
-                opacity: 0.5;
-            }
-            50% { 
-                transform: rotate(180deg) translateX(340px) rotate(-180deg);
-                opacity: 0.7;
-            }
-            100% { 
-                transform: rotate(360deg) translateX(340px) rotate(-360deg);
-                opacity: 0.5;
-            }
+            0% { transform: rotate(0deg) translateX(340px) rotate(0deg); opacity: 0.5; }
+            50% { transform: rotate(180deg) translateX(340px) rotate(-180deg); opacity: 0.7; }
+            100% { transform: rotate(360deg) translateX(340px) rotate(-360deg); opacity: 0.5; }
         }
         
-        /* Chat Bubble Animation */
         .chat-bubble {
             animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
         
-        /* Canvas */
         #vrm-canvas {
             position: fixed;
             top: 0;
@@ -271,26 +241,18 @@
             pointer-events: auto;
         }
         
-        /* Custom Scrollbar */
         .messages-area {
             max-height: 350px;
             overflow-y: auto;
         }
         
-        .messages-area::-webkit-scrollbar {
-            width: 4px;
-        }
-        
-        .messages-area::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        
+        .messages-area::-webkit-scrollbar { width: 4px; }
+        .messages-area::-webkit-scrollbar-track { background: transparent; }
         .messages-area::-webkit-scrollbar-thumb {
             background: linear-gradient(180deg, rgba(16, 185, 129, 0.5), rgba(6, 182, 212, 0.5));
             border-radius: 10px;
         }
         
-        /* Button Glow */
         .btn-glow {
             position: relative;
             overflow: hidden;
@@ -310,9 +272,7 @@
             transition: opacity 0.3s ease;
         }
         
-        .btn-glow:hover::before {
-            opacity: 1;
-        }
+        .btn-glow:hover::before { opacity: 1; }
         
         .btn-glow::after {
             content: '';
@@ -329,33 +289,17 @@
             100% { background-position: 0% 50%; }
         }
         
-        /* Input Glow */
-        .input-glow {
-            transition: all 0.3s ease;
-        }
-        
+        .input-glow { transition: all 0.3s ease; }
         .input-glow:focus {
-            box-shadow: 
-                0 0 0 2px rgba(16, 185, 129, 0.2),
-                0 0 20px rgba(16, 185, 129, 0.1),
-                inset 0 0 10px rgba(16, 185, 129, 0.05);
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2), 0 0 20px rgba(16, 185, 129, 0.1), inset 0 0 10px rgba(16, 185, 129, 0.05);
         }
         
-        /* Status Pulse */
-        .status-pulse {
-            animation: status-pulse 2s ease-in-out infinite;
-        }
-        
+        .status-pulse { animation: status-pulse 2s ease-in-out infinite; }
         @keyframes status-pulse {
-            0%, 100% { 
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-            }
-            50% { 
-                box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
-            }
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            50% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
         }
         
-        /* Loading Screen */
         .loading-screen {
             position: fixed;
             inset: 0;
@@ -364,17 +308,11 @@
         }
         
         @keyframes fadeOut {
-            to {
-                opacity: 0;
-                visibility: hidden;
-            }
+            to { opacity: 0; visibility: hidden; }
         }
         
-        .fade-out {
-            animation: fadeOut 1s ease-out forwards;
-        }
+        .fade-out { animation: fadeOut 1s ease-out forwards; }
         
-        /* Gradient Text */
         .gradient-text {
             background: linear-gradient(135deg, #10b981 0%, #06b6d4 50%, #8b5cf6 100%);
             -webkit-background-clip: text;
@@ -382,22 +320,12 @@
             background-clip: text;
         }
         
-        /* Shimmer Effect */
-        .shimmer {
-            position: relative;
-            overflow: hidden;
-        }
-        
+        .shimmer { position: relative; overflow: hidden; }
         .shimmer::after {
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(
-                90deg,
-                transparent,
-                rgba(255, 255, 255, 0.05),
-                transparent
-            );
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
             animation: shimmer 3s infinite;
         }
         
@@ -406,22 +334,14 @@
             100% { transform: translateX(100%); }
         }
         
-        /* Neon Border */
-        .neon-border {
-            position: relative;
-        }
-        
+        .neon-border { position: relative; }
         .neon-border::before {
             content: '';
             position: absolute;
             inset: -1px;
             border-radius: inherit;
             padding: 1px;
-            background: linear-gradient(135deg, 
-                rgba(16, 185, 129, 0.5), 
-                rgba(6, 182, 212, 0.3), 
-                rgba(139, 92, 246, 0.3),
-                rgba(16, 185, 129, 0.5));
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.5), rgba(6, 182, 212, 0.3), rgba(139, 92, 246, 0.3), rgba(16, 185, 129, 0.5));
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
@@ -429,13 +349,7 @@
             opacity: 0.5;
         }
         
-        /* Speaking Indicator */
-        .speaking-wave {
-            display: flex;
-            align-items: center;
-            gap: 3px;
-        }
-        
+        .speaking-wave { display: flex; align-items: center; gap: 3px; }
         .speaking-wave span {
             width: 3px;
             height: 15px;
@@ -443,7 +357,6 @@
             border-radius: 3px;
             animation: wave 1s ease-in-out infinite;
         }
-        
         .speaking-wave span:nth-child(2) { animation-delay: 0.1s; }
         .speaking-wave span:nth-child(3) { animation-delay: 0.2s; }
         .speaking-wave span:nth-child(4) { animation-delay: 0.3s; }
@@ -454,7 +367,6 @@
             50% { height: 20px; opacity: 1; }
         }
         
-        /* Particles */
         .particle {
             position: fixed;
             width: 2px;
@@ -466,17 +378,370 @@
         }
         
         @keyframes particle-float {
-            0% {
-                transform: translateY(100vh) rotate(0deg);
-                opacity: 0;
-            }
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
             10% { opacity: 1; }
             90% { opacity: 1; }
-            100% {
-                transform: translateY(-100vh) rotate(720deg);
-                opacity: 0;
-            }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
         }
+
+        /* ══════════════════════════════════════
+           RIGHT PANEL
+           ══════════════════════════════════════ */
+        .right-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 400px;
+            height: 100vh;
+            z-index: 15;
+            pointer-events: none;
+            transform: translateX(110%);
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
+            opacity: 0;
+        }
+
+        .right-panel.panel-visible {
+            transform: translateX(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .right-panel-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, rgba(3, 7, 18, 0.95), rgba(10, 15, 26, 0.98));
+            border-left: 1px solid rgba(16, 185, 129, 0.2);
+            box-shadow: -10px 0 60px rgba(0, 0, 0, 0.6), -2px 0 20px rgba(16, 185, 129, 0.08);
+            overflow: hidden;
+        }
+
+        .right-panel-inner::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(16, 185, 129, 0.015) 2px,
+                rgba(16, 185, 129, 0.015) 4px
+            );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .matrix-canvas-panel {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        .panel-chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .panel-chat-area::-webkit-scrollbar { width: 4px; }
+        .panel-chat-area::-webkit-scrollbar-track { background: transparent; }
+        .panel-chat-area::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, rgba(16, 185, 129, 0.5), rgba(6, 182, 212, 0.5));
+            border-radius: 10px;
+        }
+
+        /* ══════════════════════════════════════
+           GRAFANA ANALYSIS PANEL — EMERALD THEME
+           ══════════════════════════════════════ */
+        .grafana-panel {
+            position: fixed;
+            right: 416px;
+            top: 110px;
+            width: 340px;
+            z-index: 14;
+            pointer-events: none;
+            transform: translateX(30px);
+            opacity: 0;
+            transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.45s ease;
+        }
+
+        .grafana-panel.grafana-visible {
+            transform: translateX(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .grafana-panel-inner {
+            background: linear-gradient(135deg,
+                rgba(2, 15, 10, 0.96) 0%,
+                rgba(3, 18, 12, 0.98) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 18px;
+            box-shadow:
+                0 0 0 1px rgba(16, 185, 129, 0.08),
+                0 8px 40px rgba(0, 0, 0, 0.5),
+                0 0 30px rgba(16, 185, 129, 0.08),
+                inset 0 1px 0 rgba(16, 185, 129, 0.15);
+            overflow: hidden;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+
+        /* emerald scanlines */
+        .grafana-panel-inner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 3px,
+                rgba(16, 185, 129, 0.012) 3px,
+                rgba(16, 185, 129, 0.012) 6px
+            );
+            pointer-events: none;
+            z-index: 0;
+            border-radius: inherit;
+        }
+
+        .grafana-header {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            border-bottom: 1px solid rgba(16, 185, 129, 0.15);
+            background: linear-gradient(90deg,
+                rgba(16, 185, 129, 0.1) 0%,
+                transparent 100%);
+        }
+
+        .grafana-body {
+            position: relative;
+            z-index: 1;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* emerald neon border */
+        .emerald-neon-border {
+            position: relative;
+        }
+        .emerald-neon-border::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(135deg,
+                rgba(16, 185, 129, 0.7),
+                rgba(6, 182, 212, 0.5),
+                rgba(139, 92, 246, 0.3),
+                rgba(16, 185, 129, 0.7));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0.8;
+        }
+
+        /* metric card inside grafana */
+        .g-metric-card {
+            background: rgba(16, 185, 129, 0.05);
+            border: 1px solid rgba(16, 185, 129, 0.12);
+            border-radius: 10px;
+            padding: 8px 10px;
+        }
+
+        /* animated bar */
+        .g-bar-track {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+
+        .g-bar-fill {
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(16, 185, 129, 0.6), #10b981);
+            transition: width 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* table inside grafana */
+        .g-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .g-table th {
+            font-size: 9px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(16, 185, 129, 0.55);
+            padding: 4px 6px;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(16, 185, 129, 0.12);
+        }
+
+        .g-table th:first-child { text-align: left; }
+        .g-table th:not(:first-child) { text-align: right; }
+
+        .g-table td {
+            font-size: 10px;
+            font-family: 'Share Tech Mono', monospace;
+            padding: 5px 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        .g-table td:first-child { text-align: left; color: rgba(52, 211, 153, 0.95); }
+        .g-table td:not(:first-child) { text-align: right; }
+
+        .g-table tr:hover td { background: rgba(16, 185, 129, 0.05); }
+
+        .g-positive { color: #6ee7b7 !important; }
+        .g-negative { color: #fca5a5 !important; }
+        .g-neutral  { color: rgba(255,255,255,0.45) !important; }
+
+        /* mini sparkline bars */
+        .spark-bar {
+            display: inline-flex;
+            align-items: flex-end;
+            gap: 2px;
+            height: 16px;
+        }
+        .spark-bar span {
+            width: 3px;
+            background: rgba(16, 185, 129, 0.6);
+            border-radius: 1px;
+            animation: spark-grow 0.6s ease-out forwards;
+            opacity: 0;
+        }
+        @keyframes spark-grow {
+            from { transform: scaleY(0); opacity: 0; }
+            to   { transform: scaleY(1); opacity: 1; }
+        }
+
+        /* ══════════════════════════════════════
+           BOTTOM INPUT BAR
+           ══════════════════════════════════════ */
+        .bottom-input-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 20;
+            padding: 20px 24px;
+            background: linear-gradient(0deg, rgba(3, 7, 18, 0.98) 0%, rgba(3, 7, 18, 0.8) 60%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .bottom-input-bar > * { pointer-events: auto; }
+
+        .bottom-input-wrapper {
+            max-width: 700px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .bottom-input-field {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(3, 7, 18, 0.9);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            border-radius: 16px;
+            padding: 14px 18px;
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(16, 185, 129, 0.05);
+        }
+
+        .bottom-input-field:focus-within {
+            border-color: rgba(16, 185, 129, 0.5);
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1), 0 4px 24px rgba(0, 0, 0, 0.4), 0 0 30px rgba(16, 185, 129, 0.08);
+        }
+
+        .bottom-input-field input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: white;
+            font-size: 14px;
+        }
+
+        .bottom-input-field input::placeholder { color: rgba(156, 163, 175, 0.6); }
+
+        .mic-btn {
+            flex-shrink: 0;
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+            backdrop-filter: blur(20px);
+            cursor: pointer;
+        }
+
+        .mic-btn:hover {
+            border-color: rgba(16, 185, 129, 0.4);
+            background: rgba(16, 185, 129, 0.1);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+        }
+
+        .mic-btn.listening {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(220, 38, 38, 0.2));
+            border-color: rgba(239, 68, 68, 0.5);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+            animation: mic-pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes mic-pulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(239, 68, 68, 0.4), 0 0 0 6px rgba(239, 68, 68, 0.1); }
+        }
+
+        .mic-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .send-btn-inner {
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .send-btn-inner:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
+        .send-btn-inner:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+        .mini-bar { transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .analysis-row:hover { background: rgba(16, 185, 129, 0.06) !important; }
     </style>
 </head>
 <body>
@@ -486,13 +751,10 @@
     <div class="orb orb-2"></div>
     <div class="orb orb-3"></div>
     
-    <!-- Particles -->
     <div id="particles"></div>
-    
     <div id="loading"></div>
     <div id="vrm-canvas"></div>
     
-    <!-- Orbiting Words -->
     <div class="orbit-container">
         <div class="orbit-ring orbit-ring-1"></div>
         <div class="orbit-ring orbit-ring-2"></div>
@@ -510,7 +772,6 @@
     <div id="root"></div>
     
     <script>
-        // Generate particles
         const particlesContainer = document.getElementById('particles');
         for (let i = 0; i < 20; i++) {
             const particle = document.createElement('div');
@@ -537,7 +798,6 @@
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
         import { VRMLoaderPlugin } from '@pixiv/three-vrm';
         
-        // Global state
         window.vrmState = {
             vrm: null,
             isSpeaking: false,
@@ -545,18 +805,11 @@
             mousePosition: { x: 0, y: 0 }
         };
         
-        // Setup Three.js
         const container = document.getElementById('vrm-canvas');
-        
         const scene = new THREE.Scene();
-        scene.background = null; // Transparent to show CSS background
+        scene.background = null;
         
-        const camera = new THREE.PerspectiveCamera(
-            35,
-            window.innerWidth / window.innerHeight,
-            0.1,
-            1000
-        );
+        const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.set(0, 1.2, 1.2);
         camera.lookAt(0, 1.4, 0);
         
@@ -567,27 +820,21 @@
         renderer.setClearColor(0x000000, 0);
         container.appendChild(renderer.domElement);
         
-        // Lights with colored accent
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
         scene.add(ambientLight);
-        
         const mainLight = new THREE.DirectionalLight(0xffffff, 1.2);
         mainLight.position.set(1, 2, 3);
         scene.add(mainLight);
-        
         const fillLight = new THREE.DirectionalLight(0x10b981, 0.4);
         fillLight.position.set(-2, 1, 1);
         scene.add(fillLight);
-        
         const backLight = new THREE.DirectionalLight(0x06b6d4, 0.3);
         backLight.position.set(0, 1, -2);
         scene.add(backLight);
-        
         const rimLight = new THREE.DirectionalLight(0x8b5cf6, 0.2);
         rimLight.position.set(2, 0, -1);
         scene.add(rimLight);
         
-        // Load VRM
         const loader = new GLTFLoader();
         loader.register((parser) => new VRMLoaderPlugin(parser));
         
@@ -596,15 +843,11 @@
             (gltf) => {
                 const vrm = gltf.userData.vrm;
                 window.vrmState.vrm = vrm;
-                
                 scene.add(vrm.scene);
-                
                 vrm.scene.position.set(-0.1, -1.5, 0.6);
                 vrm.scene.rotation.y = 0.3;
-                
                 console.log('VRM loaded!');
                 console.log('Available expressions:', Object.keys(vrm.expressionManager?.expressionMap || {}));
-                
                 if (vrm.humanoid) {
                     const leftShoulder = vrm.humanoid.getNormalizedBoneNode('leftShoulder');
                     const rightShoulder = vrm.humanoid.getNormalizedBoneNode('rightShoulder');
@@ -612,7 +855,6 @@
                     const rightUpperArm = vrm.humanoid.getNormalizedBoneNode('rightUpperArm');
                     const leftLowerArm = vrm.humanoid.getNormalizedBoneNode('leftLowerArm');
                     const rightLowerArm = vrm.humanoid.getNormalizedBoneNode('rightLowerArm');
-                    
                     if (leftShoulder) leftShoulder.rotation.z = 0;
                     if (rightShoulder) rightShoulder.rotation.z = 0;
                     if (leftUpperArm) leftUpperArm.rotation.z = -1.4;
@@ -620,11 +862,9 @@
                     if (leftLowerArm) leftLowerArm.rotation.z = -1.2;
                     if (rightLowerArm) rightLowerArm.rotation.z = 1.2;
                 }
-                
                 if (vrm.expressionManager) {
                     vrm.expressionManager.setValue('neutral', 0.5);
                 }
-                
                 window.dispatchEvent(new CustomEvent('vrmLoaded'));
             },
             (progress) => {
@@ -637,13 +877,11 @@
             }
         );
         
-        // Animation
         const clock = new THREE.Clock();
         let idleTime = 0;
         let blinkTimer = 0;
         let expressionTimer = 0;
         let currentExpression = 'neutral';
-        
         let targetLookAt = new THREE.Vector3(0, 1.15, 0);
         let currentLookAt = new THREE.Vector3(0, 1.15, 0);
         
@@ -655,7 +893,6 @@
         
         function animate() {
             requestAnimationFrame(animate);
-            
             const deltaTime = clock.getDelta();
             idleTime += deltaTime;
             blinkTimer += deltaTime;
@@ -664,14 +901,12 @@
             if (window.vrmState.vrm) {
                 const vrm = window.vrmState.vrm;
                 vrm.update(deltaTime);
-                
                 const breathCycle = 0;
                 vrm.scene.position.y = -0.1 + breathCycle;
                 
                 if (vrm.humanoid) {
                     const spine = vrm.humanoid.getNormalizedBoneNode('spine');
                     const chest = vrm.humanoid.getNormalizedBoneNode('chest');
-                    
                     if (spine) spine.rotation.x = Math.sin(idleTime * 1.5) * 0.015;
                     if (chest) chest.rotation.x = Math.sin(idleTime * 1.5) * 0.02;
                 }
@@ -680,17 +915,14 @@
                     blinkTimer = 0;
                     if (vrm.expressionManager) {
                         vrm.expressionManager.setValue('blink', 1);
-                        setTimeout(() => {
-                            if (vrm.expressionManager) vrm.expressionManager.setValue('blink', 0);
-                        }, 150);
+                        setTimeout(() => { if (vrm.expressionManager) vrm.expressionManager.setValue('blink', 0); }, 150);
                     }
                 }
                 
                 if (!window.vrmState.isSpeaking && expressionTimer > 4 + Math.random() * 4) {
                     expressionTimer = 0;
-                    const expressions = ['neutral', 'happy', 'relaxed'];
+                    const expressions = ['happy', 'relaxed'];
                     currentExpression = expressions[Math.floor(Math.random() * expressions.length)];
-                    
                     if (vrm.expressionManager) {
                         expressions.forEach(exp => {
                             vrm.expressionManager.setValue(exp, exp === currentExpression ? 0.5 : 0);
@@ -701,46 +933,34 @@
                 if (window.vrmState.isSpeaking && vrm.expressionManager) {
                     const time = Date.now() * 0.01;
                     const intensity = (Math.sin(time * 2) + 1) * 0.5;
-                    
                     const vowels = ['aa', 'ih', 'ou', 'ee', 'oh'];
                     const vowelIndex = Math.floor(time * 1.8) % vowels.length;
                     const currentVowel = vowels[vowelIndex];
                     const nextVowel = vowels[(vowelIndex + 1) % vowels.length];
                     const blend = (time * 1.8 % 1);
-                    
                     vowels.forEach(v => vrm.expressionManager.setValue(v, 0));
-                    
                     vrm.expressionManager.setValue(currentVowel, intensity * (1 - blend) * 0.9);
                     vrm.expressionManager.setValue(nextVowel, intensity * blend * 0.9);
-                    
                     vrm.expressionManager.setValue('happy', 0.5);
-                    
                     if (vrm.humanoid) {
                         const head = vrm.humanoid.getNormalizedBoneNode('head');
                         const neck = vrm.humanoid.getNormalizedBoneNode('neck');
-                        
                         if (head) {
                             head.rotation.x += Math.sin(time * 4) * 0.02;
                             head.rotation.z += Math.sin(time * 3) * 0.01;
                         }
-                        if (neck) {
-                            neck.rotation.x += Math.sin(time * 2) * 0.01;
-                        }
-                        
+                        if (neck) neck.rotation.x += Math.sin(time * 2) * 0.01;
                         const leftLowerArm = vrm.humanoid.getNormalizedBoneNode('leftLowerArm');
                         const rightLowerArm = vrm.humanoid.getNormalizedBoneNode('rightLowerArm');
-                        
                         if (leftLowerArm) leftLowerArm.rotation.z = -0.2 + Math.sin(time * 1.5) * 0.1;
                         if (rightLowerArm) rightLowerArm.rotation.z = 0.2 - Math.sin(time * 1.8) * 0.1;
                     }
-                    
                 } else if (vrm.expressionManager) {
                     const vowels = ['aa', 'ih', 'ou', 'ee', 'oh'];
                     vowels.forEach(v => {
                         const current = vrm.expressionManager.getValue(v) || 0;
                         vrm.expressionManager.setValue(v, current * 0.85);
                     });
-                    
                     const currentHappy = vrm.expressionManager.getValue('happy') || 0;
                     vrm.expressionManager.setValue('happy', currentHappy * 0.95);
                 }
@@ -748,48 +968,37 @@
                 if (vrm.humanoid) {
                     const head = vrm.humanoid.getNormalizedBoneNode('head');
                     const neck = vrm.humanoid.getNormalizedBoneNode('neck');
-                    
                     const mouseX = window.vrmState.mousePosition.x;
                     const mouseY = window.vrmState.mousePosition.y;
-                    
                     const maxRotationY = 0.4;
                     const maxRotationX = 0.4;
-                    
                     const targetRotationY = mouseX * maxRotationY;
                     const targetRotationX = -mouseY * maxRotationX * 0.5;
-                    
                     const lerpFactor = window.vrmState.isSpeaking ? 0.03 : 0.05;
-                    
                     if (head) {
                         head.rotation.y += (targetRotationY - head.rotation.y) * lerpFactor;
                         head.rotation.x += (targetRotationX - head.rotation.x) * lerpFactor;
                         head.rotation.z += (-targetRotationY * 0.1 - head.rotation.z) * lerpFactor;
-                        
                         if (!window.vrmState.isSpeaking) {
                             head.rotation.y += Math.sin(idleTime * 0.5) * 0.02;
                             head.rotation.x += Math.sin(idleTime * 0.4) * 0.01;
                         }
                     }
-                    
                     if (neck) {
                         neck.rotation.y += (targetRotationY * 0.5 - neck.rotation.y) * lerpFactor;
                         neck.rotation.x += (targetRotationX * 0.3 - neck.rotation.x) * lerpFactor;
-                        
                         if (!window.vrmState.isSpeaking) {
                             neck.rotation.y += Math.sin(idleTime * 0.4) * 0.015;
                         }
                     }
-                    
                     if (!window.vrmState.isSpeaking) {
                         const leftLowerArm = vrm.humanoid.getNormalizedBoneNode('leftLowerArm');
                         const rightLowerArm = vrm.humanoid.getNormalizedBoneNode('rightLowerArm');
-                        
                         if (leftLowerArm) leftLowerArm.rotation.z = -0.2 + Math.sin(idleTime * 0.8) * 0.02;
                         if (rightLowerArm) rightLowerArm.rotation.z = 0.2 - Math.sin(idleTime * 0.9) * 0.02;
                     }
                 }
             }
-            
             renderer.render(scene, camera);
         }
         
@@ -801,28 +1010,66 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
         
-        window.setVRMState = (state) => {
-            Object.assign(window.vrmState, state);
-        };
+        window.setVRMState = (state) => { Object.assign(window.vrmState, state); };
     </script>
     
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // Enhanced Pipe Screensaver
+        /* ══ Matrix Rain ══ */
+        const MatrixRain = () => {
+            const canvasRef = useRef(null);
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                let raf;
+                const resize = () => {
+                    canvas.width = canvas.parentElement.clientWidth;
+                    canvas.height = canvas.parentElement.clientHeight;
+                };
+                resize();
+                window.addEventListener('resize', resize);
+                const fontSize = 13;
+                const cols = Math.floor(canvas.width / fontSize);
+                const drops = Array.from({ length: cols }, () => Math.random() * -80);
+                const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEF₿Ξ◆◇○●∑∆∞≈±'.split('');
+                const draw = () => {
+                    ctx.fillStyle = 'rgba(3, 7, 18, 0.07)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.font = fontSize + 'px Share Tech Mono, monospace';
+                    for (let i = 0; i < drops.length; i++) {
+                        const ch = chars[Math.floor(Math.random() * chars.length)];
+                        const y = drops[i] * fontSize;
+                        ctx.shadowBlur = 12;
+                        ctx.shadowColor = '#10b981';
+                        ctx.fillStyle = 'rgba(16, 185, 129, 0.95)';
+                        ctx.fillText(ch, i * fontSize, y);
+                        ctx.shadowBlur = 0;
+                        ctx.fillStyle = 'rgba(16, 185, 129, 0.2)';
+                        ctx.fillText(chars[Math.floor(Math.random() * chars.length)], i * fontSize, y - fontSize);
+                        if (y > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                        drops[i] += 0.5 + Math.random() * 0.4;
+                    }
+                    raf = requestAnimationFrame(draw);
+                };
+                draw();
+                return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize); };
+            }, []);
+            return <canvas ref={canvasRef} className="matrix-canvas-panel" />;
+        };
+
+        /* ══ Pipe Screensaver ══ */
         const PipeScreensaver = () => {
             const canvasRef = useRef(null);
-            
             useEffect(() => {
                 const canvas = canvasRef.current;
                 const ctx = canvas.getContext('2d');
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
-                
                 const pipes = [];
                 const maxPipes = 6;
                 const segmentLength = 25;
-                
                 class Pipe {
                     constructor() {
                         this.x = Math.random() * canvas.width;
@@ -832,12 +1079,10 @@
                         this.color = this.getRandomColor();
                         this.thickness = 8;
                     }
-                    
                     getRandomColor() {
                         const colors = ['#10b981', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'];
                         return colors[Math.floor(Math.random() * colors.length)];
                     }
-                    
                     move() {
                         const directions = [
                             { dx: segmentLength, dy: 0 },
@@ -845,52 +1090,34 @@
                             { dx: -segmentLength, dy: 0 },
                             { dx: 0, dy: -segmentLength }
                         ];
-                        
                         const dir = directions[this.direction];
                         const newX = this.x + dir.dx;
                         const newY = this.y + dir.dy;
-                        
-                        this.segments.push({
-                            x1: this.x, y1: this.y,
-                            x2: newX, y2: newY
-                        });
-                        
+                        this.segments.push({ x1: this.x, y1: this.y, x2: newX, y2: newY });
                         this.x = newX;
                         this.y = newY;
-                        
                         if (Math.random() < 0.25) {
-                            const possibleDirs = [0, 1, 2, 3].filter(d => 
-                                d !== this.direction && d !== (this.direction + 2) % 4
-                            );
+                            const possibleDirs = [0, 1, 2, 3].filter(d => d !== this.direction && d !== (this.direction + 2) % 4);
                             this.direction = possibleDirs[Math.floor(Math.random() * possibleDirs.length)];
                         }
-                        
-                        if (this.x < 0 || this.x > canvas.width || 
-                            this.y < 0 || this.y > canvas.height) {
-                            return false;
-                        }
-                        
+                        if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) return false;
                         if (this.segments.length > 60) this.segments.shift();
                         return true;
                     }
-                    
                     draw() {
                         ctx.lineWidth = this.thickness;
                         ctx.lineCap = 'round';
                         ctx.lineJoin = 'round';
-                        
                         this.segments.forEach((seg, index) => {
                             const alpha = (index + 1) / this.segments.length;
                             ctx.strokeStyle = this.color;
                             ctx.globalAlpha = alpha * 0.8;
                             ctx.shadowBlur = 30;
                             ctx.shadowColor = this.color;
-                            
                             ctx.beginPath();
                             ctx.moveTo(seg.x1, seg.y1);
                             ctx.lineTo(seg.x2, seg.y2);
                             ctx.stroke();
-                            
                             ctx.beginPath();
                             ctx.arc(seg.x2, seg.y2, this.thickness / 2 + 2, 0, Math.PI * 2);
                             ctx.fillStyle = this.color;
@@ -899,58 +1126,38 @@
                         ctx.globalAlpha = 1;
                     }
                 }
-                
                 const animate = () => {
                     ctx.fillStyle = 'rgba(3, 7, 18, 0.1)';
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    
-                    if (pipes.length < maxPipes && Math.random() < 0.03) {
-                        pipes.push(new Pipe());
-                    }
-                    
+                    if (pipes.length < maxPipes && Math.random() < 0.03) pipes.push(new Pipe());
                     for (let i = pipes.length - 1; i >= 0; i--) {
                         pipes[i].draw();
                         if (!pipes[i].move()) pipes.splice(i, 1);
                     }
-                    
                     requestAnimationFrame(animate);
                 };
-                
                 animate();
             }, []);
-            
             return <canvas ref={canvasRef} className="w-full h-full" />;
         };
 
         const LoadingScreen = ({ isLoading, progress }) => {
             if (!isLoading) return null;
-            
             return (
                 <div className={`loading-screen flex flex-col items-center justify-center ${!isLoading ? 'fade-out' : ''}`}>
                     <PipeScreensaver />
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
                         <div className="text-center space-y-8 z-10">
                             <div className="relative">
-                                <h1 className="text-7xl font-bold gradient-text" style={{fontFamily: 'Orbitron, sans-serif'}}>
-                                    VEENA AI
-                                </h1>
+                                <h1 className="text-7xl font-bold gradient-text" style={{fontFamily: 'Orbitron, sans-serif'}}>VEENA AI</h1>
                                 <div className="absolute -inset-4 bg-gradient-to-r from-emerald-500/20 via-cyan-500/20 to-purple-500/20 blur-2xl -z-10"></div>
                             </div>
-                            
                             <div className="speaking-wave justify-center">
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                                <span></span>
+                                <span></span><span></span><span></span><span></span><span></span>
                             </div>
-                            
                             <div className="space-y-2">
                                 <div className="w-64 h-1 bg-white/10 rounded-full overflow-hidden mx-auto">
-                                    <div 
-                                        className="h-full bg-gradient-to-r from-emerald-500 via-cyan-500 to-purple-500 rounded-full transition-all duration-300"
-                                        style={{width: `${progress}%`}}
-                                    ></div>
+                                    <div className="h-full bg-gradient-to-r from-emerald-500 via-cyan-500 to-purple-500 rounded-full transition-all duration-300" style={{width: `${progress}%`}}></div>
                                 </div>
                                 <p className="text-emerald-300/80 text-sm tracking-widest uppercase">
                                     {progress < 100 ? `Initializing... ${progress}%` : 'Ready'}
@@ -962,6 +1169,284 @@
             );
         };
 
+        /* ══ Analysis data generator — emerald palette ══ */
+        const generateAnalysis = (text) => {
+            const lower = (text || '').toLowerCase();
+            if (lower.includes('stock') || lower.includes('share') || lower.includes('equity') || lower.includes('nifty') || lower.includes('sensex')) {
+                return {
+                    title: 'EQUITY ANALYSIS', icon: '📈',
+                    metrics: [
+                        { label: 'Market Sentiment', value: 'Bullish',  color: '#10b981', pct: 78 },
+                        { label: 'Risk Level',        value: 'Moderate', color: '#34d399', pct: 52 },
+                        { label: 'Growth Potential',  value: 'High',     color: '#10b981', pct: 85 },
+                        { label: 'Volatility Index',  value: '18.3',     color: '#06b6d4', pct: 37 },
+                    ],
+                    headers: ['Index', 'Value', 'Change', 'Trend'],
+                    table: [
+                        ['NIFTY 50',  '23,450', '+1.2%', '▲'],
+                        ['SENSEX',    '77,200', '+0.9%', '▲'],
+                        ['BANK NIFTY','49,800', '-0.3%', '▼'],
+                        ['NIFTY IT',  '38,600', '+2.1%', '▲'],
+                    ]
+                };
+            }
+            if (lower.includes('mutual fund') || lower.includes('sip') || lower.includes('fund')) {
+                return {
+                    title: 'FUND ANALYSIS', icon: '💹',
+                    metrics: [
+                        { label: 'Avg Returns (3Y)', value: '14.2%', color: '#10b981', pct: 71 },
+                        { label: 'Expense Ratio',    value: '0.45%', color: '#34d399', pct: 22 },
+                        { label: 'Sharpe Ratio',     value: '1.8',   color: '#10b981', pct: 72 },
+                        { label: 'Alpha',            value: '+2.3%', color: '#06b6d4', pct: 62 },
+                    ],
+                    headers: ['Category', 'AUM', 'Return', 'Rating'],
+                    table: [
+                        ['Large Cap', '₹45,200 Cr', '12.8%', '★★★★'],
+                        ['Mid Cap',   '₹12,800 Cr', '18.5%', '★★★★★'],
+                        ['Small Cap', '₹5,600 Cr',  '24.1%', '★★★'],
+                        ['Hybrid',    '₹8,200 Cr',  '11.2%', '★★★★'],
+                    ]
+                };
+            }
+            if (lower.includes('tax') || lower.includes('save') || lower.includes('80c') || lower.includes('deduction')) {
+                return {
+                    title: 'TAX OPTIMIZATION', icon: '🧾',
+                    metrics: [
+                        { label: 'Potential Savings',   value: '₹46,800', color: '#10b981', pct: 65 },
+                        { label: '80C Utilized',        value: '68%',      color: '#34d399', pct: 68 },
+                        { label: 'HRA Benefit',         value: '₹1.2L',    color: '#10b981', pct: 80 },
+                        { label: 'NPS Extra Deduction', value: '₹50K',     color: '#06b6d4', pct: 50 },
+                    ],
+                    headers: ['Section', 'Limit', 'Used', 'Utilized'],
+                    table: [
+                        ['Section 80C',   '₹1,50,000', '₹1,02,000', '68%'],
+                        ['Section 80D',   '₹25,000',   '₹25,000',   '100%'],
+                        ['Section 80CCD', '₹50,000',   '₹0',        '0%'],
+                        ['Section 24B',   '₹2,00,000', '₹1,20,000', '60%'],
+                    ]
+                };
+            }
+            if (lower.includes('crypto') || lower.includes('bitcoin') || lower.includes('btc') || lower.includes('ethereum')) {
+                return {
+                    title: 'CRYPTO ANALYSIS', icon: '₿',
+                    metrics: [
+                        { label: 'Market Cap',    value: '$2.8T',    color: '#10b981', pct: 74 },
+                        { label: 'Fear & Greed',  value: '72 Greed', color: '#34d399', pct: 72 },
+                        { label: 'BTC Dominance', value: '54.2%',    color: '#10b981', pct: 54 },
+                        { label: 'Volatility',    value: 'High',     color: '#06b6d4', pct: 80 },
+                    ],
+                    headers: ['Asset', 'Price', '24h', 'Trend'],
+                    table: [
+                        ['Bitcoin',  '$67,400', '+3.2%', '▲'],
+                        ['Ethereum', '$3,580',  '+2.1%', '▲'],
+                        ['BNB',      '$598',    '-0.8%', '▼'],
+                        ['Solana',   '$178',    '+5.6%', '▲'],
+                    ]
+                };
+            }
+            return {
+                title: 'FINANCIAL OVERVIEW', icon: '💰',
+                metrics: [
+                    { label: 'Portfolio Health', value: 'Good',     color: '#10b981', pct: 82 },
+                    { label: 'Diversification',  value: 'Balanced', color: '#34d399', pct: 70 },
+                    { label: 'Risk Score',       value: '6.2/10',   color: '#10b981', pct: 62 },
+                    { label: 'Goal Progress',    value: '58%',      color: '#06b6d4', pct: 58 },
+                ],
+                headers: ['Asset Class', 'Allocation', 'Return', 'Status'],
+                table: [
+                    ['Equity', '45%', '+12.3%', '▲'],
+                    ['Debt',   '30%', '+7.1%',  '▲'],
+                    ['Gold',   '15%', '+5.8%',  '▲'],
+                    ['Cash',   '10%', '+3.5%',  '—'],
+                ]
+            };
+        };
+
+        /* ══════════════════════════════════════
+           GRAFANA PANEL — emerald theme
+           ══════════════════════════════════════ */
+        const GrafanaPanel = ({ data, visible, onClose }) => {
+            const [mounted, setMounted] = useState(false);
+
+            useEffect(() => {
+                if (data) {
+                    setMounted(false);
+                    const t = setTimeout(() => setMounted(true), 200);
+                    return () => clearTimeout(t);
+                }
+            }, [data]);
+
+            const sparkHeights = [6, 10, 7, 13, 9, 14, 11, 16, 12, 15];
+
+            return (
+                <div className={`grafana-panel ${visible && data ? 'grafana-visible' : ''}`}>
+                    <div className="grafana-panel-inner emerald-neon-border">
+
+                        {/* Header */}
+                        <div className="grafana-header">
+                            <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
+                                <div style={{
+                                    width: '26px', height: '26px',
+                                    borderRadius: '7px',
+                                    background: 'linear-gradient(135deg, rgba(16,185,129,0.3), rgba(6,182,212,0.2))',
+                                    border: '1px solid rgba(16,185,129,0.35)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    fontSize: '13px'
+                                }}>
+                                    {data ? data.icon : '📊'}
+                                </div>
+                                <div>
+                                    <div style={{
+                                        fontFamily: 'Orbitron, sans-serif',
+                                        fontSize: '9px',
+                                        fontWeight: '700',
+                                        letterSpacing: '0.2em',
+                                        color: 'rgba(16,185,129,0.95)',
+                                        textTransform: 'uppercase'
+                                    }}>
+                                        {data ? data.title : 'ANALYSIS'}
+                                    </div>
+                                    <div style={{fontSize:'8px', color:'rgba(52,211,153,0.45)', letterSpacing:'0.1em'}}>
+                                        GRAFANA · LIVE METRICS
+                                    </div>
+                                </div>
+                            </div>
+                            <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
+                                {/* live pulse */}
+                                <div style={{display:'flex', alignItems:'center', gap:'4px'}}>
+                                    <div style={{
+                                        width:'6px', height:'6px', borderRadius:'50%',
+                                        background:'#10b981',
+                                        boxShadow:'0 0 6px #10b981',
+                                        animation:'status-pulse 2s ease-in-out infinite'
+                                    }} />
+                                    <span style={{fontSize:'8px', color:'rgba(16,185,129,0.65)', letterSpacing:'0.1em'}}>LIVE</span>
+                                </div>
+                                <button
+                                    onClick={onClose}
+                                    style={{
+                                        width:'20px', height:'20px', borderRadius:'6px',
+                                        background:'rgba(16,185,129,0.1)',
+                                        border:'1px solid rgba(16,185,129,0.25)',
+                                        color:'rgba(16,185,129,0.65)',
+                                        display:'flex', alignItems:'center', justifyContent:'center',
+                                        cursor:'pointer', fontSize:'10px', lineHeight:1
+                                    }}
+                                >✕</button>
+                            </div>
+                        </div>
+
+                        {data && (
+                            <div className="grafana-body">
+
+                                {/* Sparkline row */}
+                                <div style={{
+                                    display:'flex', alignItems:'center', justifyContent:'space-between',
+                                    background:'rgba(16,185,129,0.05)',
+                                    border:'1px solid rgba(16,185,129,0.12)',
+                                    borderRadius:'8px',
+                                    padding:'6px 10px'
+                                }}>
+                                    <span style={{fontSize:'9px', color:'rgba(16,185,129,0.55)', letterSpacing:'0.1em', textTransform:'uppercase'}}>Trend</span>
+                                    <div className="spark-bar">
+                                        {sparkHeights.map((h, i) => (
+                                            <span key={i} style={{
+                                                height: `${h}px`,
+                                                animationDelay: `${i * 0.06}s`,
+                                                background: i === sparkHeights.length - 1
+                                                    ? '#10b981'
+                                                    : `rgba(16,185,129,${0.3 + (i / sparkHeights.length) * 0.55})`
+                                            }} />
+                                        ))}
+                                    </div>
+                                    <span style={{fontSize:'10px', color:'#10b981', fontFamily:'Share Tech Mono', fontWeight:'600'}}>
+                                        +{data.metrics[0].pct}%
+                                    </span>
+                                </div>
+
+                                {/* Metric bars — 2 columns */}
+                                <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'6px'}}>
+                                    {data.metrics.map((m, i) => (
+                                        <div key={i} className="g-metric-card">
+                                            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                                                <span style={{
+                                                    fontSize:'8px', color:'rgba(52,211,153,0.5)',
+                                                    textTransform:'uppercase', letterSpacing:'0.08em',
+                                                    lineHeight:1.3
+                                                }}>{m.label}</span>
+                                                <span style={{
+                                                    fontSize:'10px', fontWeight:'700',
+                                                    fontFamily:'Share Tech Mono',
+                                                    color: m.color
+                                                }}>{m.value}</span>
+                                            </div>
+                                            <div className="g-bar-track">
+                                                <div
+                                                    className="g-bar-fill"
+                                                    style={{
+                                                        width: mounted ? `${m.pct}%` : '0%',
+                                                        background: `linear-gradient(90deg, ${m.color}88, ${m.color})`,
+                                                        boxShadow: `0 0 6px ${m.color}55`
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Data table */}
+                                <div style={{
+                                    background:'rgba(16,185,129,0.03)',
+                                    border:'1px solid rgba(16,185,129,0.1)',
+                                    borderRadius:'10px',
+                                    overflow:'hidden'
+                                }}>
+                                    <table className="g-table">
+                                        <thead>
+                                            <tr>
+                                                {data.headers.map((h, i) => (
+                                                    <th key={i}>{h}</th>
+                                                ))}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {data.table.map((row, i) => (
+                                                <tr key={i}>
+                                                    {row.map((cell, j) => {
+                                                        let cls = '';
+                                                        if (j > 0) {
+                                                            if (cell.includes('+') || cell === '▲') cls = 'g-positive';
+                                                            else if (cell.includes('-') || cell === '▼') cls = 'g-negative';
+                                                            else if (cell === '—') cls = 'g-neutral';
+                                                        }
+                                                        return <td key={j} className={cls}>{cell}</td>;
+                                                    })}
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {/* Footer timestamp */}
+                                <div style={{
+                                    display:'flex', justifyContent:'space-between', alignItems:'center',
+                                    paddingTop:'2px'
+                                }}>
+                                    <span style={{fontSize:'8px', color:'rgba(16,185,129,0.3)', fontFamily:'Share Tech Mono'}}>
+                                        Last refresh: just now
+                                    </span>
+                                    <span style={{fontSize:'8px', color:'rgba(16,185,129,0.3)', fontFamily:'Share Tech Mono'}}>
+                                        veena-datasource
+                                    </span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        /* ══ Main App ══ */
         const VeenaAI = () => {
             const [isListening, setIsListening] = useState(false);
             const [isSpeaking, setIsSpeaking] = useState(false);
@@ -971,22 +1456,17 @@
             const [inputText, setInputText] = useState('');
             const [modelLoaded, setModelLoaded] = useState(false);
             const [loadingProgress, setLoadingProgress] = useState(0);
+            const [panelVisible, setPanelVisible] = useState(false);
+            const [analysisData, setAnalysisData] = useState(null);
+            const [grafanaVisible, setGrafanaVisible] = useState(false);
+
             const messagesEndRef = useRef(null);
             const wsRef = useRef(null);
             
             useEffect(() => {
-                window.addEventListener('vrmLoaded', () => {
-                    setTimeout(() => setModelLoaded(true), 500);
-                });
-                
-                window.addEventListener('vrmLoadProgress', (e) => {
-                    setLoadingProgress(parseInt(e.detail));
-                });
-                
-                window.addEventListener('vrmLoadError', () => {
-                    setModelLoaded(true);
-                });
-                
+                window.addEventListener('vrmLoaded', () => { setTimeout(() => setModelLoaded(true), 500); });
+                window.addEventListener('vrmLoadProgress', (e) => { setLoadingProgress(parseInt(e.detail)); });
+                window.addEventListener('vrmLoadError', () => { setModelLoaded(true); });
                 connectWebSocket();
             }, []);
             
@@ -997,27 +1477,24 @@
             useEffect(() => {
                 window.setVRMState({ isSpeaking, isListening });
             }, [isSpeaking, isListening]);
+
+            useEffect(() => {
+                if (isSpeaking) { setPanelVisible(true); }
+            }, [isSpeaking]);
             
             const connectWebSocket = () => {
                 try {
                     wsRef.current = new WebSocket('ws://localhost:8765');
-                    
-                    wsRef.current.onopen = () => {
-                        setConnectionStatus('connected');
-                    };
-                    
+                    wsRef.current.onopen = () => { setConnectionStatus('connected'); };
                     wsRef.current.onmessage = (event) => {
                         const data = JSON.parse(event.data);
                         handleWebSocketMessage(data);
                     };
-                    
                     wsRef.current.onclose = () => {
                         setConnectionStatus('disconnected');
                         setTimeout(connectWebSocket, 3000);
                     };
-                } catch (error) {
-                    console.error('WebSocket error:', error);
-                }
+                } catch (error) { console.error('WebSocket error:', error); }
             };
             
             const handleWebSocketMessage = (data) => {
@@ -1027,9 +1504,15 @@
                         break;
                     case 'agent_response':
                         setMessages(prev => [...prev, { text: data.text, type: 'agent', timestamp: Date.now() }]);
+                        const analysis = generateAnalysis(data.text);
+                        setAnalysisData(analysis);
+                        setPanelVisible(true);
+                        setGrafanaVisible(true);
                         break;
                     case 'speaking_started':
                         setIsSpeaking(true);
+                        setPanelVisible(true);
+                        setGrafanaVisible(true);
                         break;
                     case 'speaking_finished':
                         setIsSpeaking(false);
@@ -1045,23 +1528,21 @@
             
             const sendMessage = (text) => {
                 if (!text.trim() || connectionStatus !== 'connected') return;
-                
-                const languageInstruction = language === 'hi' 
-                    ? ' [RESPOND IN HINDI - हिंदी में जवाब दें]' 
+                const languageInstruction = language === 'hi'
+                    ? ' [RESPOND IN HINDI - हिंदी में जवाब दें]'
                     : ' [RESPOND IN ENGLISH]';
-                
                 wsRef.current.send(JSON.stringify({
                     type: 'text_input',
                     text: text + languageInstruction,
                     language: language
                 }));
-                
+                setMessages(prev => [...prev, { text, type: 'user', timestamp: Date.now() }]);
+                setPanelVisible(true);
                 setInputText('');
             };
             
             const toggleListening = () => {
                 if (connectionStatus !== 'connected') return;
-                
                 if (isListening) {
                     wsRef.current.send(JSON.stringify({ type: 'stop_listening' }));
                 } else {
@@ -1074,7 +1555,7 @@
                     <LoadingScreen isLoading={!modelLoaded} progress={loadingProgress} />
                     
                     <div id="ui-overlay" className="text-white">
-                        {/* Header */}
+                        {/* ── Header ── */}
                         <header className="m-4">
                             <div className="glass glass-hover rounded-2xl px-6 py-4 flex items-center justify-between neon-border shimmer">
                                 <div className="flex items-center space-x-4">
@@ -1091,40 +1572,20 @@
                                         <p className="text-xs text-gray-400 tracking-widest uppercase">Financial Intelligence</p>
                                     </div>
                                 </div>
-                                
                                 <div className="flex items-center space-x-6">
-                                    {/* Language Toggle */}
                                     <div className="glass rounded-xl p-1 flex items-center">
                                         <button
                                             onClick={() => setLanguage('en')}
-                                            className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${
-                                                language === 'en' 
-                                                    ? 'bg-gradient-to-r from-emerald-600 to-cyan-600 text-white shadow-lg shadow-emerald-500/25' 
-                                                    : 'text-gray-400 hover:text-white'
-                                            }`}
-                                        >
-                                            English
-                                        </button>
+                                            className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${language === 'en' ? 'bg-gradient-to-r from-emerald-600 to-cyan-600 text-white shadow-lg shadow-emerald-500/25' : 'text-gray-400 hover:text-white'}`}
+                                        >English</button>
                                         <button
                                             onClick={() => setLanguage('hi')}
-                                            className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${
-                                                language === 'hi' 
-                                                    ? 'bg-gradient-to-r from-emerald-600 to-cyan-600 text-white shadow-lg shadow-emerald-500/25' 
-                                                    : 'text-gray-400 hover:text-white'
-                                            }`}
-                                        >
-                                            हिंदी
-                                        </button>
+                                            className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${language === 'hi' ? 'bg-gradient-to-r from-emerald-600 to-cyan-600 text-white shadow-lg shadow-emerald-500/25' : 'text-gray-400 hover:text-white'}`}
+                                        >हिंदी</button>
                                     </div>
-                                    
-                                    {/* Connection Status */}
                                     <div className="glass rounded-xl px-4 py-2 flex items-center space-x-3">
-                                        <div className={`relative w-2 h-2 rounded-full ${
-                                            connectionStatus === 'connected' ? 'bg-emerald-500' : 'bg-red-500'
-                                        }`}>
-                                            <div className={`absolute inset-0 rounded-full ${
-                                                connectionStatus === 'connected' ? 'bg-emerald-500' : 'bg-red-500'
-                                            } status-pulse`}></div>
+                                        <div className={`relative w-2 h-2 rounded-full ${connectionStatus === 'connected' ? 'bg-emerald-500' : 'bg-red-500'}`}>
+                                            <div className={`absolute inset-0 rounded-full ${connectionStatus === 'connected' ? 'bg-emerald-500' : 'bg-red-500'} status-pulse`}></div>
                                         </div>
                                         <span className="text-sm text-gray-300 capitalize tracking-wide">{connectionStatus}</span>
                                     </div>
@@ -1132,22 +1593,17 @@
                             </div>
                         </header>
                         
-                        {/* Status Indicators */}
+                        {/* ── Speaking / Listening badges ── */}
                         {modelLoaded && isSpeaking && (
-                            <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 glass rounded-2xl px-8 py-4 flex items-center space-x-4 neon-border">
+                            <div className="fixed top-28 left-6 glass rounded-2xl px-8 py-4 flex items-center space-x-4 neon-border" style={{zIndex: 16}}>
                                 <div className="speaking-wave">
-                                    <span></span>
-                                    <span></span>
-                                    <span></span>
-                                    <span></span>
-                                    <span></span>
+                                    <span></span><span></span><span></span><span></span><span></span>
                                 </div>
                                 <span className="text-lg font-semibold gradient-text">Speaking...</span>
                             </div>
                         )}
-                        
                         {modelLoaded && isListening && (
-                            <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 glass rounded-2xl px-8 py-4 flex items-center space-x-4" style={{border: '1px solid rgba(239, 68, 68, 0.3)'}}>
+                            <div className="fixed top-28 left-6 glass rounded-2xl px-8 py-4 flex items-center space-x-4" style={{border: '1px solid rgba(239, 68, 68, 0.3)', zIndex: 16}}>
                                 <div className="relative">
                                     <div className="w-4 h-4 bg-red-500 rounded-full"></div>
                                     <div className="absolute inset-0 bg-red-500 rounded-full animate-ping opacity-75"></div>
@@ -1155,95 +1611,129 @@
                                 <span className="text-lg font-semibold text-red-400">Listening...</span>
                             </div>
                         )}
-                        
-                        {/* Chat Panel */}
-                        <div className="fixed bottom-6 right-6 w-[380px]">
-                            <div className="glass rounded-3xl p-5 shadow-2xl neon-border">
-                                <div className="flex items-center justify-center mb-4">
-                                    <div className="flex items-center space-x-2">
-                                        <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                                        <h2 className="text-lg font-bold gradient-text tracking-wider" style={{fontFamily: 'Orbitron, sans-serif'}}>
-                                            CONVERSATION
-                                        </h2>
-                                        <div className="w-2 h-2 rounded-full bg-cyan-500"></div>
+
+                        {/* ══ GRAFANA PANEL ══ */}
+                        <GrafanaPanel
+                            data={analysisData}
+                            visible={grafanaVisible}
+                            onClose={() => setGrafanaVisible(false)}
+                        />
+
+                        {/* ══ RIGHT PANEL — Neural Interface ══ */}
+                        <div className={`right-panel ${panelVisible ? 'panel-visible' : ''}`}>
+                            <div className="right-panel-inner">
+                                <MatrixRain />
+
+                                {/* Panel top bar */}
+                                <div className="relative z-10 flex items-center justify-between px-5 py-3 border-b border-white/[0.06]" style={{flexShrink: 0}}>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                        <span className="text-[10px] font-bold tracking-[0.25em] text-emerald-400 uppercase" style={{fontFamily: 'Orbitron, sans-serif'}}>
+                                            Neural Interface
+                                        </span>
+                                        <div className="w-2 h-2 rounded-full bg-cyan-500" />
                                     </div>
+                                    <button
+                                        onClick={() => setPanelVisible(false)}
+                                        className="glass w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-white transition-colors hover:bg-white/10"
+                                        style={{pointerEvents: 'auto'}}
+                                    >
+                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
                                 </div>
-                                
-                                <div className="messages-area space-y-3 mb-4 pr-2">
+
+                                {/* Chat messages */}
+                                <div className="panel-chat-area space-y-3">
                                     {messages.length === 0 && (
-                                        <div className="text-center py-8">
-                                            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 mb-4">
-                                                <span className="text-3xl">👋</span>
+                                        <div className="text-center py-10">
+                                            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 mb-3">
+                                                <span className="text-2xl">👋</span>
                                             </div>
-                                            <p className="text-lg font-medium text-white mb-1">
+                                            <p className="text-base font-medium text-white mb-1">
                                                 {language === 'hi' ? 'नमस्ते!' : 'Hello!'}
                                             </p>
-                                            <p className="text-sm text-gray-400">
-                                                {language === 'hi' 
-                                                    ? 'मैं वीना हूं, आपकी वित्तीय सलाहकार।'
-                                                    : "I'm Veena, your financial advisor."}
+                                            <p className="text-xs text-gray-400">
+                                                {language === 'hi' ? 'मैं वीना हूं, आपकी वित्तीय सलाहकार।' : "I'm Veena, your financial advisor."}
                                             </p>
                                         </div>
                                     )}
-                                    
                                     {messages.map((msg, idx) => (
-                                        <div
-                                            key={idx}
-                                            className={`chat-bubble flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
-                                        >
-                                            <div className={`max-w-[85%] px-4 py-3 text-sm ${
+                                        <div key={idx} className={`chat-bubble flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                            <div className={`max-w-[88%] px-4 py-2.5 text-sm leading-relaxed ${
                                                 msg.type === 'user'
                                                     ? 'bg-gradient-to-r from-emerald-600 to-cyan-600 text-white rounded-2xl rounded-br-md shadow-lg shadow-emerald-500/20'
                                                     : 'glass rounded-2xl rounded-bl-md'
                                             }`}>
                                                 {msg.type === 'agent' && (
-                                                    <p className="text-xs gradient-text mb-1 font-semibold tracking-wide">VEENA</p>
+                                                    <p className="text-[10px] gradient-text mb-1 font-semibold tracking-wider">VEENA</p>
                                                 )}
-                                                <p className="leading-relaxed">{msg.text}</p>
+                                                <p>{msg.text}</p>
                                             </div>
                                         </div>
                                     ))}
                                     <div ref={messagesEndRef} />
                                 </div>
-                                
-                                <div className="flex items-center space-x-2">
+                            </div>
+                        </div>
+
+                        {/* ══ BOTTOM INPUT BAR ══ */}
+                        <div className="bottom-input-bar">
+                            <div className="bottom-input-wrapper">
+                                <div className="bottom-input-field">
+                                    <div className={`w-2 h-2 rounded-full flex-shrink-0 ${connectionStatus === 'connected' ? 'bg-emerald-500' : 'bg-red-500'}`} />
                                     <input
                                         type="text"
                                         value={inputText}
                                         onChange={(e) => setInputText(e.target.value)}
-                                        onKeyPress={(e) => e.key === 'Enter' && sendMessage(inputText)}
-                                        placeholder={language === 'hi' ? 'संदेश टाइप करें...' : 'Type your message...'}
-                                        className="flex-1 glass input-glow rounded-xl px-4 py-3 text-white text-sm placeholder-gray-500 focus:outline-none bg-transparent"
+                                        onKeyDown={(e) => e.key === 'Enter' && sendMessage(inputText)}
+                                        placeholder={language === 'hi' ? 'वीना से पूछें...' : 'Ask Veena anything about finance...'}
                                         disabled={connectionStatus !== 'connected'}
                                     />
                                     <button
+                                        className="send-btn-inner"
                                         onClick={() => sendMessage(inputText)}
-                                        disabled={connectionStatus !== 'connected'}
-                                        className="btn-glow bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 disabled:from-gray-700 disabled:to-gray-700 p-3 rounded-xl transition-all shadow-lg shadow-emerald-500/20"
+                                        disabled={connectionStatus !== 'connected' || !inputText.trim()}
                                     >
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                                         </svg>
                                     </button>
-                                    <button
-                                        onClick={toggleListening}
-                                        disabled={connectionStatus !== 'connected'}
-                                        className={`btn-glow p-3 rounded-xl transition-all shadow-lg ${
-                                            isListening 
-                                                ? 'bg-red-600 hover:bg-red-500 shadow-red-500/20' 
-                                                : 'glass hover:bg-white/10'
-                                        } disabled:bg-gray-800`}
-                                    >
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                </div>
+
+                                {/* Mic */}
+                                <button
+                                    className={`mic-btn ${isListening ? 'listening' : ''}`}
+                                    onClick={toggleListening}
+                                    disabled={connectionStatus !== 'connected'}
+                                >
+                                    {isListening ? (
+                                        <svg className="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M6 6h12v12H6z" />
+                                        </svg>
+                                    ) : (
+                                        <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                                         </svg>
-                                    </button>
-                                </div>
+                                    )}
+                                </button>
+
+                                {/* Toggle chat panel */}
+                                <button
+                                    onClick={() => setPanelVisible(v => !v)}
+                                    className={`mic-btn ${panelVisible ? 'listening' : ''}`}
+                                    title="Toggle chat panel"
+                                >
+                                    <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                    </svg>
+                                </button>
                             </div>
                         </div>
                         
                         {/* Bottom Left Info */}
-                        <div className="fixed bottom-6 left-6">
+                        <div className="fixed bottom-24 left-6" style={{zIndex: 16}}>
                             <div className="glass rounded-2xl px-5 py-3 neon-border">
                                 <p className="text-xs text-gray-400 tracking-widest uppercase mb-1">Powered by</p>
                                 <p className="text-sm font-semibold gradient-text">Advanced AI Technology</p>
@@ -1253,7 +1743,7 @@
                 </>
             );
         };
-
+        
         ReactDOM.createRoot(document.getElementById('root')).render(<VeenaAI />);
     </script>
 </body>
