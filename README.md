@@ -31,6 +31,7 @@
 
 [**Quick Start**](#-quick-start) · [**Architecture**](#-architecture) · [**Features**](#-features) · [**API**](#-websocket-api) · [**Troubleshooting**](#-troubleshooting)
 
+![Veena AI Demo](demo/Screenshot 2026-04-12 122029.png)
 ---
 
 </div>
