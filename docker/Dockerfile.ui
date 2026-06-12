@@ -1,0 +1,29 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# System dependencies for Kivy and Audio
+RUN apt-get update && apt-get install -y \
+    python3-dev \
+    libsdl2-dev \
+    libsdl2-image-dev \
+    libsdl2-mixer-dev \
+    libsdl2-ttf-dev \
+    libportmidi-dev \
+    libswscale-dev \
+    libavformat-dev \
+    libavcodec-dev \
+    zlib1g-dev \
+    portaudio19-dev \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY ui/ /app/ui/
+COPY backend/core/ /app/backend/core/
+
+ENV PYTHONPATH=/app
+# Typically UI runs on host for display access, but if in docker, needs X11 forwarding setup
+CMD ["python", "ui/main.py"]
