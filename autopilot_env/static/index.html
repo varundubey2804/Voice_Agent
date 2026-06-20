@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoPilot-Env++ Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .log-container { font-family: 'Courier New', Courier, monospace; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-indigo-600 text-white shadow-md z-10 p-4 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-robot text-2xl"></i>
+            <h1 class="text-xl font-bold tracking-wider">AutoPilot-Env++</h1>
+        </div>
+        <div class="flex space-x-4 items-center">
+            <span id="system-time" class="text-sm font-medium bg-indigo-700 px-3 py-1 rounded-full"><i class="fa-regular fa-clock mr-1"></i> 09:00</span>
+            <span id="reward-score" class="text-sm font-medium bg-green-500 px-3 py-1 rounded-full shadow-inner">Reward: 0.00</span>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex overflow-hidden">
+
+        <!-- Sidebar Controls & Real Email Auth -->
+        <aside class="w-80 glass-panel shadow-lg flex flex-col z-0 border-r border-gray-200">
+            <div class="p-6 border-b border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4"><i class="fa-solid fa-gamepad mr-2 text-indigo-500"></i>Simulation Control</h2>
+
+                <label class="block text-sm font-medium text-gray-700 mb-1">Scenario Task</label>
+                <select id="task-select" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 p-2.5 mb-4">
+                    <option value="triage_emails">Easy: Triage Emails</option>
+                    <option value="extract_tasks">Medium: Extract Tasks</option>
+                    <option value="full_workflow">Hard: Full Workflow</option>
+                </select>
+
+                <button id="btn-reset" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm px-5 py-2.5 transition-colors shadow-sm mb-2">
+                    <i class="fa-solid fa-rotate-right mr-2"></i>Reset Environment
+                </button>
+            </div>
+
+            <!-- Real Email Integration -->
+            <div class="p-6 flex-1 overflow-y-auto">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4"><i class="fa-solid fa-envelope-circle-check mr-2 text-blue-500"></i>Real Mail Integration</h2>
+                <p class="text-xs text-gray-500 mb-4">Ingest real emails from your inbox using IMAP.</p>
+
+                <form id="imap-form" class="space-y-3">
+                    <div>
+                        <input type="email" id="imap-user" placeholder="Email Address" required class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2">
+                    </div>
+                    <div>
+                        <input type="password" id="imap-pass" placeholder="App Password" required class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2">
+                    </div>
+                    <div>
+                        <input type="text" id="imap-server" placeholder="IMAP Server (e.g. imap.gmail.com)" required value="imap.gmail.com" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2">
+                    </div>
+                    <button type="submit" id="btn-ingest" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg text-sm px-5 py-2.5 transition-colors shadow-sm mt-2 flex justify-center items-center">
+                        <i class="fa-solid fa-cloud-arrow-down mr-2"></i>Ingest Latest Mails
+                    </button>
+                </form>
+                <div id="imap-status" class="text-xs mt-2 hidden"></div>
+            </div>
+        </aside>
+
+        <!-- Dashboard Workspace -->
+        <section class="flex-1 flex flex-col p-6 space-y-6 overflow-y-auto bg-gray-50">
+
+            <div class="grid grid-cols-2 gap-6 h-1/2 min-h-[300px]">
+
+                <!-- Email Inbox -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
+                    <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+                        <h3 class="font-semibold text-gray-700"><i class="fa-solid fa-inbox mr-2 text-gray-500"></i>Inbox</h3>
+                        <span id="email-count" class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded-full">0</span>
+                    </div>
+                    <div id="email-list" class="flex-1 overflow-y-auto p-2 space-y-2">
+                        <!-- Email Items populated by JS -->
+                        <div class="text-center text-gray-400 py-10 text-sm">No emails loaded</div>
+                    </div>
+                </div>
+
+                <!-- Task List -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
+                    <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+                        <h3 class="font-semibold text-gray-700"><i class="fa-solid fa-list-check mr-2 text-gray-500"></i>Tasks</h3>
+                        <span id="task-count" class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded-full">0</span>
+                    </div>
+                    <div id="task-list" class="flex-1 overflow-y-auto p-2 space-y-2">
+                        <!-- Task Items populated by JS -->
+                        <div class="text-center text-gray-400 py-10 text-sm">No tasks pending</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Agent Logs / Last Action -->
+            <div class="bg-gray-900 rounded-xl shadow-md flex flex-col flex-1 min-h-[250px] border border-gray-800">
+                <div class="bg-gray-800 px-4 py-2 border-b border-gray-700 flex justify-between items-center">
+                    <h3 class="font-semibold text-gray-300 text-sm"><i class="fa-solid fa-terminal mr-2 text-green-400"></i>Agent Activity Log</h3>
+                    <button id="btn-step" class="bg-green-600 hover:bg-green-500 text-white text-xs font-bold py-1 px-3 rounded transition-colors hidden">
+                        Step Agent
+                    </button>
+                </div>
+                <div id="action-log" class="p-4 flex-1 overflow-y-auto log-container text-xs text-green-400 space-y-1">
+                    <div>> Environment initialized. Awaiting system start.</div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
