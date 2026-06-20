@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jane Doe | Professional Network</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="flex items-center">
+        <a href="index.html" class="nav-brand">
+          <i class="fab fa-linkedin" style="font-size: 2rem;"></i>
+        </a>
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search">
+        </div>
+      </div>
+
+      <div class="nav-links">
+        <a href="index.html" class="nav-item">
+          <i class="fas fa-home"></i>
+          <span>Home</span>
+        </a>
+        <a href="connections.html" class="nav-item">
+          <i class="fas fa-user-friends"></i>
+          <span>My Network</span>
+        </a>
+        <a href="notifications.html" class="nav-item">
+          <i class="fas fa-bell"></i>
+          <span>Notifications</span>
+          <span class="badge">3</span>
+        </a>
+        <a href="profile.html" class="nav-item active">
+          <img src="https://i.pravatar.cc/150?u=jane" alt="Profile" style="width: 24px; height: 24px; border-radius: 50%; margin-bottom: 2px;">
+          <span>Me <i class="fas fa-caret-down"></i></span>
+        </a>
+        <button id="themeToggle" class="theme-toggle">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Layout -->
+  <div class="container main-layout" style="grid-template-columns: minmax(0, 1fr) 300px;">
+
+    <!-- Profile Main -->
+    <main class="main-feed">
+      <div class="card profile-header">
+        <div class="profile-cover" style="height: 200px;"></div>
+        <div class="card-body" style="position: relative; padding-top: 0;">
+          <img src="https://i.pravatar.cc/150?u=jane" alt="Jane Doe" class="profile-avatar" style="width: 150px; height: 150px; margin: -75px 0 16px 0; border-width: 4px;">
+
+          <div class="flex justify-between items-start">
+            <div>
+              <h1 class="font-bold" style="font-size: 1.5rem;">Jane Doe</h1>
+              <p class="text-lg">Senior Frontend Engineer | UI/UX Designer</p>
+              <p class="text-secondary text-sm mt-1">San Francisco, California, United States • <a href="#" class="font-semibold">Contact info</a></p>
+              <p class="text-primary font-semibold text-sm mt-2">500+ connections</p>
+            </div>
+            <div class="text-right">
+              <div class="flex items-center gap-2 font-semibold">
+                <i class="fas fa-building text-secondary"></i> TechCorp
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 flex gap-2">
+            <button class="btn btn-primary">Open to</button>
+            <button class="btn btn-outline">Add profile section</button>
+            <button class="btn btn-outline" style="border-color: var(--border-color); color: var(--text-secondary);">More</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-body mt-4">
+        <h3 class="font-semibold text-lg mb-2">About</h3>
+        <p class="text-sm">Passionate and detail-oriented Frontend Engineer with over 5 years of experience building modern, responsive, and user-friendly web applications. Skilled in HTML, CSS, JavaScript, and various frontend frameworks. Always looking for opportunities to create impactful and visually stunning digital experiences.</p>
+      </div>
+
+      <div class="card card-body mt-4">
+        <h3 class="font-semibold text-lg mb-4">Experience</h3>
+
+        <div class="flex gap-4 mb-6">
+          <div style="width: 48px; height: 48px; background-color: var(--bg-input); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;"><i class="fas fa-laptop-code text-secondary"></i></div>
+          <div>
+            <h4 class="font-semibold text-md">Senior Frontend Engineer</h4>
+            <p class="text-sm">TechCorp</p>
+            <p class="text-xs text-secondary mb-2">Jan 2021 - Present • 3 yrs 9 mos</p>
+            <p class="text-sm">Lead the frontend development team in building a modern SaaS platform. Improved performance and user engagement significantly.</p>
+          </div>
+        </div>
+
+        <hr style="border: none; border-top: 1px solid var(--border-color); margin-bottom: 24px;">
+
+        <div class="flex gap-4">
+          <div style="width: 48px; height: 48px; background-color: var(--bg-input); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;"><i class="fas fa-pencil-ruler text-secondary"></i></div>
+          <div>
+            <h4 class="font-semibold text-md">UI/UX Designer</h4>
+            <p class="text-sm">DesignStudio</p>
+            <p class="text-xs text-secondary mb-2">Jun 2018 - Dec 2020 • 2 yrs 7 mos</p>
+            <p class="text-sm">Created wireframes, prototypes, and high-fidelity designs for various client projects.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Right Panel -->
+    <aside class="right-panel">
+      <div class="card card-body">
+        <h3 class="widget-title">People you may know</h3>
+
+        <div id="suggestionsContainer">
+          <!-- Suggestions injected by JS -->
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

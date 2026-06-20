@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Network | Professional Network</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="flex items-center">
+        <a href="index.html" class="nav-brand">
+          <i class="fab fa-linkedin" style="font-size: 2rem;"></i>
+        </a>
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search">
+        </div>
+      </div>
+
+      <div class="nav-links">
+        <a href="index.html" class="nav-item">
+          <i class="fas fa-home"></i>
+          <span>Home</span>
+        </a>
+        <a href="connections.html" class="nav-item active">
+          <i class="fas fa-user-friends"></i>
+          <span>My Network</span>
+        </a>
+        <a href="notifications.html" class="nav-item">
+          <i class="fas fa-bell"></i>
+          <span>Notifications</span>
+          <span class="badge">3</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+          <img src="https://i.pravatar.cc/150?u=jane" alt="Profile" style="width: 24px; height: 24px; border-radius: 50%; margin-bottom: 2px;">
+          <span>Me <i class="fas fa-caret-down"></i></span>
+        </a>
+        <button id="themeToggle" class="theme-toggle">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Layout -->
+  <div class="container main-layout">
+
+    <!-- Left Sidebar -->
+    <aside class="left-sidebar">
+      <div class="card">
+        <div class="card-body">
+          <h3 class="font-semibold text-md mb-4">Manage my network</h3>
+          <ul class="flex-col gap-4">
+            <li class="flex justify-between items-center text-secondary cursor-pointer hover-text-primary">
+              <span class="flex items-center gap-3"><i class="fas fa-user-friends" style="width: 20px;"></i> Connections</span>
+              <span class="font-semibold text-primary">500</span>
+            </li>
+            <li class="flex justify-between items-center text-secondary cursor-pointer hover-text-primary">
+              <span class="flex items-center gap-3"><i class="fas fa-address-book" style="width: 20px;"></i> Contacts</span>
+              <span class="font-semibold text-primary">1,234</span>
+            </li>
+            <li class="flex justify-between items-center text-secondary cursor-pointer hover-text-primary">
+              <span class="flex items-center gap-3"><i class="fas fa-users" style="width: 20px;"></i> Groups</span>
+              <span class="font-semibold text-primary">5</span>
+            </li>
+            <li class="flex justify-between items-center text-secondary cursor-pointer hover-text-primary">
+              <span class="flex items-center gap-3"><i class="far fa-calendar-alt" style="width: 20px;"></i> Events</span>
+              <span class="font-semibold text-primary">2</span>
+            </li>
+            <li class="flex justify-between items-center text-secondary cursor-pointer hover-text-primary">
+              <span class="flex items-center gap-3"><i class="far fa-building" style="width: 20px;"></i> Pages</span>
+              <span class="font-semibold text-primary">12</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Feed -->
+    <main class="main-feed" style="grid-column: span 2;">
+      <div class="card">
+        <div class="card-body flex justify-between items-center" style="border-bottom: 1px solid var(--border-color);">
+          <h3 class="font-semibold text-lg">Invitations</h3>
+          <button class="btn btn-ghost text-primary text-sm font-semibold">Manage</button>
+        </div>
+
+        <div class="card-body">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-4">
+              <img src="https://i.pravatar.cc/150?u=mark" alt="Mark" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;">
+              <div>
+                <h4 class="font-semibold text-md">Mark Taylor</h4>
+                <p class="text-xs text-secondary">Backend Developer at WebSolutions</p>
+                <p class="text-xs text-secondary mt-1"><i class="fas fa-link"></i> 5 mutual connections</p>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn btn-ghost text-secondary" onclick="showToast('Invitation ignored')">Ignore</button>
+              <button class="btn btn-outline" onclick="showToast('Invitation accepted')">Accept</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mt-4">
+        <div class="card-body">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-semibold text-lg">Your Connections</h3>
+            <span class="text-sm text-secondary">Sort by: <span class="font-semibold text-primary cursor-pointer">Recently added <i class="fas fa-caret-down"></i></span></span>
+          </div>
+
+          <div id="connectionsContainer" class="connections-grid">
+            <!-- Connections injected by JS -->
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

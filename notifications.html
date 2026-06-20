@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notifications | Professional Network</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="flex items-center">
+        <a href="index.html" class="nav-brand">
+          <i class="fab fa-linkedin" style="font-size: 2rem;"></i>
+        </a>
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search">
+        </div>
+      </div>
+
+      <div class="nav-links">
+        <a href="index.html" class="nav-item">
+          <i class="fas fa-home"></i>
+          <span>Home</span>
+        </a>
+        <a href="connections.html" class="nav-item">
+          <i class="fas fa-user-friends"></i>
+          <span>My Network</span>
+        </a>
+        <a href="notifications.html" class="nav-item active">
+          <i class="fas fa-bell"></i>
+          <span>Notifications</span>
+          <span class="badge">3</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+          <img src="https://i.pravatar.cc/150?u=jane" alt="Profile" style="width: 24px; height: 24px; border-radius: 50%; margin-bottom: 2px;">
+          <span>Me <i class="fas fa-caret-down"></i></span>
+        </a>
+        <button id="themeToggle" class="theme-toggle">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Layout -->
+  <div class="container main-layout">
+
+    <!-- Left Sidebar -->
+    <aside class="left-sidebar">
+      <div class="card">
+        <div class="card-body">
+          <h3 class="font-semibold text-md mb-2">Manage your Notifications</h3>
+          <p class="text-primary font-semibold text-sm cursor-pointer hover-text-primary">View Settings</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Feed -->
+    <main class="main-feed">
+      <div class="card">
+        <div class="card-body flex gap-2" style="border-bottom: 1px solid var(--border-color);">
+          <button class="btn btn-primary" style="padding: 4px 12px;">All</button>
+          <button class="btn btn-outline" style="padding: 4px 12px; color: var(--text-secondary); border-color: var(--border-color);">My posts</button>
+          <button class="btn btn-outline" style="padding: 4px 12px; color: var(--text-secondary); border-color: var(--border-color);">Mentions</button>
+        </div>
+
+        <div id="notificationsContainer">
+          <!-- Notifications injected by JS -->
+        </div>
+      </div>
+    </main>
+
+    <!-- Right Panel -->
+    <aside class="right-panel">
+      <div class="card card-body text-center">
+        <h3 class="font-semibold text-md mb-2">NetworkIn Premium</h3>
+        <p class="text-sm text-secondary mb-4">See who's viewed your profile and get 5x more insights.</p>
+        <button class="btn btn-outline text-sm" style="color: #c37d16; border-color: #c37d16;">Try for free</button>
+      </div>
+    </aside>
+
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
