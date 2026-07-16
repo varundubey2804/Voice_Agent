@@ -573,3 +573,19 @@ def analyze_insurance_gap(investments: float, insurance_cover: float, annual_inc
                 f"Under-insured by ₹{shortfall:,.0f}.\n"
                 f"Increasing cover saves ~₹{tax_benefit:,.2f} in taxes (80C).")
     return "✅ Your insurance cover is adequate. Good job!"
+
+# ── 9. Therapy Mode ─────────────────────────────────────────────────────────
+
+def therapy_mode(input_str: str) -> str:
+    """
+    Therapy Mode: Provides a comforting, empathetic response to help the user destress.
+    """
+    return (
+        "Therapy Mode Activated 🌿\n\n"
+        "Take a deep breath. It's completely normal to feel overwhelmed sometimes, especially "
+        "when dealing with finances and investments.\n\n"
+        "Remember that you don't have to figure everything out today. The market will always be there, "
+        "and so will these tools.\n\n"
+        "Close your eyes, take three deep breaths, and let's step away from the numbers for a moment. "
+        "When you're ready, we can take things one small step at a time. I'm here to support you."
+    )
