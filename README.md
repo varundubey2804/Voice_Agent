@@ -94,6 +94,7 @@ Built for hackathon speed, designed for production scale.
 | **Agent Dashboard** | Policy management · Supabase sync · search & filter |
 | **Auth System** | Separate customer / agent login flows |
 | **Real-time** | Full-duplex WebSocket on `ws://localhost:8765` |
+| **Therapy Mode** | Empathetic emotional support to help users destress |
 
 ---
 
@@ -211,7 +212,17 @@ models/
 └── agent.vrm   # Agent dashboard avatar
 ```
 
-### 5 — Run
+### 5 — Qualcomm AI Hub Integration (Snapdragon X Elite)
+
+To secure extreme speed on the edge and leverage the NPU, you can compile the Whisper model to ONNX using Qualcomm AI Hub:
+
+```bash
+pip install qai-hub-models[whisper_base_en]
+python compile_whisper.py
+```
+This script pulls the quantized Whisper model down to your laptop, allowing you to run STT on the Hexagon NPU using `onnxruntime-qnn`.
+
+### 6 — Run
 
 ```bash
 # Terminal 1: Ollama (if not already running)

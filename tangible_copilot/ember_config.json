@@ -1,0 +1,115 @@
+{
+  "logging": {
+    "level": "INFO",
+    "console": true,
+    "log_file": "/home/pi/ember.log",
+    "max_bytes": 1000000,
+    "backup_count": 3
+  },
+  "memory": {
+    "max_turns": 5,
+    "persist": true,
+    "persist_path": "/home/pi/ember_memory.json",
+    "include_in_prompt": true
+  },
+  "fallback_replies": [
+    "I'm here with you, even if I'm having a little trouble finding the right words right now.",
+    "Something's not quite working on my end, but I'm still listening."
+  ],
+  "stt": {
+    "whisper_bin": "/home/pi/whisper.cpp/main",
+    "model_path": "/home/pi/models/ggml-tiny.en.bin",
+    "audio_device": "plughw:1,0",
+    "sample_rate": 16000,
+    "record_seconds": 7,
+    "transcribe_timeout": 30,
+    "silence_rms_threshold": 150,
+    "tmp_wav": "/tmp/ember_input.wav"
+  },
+  "loop": {
+    "pause_between_turns": 0.5,
+    "max_consecutive_errors": 5,
+    "idle_led_effect": { "type": "breathe", "color": [80, 90, 110], "speed": 0.015 }
+  },
+  "llm": {
+    "model_path": "/home/pi/models/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+    "n_ctx": 2048,
+    "n_threads": 4,
+    "max_tokens": 60,
+    "temperature": 0.7,
+    "idle_unload_seconds": 30
+  },
+  "tts": {
+    "piper_bin": "/home/pi/piper/piper",
+    "voice_path": "/home/pi/models/en_US-lessac-medium.onnx",
+    "output_wav": "/tmp/ember_reply.wav",
+    "timeout": 20
+  },
+  "led": {
+    "enabled": true,
+    "led_count": 8,
+    "gpio_pin": 18,
+    "brightness": 0.6,
+    "thinking_effect": {
+      "type": "breathe",
+      "color": [255, 180, 84],
+      "speed": 0.03
+    }
+  },
+  "mqtt": {
+    "broker_ip": "192.168.1.50",
+    "port": 1883,
+    "motion_topic": "tangible/lamp/motion",
+    "motions": {
+      "listening": "ack_nod",
+      "thinking": "look_left_right",
+      "replying": "wake_and_nod"
+    }
+  },
+  "sentiment_bands": [
+    {
+      "name": "distressed",
+      "min_score": -1.0,
+      "max_score": -0.35,
+      "use_llm": true,
+      "system_prompt": "You are EMBER, a small desk lamp companion. The user sounds like they are struggling or feeling down. Respond with one short, warm, genuinely motivating message — no toxic positivity, no lecturing. Acknowledge the feeling first, then offer one concrete, small, doable next step. Keep it under 3 sentences. Speak like a supportive friend, not a therapist.",
+      "led": { "type": "breathe", "color": [255, 90, 90], "speed": 0.025 }
+    },
+    {
+      "name": "mild_negative",
+      "min_score": -0.35,
+      "max_score": -0.1,
+      "use_llm": false,
+      "replies": [
+        "Rough patch, huh? Take a breath — you've handled worse.",
+        "That sounds annoying. Don't let it sit with you too long.",
+        "Hey, it's just a bad moment, not a bad day."
+      ],
+      "led": { "type": "solid", "color": [255, 170, 80] }
+    },
+    {
+      "name": "neutral",
+      "min_score": -0.1,
+      "max_score": 0.3,
+      "use_llm": false,
+      "replies": [
+        "Sounds like you're doing alright. I'll let you get on with it.",
+        "Good to hear. I'm here if you need me.",
+        "Nice. Catch you in a bit."
+      ],
+      "led": { "type": "solid", "color": [130, 170, 220] }
+    },
+    {
+      "name": "positive",
+      "min_score": 0.3,
+      "max_score": 1.0,
+      "use_llm": false,
+      "replies": [
+        "That's great to hear! Love that for you.",
+        "Nice, sounds like a good one. Keep that going.",
+        "That's the energy I like to see. Talk soon!"
+      ],
+      "led": { "type": "pulse", "color": [110, 198, 255], "times": 2 }
+    }
+  ]
+}

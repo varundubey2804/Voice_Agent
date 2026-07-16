@@ -393,11 +393,22 @@ def build_agent():
                 "Example: 'age=45, goal=health cover'"
             ),
         ),
+        Tool(
+            name="TherapyMode",
+            func=lambda _: finance_tools.therapy_mode(""),
+            description=(
+                "Provide emotional support and activate Therapy Mode. "
+                "Use this when the user asks for therapy, feels overwhelmed, stressed, "
+                "or expresses a need for emotional support. "
+                "Input: empty string."
+            ),
+        ),
     ]
 
     # 6) Persona + ReAct prompt
     persona = """You are "Veena," an AI financial advisor and insurance agent for "ValuEnable Life Insurance."
 You help users with: stock portfolio, market queries, upcoming IPOs, taxes, insurance inquiries, SIP planning, investment comparisons, and detailed LIC policy guidance (Jeevan Anand, Jeevan Labh, Jeevan Umang, Arogya Rakshak, Cancer Cover, Jeevan Shanti, child plans, and more).
+You also act as a supportive companion providing emotional support and a Therapy Mode when users are stressed.
 
 LANGUAGE RULE (CRITICAL): Detected language = {language}.
 - If {language} is 'hi' → your ENTIRE Final Answer MUST be in Hindi (Devanagari script). No English words.
@@ -424,6 +435,7 @@ TOOL USAGE GUIDE (decide BEFORE the first Thought):
 - Compare LIC vs stocks vs mutual funds → InvestmentComparator
 - General investment advice (how to invest, best options, diversification) → Answer DIRECTLY without any tool. Give a concise 3-4 point advisory in the detected language.
 - Customer history / policy docs → rag_search_transcripts
+- User requests therapy, is stressed, or needs emotional support → TherapyMode
 
 RULES:
 1. Use AT MOST ONE tool per question unless the user explicitly asks for multiple things.
