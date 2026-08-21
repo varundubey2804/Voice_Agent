@@ -13,6 +13,7 @@ import sys
 from pathlib import Path
 
 from langchain_community.vectorstores import FAISS
+# ✅ CHANGED: Use Ollama here too
 from langchain_ollama import OllamaEmbeddings
 from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -22,6 +23,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 # ──────────────────────────────
 DOCS_FOLDER      = "rag_docs"
 FAISS_PATH       = "faiss_rag.index"
+EMBED_MODEL_NAME = "nomic-embed-text"
 EMBED_MODEL_NAME = "nomic-embed-text"
 CHUNK_SIZE       = 500
 CHUNK_OVERLAP    = 50
