@@ -4,3 +4,6 @@ venv/
 .env
 faiss_rag.index/
 .env
+.env
+.env.*
+!.env.example
