@@ -1,0 +1,49 @@
+[project]
+name = "veena-voice"
+version = "0.1.0"
+description = "Veena — streaming LLM + TTS voice wellness companion (voice_engine.py runtime)"
+requires-python = ">=3.10"
+dependencies = [
+    # LLM / agent stack
+    #
+    # NOTE ON LANGCHAIN VERSIONING: as of LangChain 1.0, the legacy
+    # AgentExecutor / create_react_agent / ConversationBufferMemory APIs
+    # (which generic_agent.py uses) were pulled out of the main `langchain`
+    # package and moved into a separate `langchain-classic` package.
+    # `langchain>=0.2` with no upper bound resolves to the newest 1.x,
+    # which no longer has langchain.memory / langchain.agents at all —
+    # hence `langchain-classic` being required alongside it below, and
+    # generic_agent.py importing from `langchain_classic.*` instead of
+    # `langchain.*` for those specific symbols.
+    "langchain>=0.2",
+    "langchain-classic>=1.0",
+    "langchain-openai>=0.1",
+    "langchain-community>=0.2",
+    "langchain-ollama>=0.1",     # only needed if you keep faiss_path / EpicWisdomSearch
+    "faiss-cpu>=1.8",            # only needed if you keep faiss_path / EpicWisdomSearch
+    # TTS
+    "edge-tts>=6.1",
+    "pygame>=2.5",
+    # Thread storage
+    "cryptography>=42.0",
+    # Config / env
+    "python-dotenv>=1.0",
+    # STT + mic capture + VAD (voice_engine.py's actual imports)
+    "numpy",
+    "pyaudio",
+    "soundfile",
+    "faster-whisper",
+    "webrtcvad-wheels",          # optional at runtime — voice_engine.py falls
+    # back to an RMS-energy VAD if this is absent.
+    # Using the -wheels fork (not plain `webrtcvad`)
+    # deliberately: the original PyPI package ships
+    # no prebuilt wheel and its build silently fails
+    # on most current systems (Python 3.12+ included).
+    # This fork is a drop-in replacement — same
+    # `import webrtcvad` in code, just installable.
+    "llama-cpp-python>=0.3.35",
+]
+
+[tool.uv]
+# Nothing custom needed yet — placeholder so `uv sync` has an obvious home
+# for future settings (e.g. index URLs) without touching setup_linux.sh.
